@@ -331,7 +331,8 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
     <div class="join"><input type="text" id="codeIn" placeholder="CODE" maxlength="5" autocomplete="off" aria-label="Lobby code"><button id="bJoin" type="button">Join</button></div>
     <p id="menuErr" hidden></p>
     <div class="links"><button id="bLocker" type="button">Locker</button><button id="bAch" type="button">Stickers</button><button id="bHow" type="button">How to play</button></div>
-    <p class="note">Hosting gives you a 5-letter code. Friends open this same page, type the code, and press Join (up to 10 per lobby, bots included). <span class="tokens"><span id="menuTokens">0</span> tokens</span></p>
+    <p class="note" id="mpNote">Hosting gives you a 5-letter code. Friends open this same page, type the code, and press Join (up to 10 per lobby, bots included).</p>
+    <p class="note tokens" style="margin:0"><span id="menuTokens">0</span> arcade tokens</p>
   </div>
 </div>
 
@@ -1476,20 +1477,66 @@ function updateLights(dt) {
 
 /* ============ networking ============ */
 const NET = { solo: true, isHost: true, room: null, me: 'me', code: '', acts: [], seq: 0, seen: {}, hostPeer: null, hostSeenAt: 0, sendT: 0, gT: 0, peerCache: [] };
-async function getRoomCap() { try { if (!window.claude || !window.claude.use) return null; return await window.claude.use('room'); } catch (e) { return null; } }
+const IN_CLAUDE = !!(window.claude && window.claude.use);
+const GH_URL = 'https://gmeyer301.github.io/Chad/liminal-work/';
+async function getRoomCap() { try { if (!IN_CLAUDE) return null; return await window.claude.use('room'); } catch (e) { return null; } }
 function hookRoom() {
   NET.room.onPeers(ch => { ch.peers.forEach(p => { if (p.sameTab) NET.me = p.peer; }); ch.joined.forEach(p => { if (!p.sameTab && p.presence && p.presence.n) toast((p.presence.n || 'Someone') + ' joined'); }); ch.left.forEach(p => { if (!p.sameTab) toast(((p.presence && p.presence.n) || 'Someone') + ' left'); }); },
-    e => { toast('Lost connection to the lobby.', 'bad'); });
+    e => { toast((e && e.message) || 'Lost connection to the lobby.', 'bad'); });
 }
+/* ---- direct player-to-player multiplayer (used outside claude.ai, e.g. GitHub Pages) ----
+   The host's browser is the hub: everyone sends it their state, and it sends everyone's state back out. */
+function loadPeerJS() {
+  if (window.Peer) return Promise.resolve();
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'; s.onload = () => res(); s.onerror = () => rej(new Error('Couldn\'t load the multiplayer system. Check your internet and try again.')); document.head.appendChild(s); });
+}
+const PEER_OPTS = { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }] } };
+const NO_LOBBY = code => 'No lobby found with code ' + code + '. Check the code and make sure the host is in the game.';
+async function p2pRoom(code, host) {
+  await loadPeerJS();
+  const hid = 'liminalwork-' + code.toLowerCase();
+  const R = { myId: null, myPres: {}, others: new Map(), conns: new Map(), hostConn: null, cbs: [], errCbs: [], prev: new Map(), closed: false };
+  const peer = await new Promise((res, rej) => { const p = host ? new Peer(hid, PEER_OPTS) : new Peer(PEER_OPTS); const to = setTimeout(() => { try { p.destroy(); } catch (e) { } rej(new Error('Couldn\'t reach the multiplayer server. Try again in a moment.')); }, 12000);
+    p.on('open', () => { clearTimeout(to); res(p); }); p.on('error', e => { clearTimeout(to); try { p.destroy(); } catch (er) { } rej(new Error(e.type === 'unavailable-id' ? 'TAKEN' : 'Multiplayer error (' + (e.type || 'unknown') + '). Try again.')); }); });
+  R.peer = peer; R.myId = peer.id;
+  R.peers = () => [{ peer: R.myId, sameTab: true, isMe: true, kind: 'viewer', guest: false, presence: R.myPres }, ...[...R.others.entries()].map(([k, v]) => ({ peer: k, sameTab: false, isMe: false, kind: 'viewer', guest: false, presence: v }))];
+  const emit = () => { const ps = R.peers(); const ids = new Set(ps.map(p => p.peer)); const joined = ps.filter(p => !R.prev.has(p.peer)); const left = [...R.prev.values()].filter(p => !ids.has(p.peer)); R.prev = new Map(ps.map(p => [p.peer, p])); if (joined.length || left.length) R.cbs.forEach(cb => { try { cb({ peers: ps, joined, left, updated: [] }); } catch (e) { } }); };
+  R.onPeers = (cb, err) => { R.cbs.push(cb); if (err) R.errCbs.push(err); setTimeout(emit, 0); return () => { }; };
+  R.fail = msg => { if (R.closed) return; R.errCbs.forEach(f => f({ code: 'upstream_error', message: msg })); };
+  peer.on('error', e => { if (R.closed) return; if (e.type === 'peer-unavailable') return; if (e.type === 'network' || e.type === 'server-error' || e.type === 'socket-error') { try { peer.reconnect(); } catch (er) { } } });
+  if (host) {
+    peer.on('connection', c => {
+      c.on('open', () => { if (R.conns.size >= 9) { try { c.send({ t: 'full' }); } catch (e) { } setTimeout(() => c.close(), 600); return; } R.conns.set(c.peer, c); });
+      c.on('data', d => { if (d && d.t === 'p' && d.pr && typeof d.pr === 'object' && R.conns.has(c.peer)) R.others.set(c.peer, d.pr); });
+      const drop = () => { R.conns.delete(c.peer); R.others.delete(c.peer); emit(); }; c.on('close', drop); c.on('error', drop);
+    });
+    peer.on('disconnected', () => { if (!R.closed) try { peer.reconnect(); } catch (e) { } });
+    R.bcast = setInterval(() => { const all = {}; all[R.myId] = R.myPres; R.others.forEach((v, k) => all[k] = v); R.conns.forEach(c => { if (c.open) try { c.send({ t: 'all', all }); } catch (e) { } }); emit(); }, 80);
+  } else {
+    const c = peer.connect(hid, { reliable: true }); R.hostConn = c;
+    await new Promise((res, rej) => { const to = setTimeout(() => { R.closed = true; try { peer.destroy(); } catch (e) { } rej(new Error(NO_LOBBY(code))); }, 12000);
+      c.on('open', () => { clearTimeout(to); res(); }); peer.on('error', e => { if (e.type === 'peer-unavailable') { clearTimeout(to); R.closed = true; try { peer.destroy(); } catch (er) { } rej(new Error(NO_LOBBY(code))); } }); });
+    c.on('data', d => { if (!d) return; if (d.t === 'full') { R.full = true; return; } if (d.t === 'all' && d.all) { R.others.clear(); Object.entries(d.all).forEach(([k, v]) => { if (k !== R.myId && v) R.others.set(k, v); }); emit(); } });
+    c.on('close', () => { R.others.clear(); emit(); R.fail('Lost connection to the host.'); });
+  }
+  R.presence = async patch => { Object.keys(patch).forEach(k => { if (patch[k] === null) delete R.myPres[k]; else R.myPres[k] = patch[k]; }); if (!host && R.hostConn && R.hostConn.open) { try { R.hostConn.send({ t: 'p', pr: R.myPres }); } catch (e) { } } };
+  R.leave = async () => { R.closed = true; clearInterval(R.bcast); try { peer.destroy(); } catch (e) { } };
+  R.connected = () => !peer.disconnected;
+  return R;
+}
+const CLAUDE_MP_MSG = 'Live rooms on claude.ai only connect people in the same Claude organization, so friends on their own accounts can\'t join here. Play the GitHub version with friends instead: ' + GH_URL;
 async function netHost(code) {
-  const lobby = await getRoomCap(); if (!lobby) throw new Error('Multiplayer isn\'t available in this view. Open the game on claude.ai while signed in.');
-  NET.room = await lobby.join('lw-' + code.toLowerCase()); NET.solo = false; NET.isHost = true; NET.code = code; hookRoom(); sendPresence(true);
+  if (IN_CLAUDE) { const lobby = await getRoomCap(); if (!lobby) throw new Error(CLAUDE_MP_MSG); NET.room = await lobby.join('lw-' + code.toLowerCase()); }
+  else { let tries = 0; for (;;) { try { NET.room = await p2pRoom(code, true); break; } catch (e) { if (e.message === 'TAKEN' && tries++ < 4) { code = genCode(); continue; } throw e; } } }
+  NET.solo = false; NET.isHost = true; NET.code = code; hookRoom(); sendPresence(true);
 }
 async function netJoin(code) {
-  const lobby = await getRoomCap(); if (!lobby) throw new Error('Multiplayer isn\'t available in this view. Open the game on claude.ai while signed in.');
-  NET.room = await lobby.join('lw-' + code.toLowerCase()); NET.solo = false; NET.isHost = false; NET.code = code; hookRoom(); sendPresence(true);
-  for (let i = 0; i < 40; i++) { await new Promise(r => setTimeout(r, 250)); const h = NET.room.peers().find(p => !p.sameTab && p.presence && p.presence.h === 1); if (h) { if (NET.room.peers().length > 10) { await NET.room.leave(); NET.room = null; throw new Error('That lobby is full (10/10).'); } return; } }
-  await NET.room.leave(); NET.room = null; NET.solo = true; NET.isHost = true; throw new Error('No lobby found with code ' + code + '. Check the code and make sure the host is in the game.');
+  if (IN_CLAUDE) { const lobby = await getRoomCap(); if (!lobby) throw new Error(CLAUDE_MP_MSG); try { NET.room = await lobby.join('lw-' + code.toLowerCase()); } catch (e) { throw new Error(CLAUDE_MP_MSG); } }
+  else NET.room = await p2pRoom(code, false);
+  NET.solo = false; NET.isHost = false; NET.code = code; hookRoom(); sendPresence(true);
+  for (let i = 0; i < 40; i++) { await new Promise(r => setTimeout(r, 250)); if (NET.room.full) { await NET.room.leave(); NET.room = null; NET.solo = true; NET.isHost = true; throw new Error('That lobby is full (10/10).'); }
+    const h = NET.room.peers().find(p => !p.sameTab && p.presence && p.presence.h === 1); if (h) { NET.hostSeenAt = performance.now(); if (NET.room.peers().length > 10) { await NET.room.leave(); NET.room = null; NET.solo = true; NET.isHost = true; throw new Error('That lobby is full (10/10).'); } return; } }
+  await NET.room.leave(); NET.room = null; NET.solo = true; NET.isHost = true; throw new Error(IN_CLAUDE ? CLAUDE_MP_MSG : NO_LOBBY(code));
 }
 async function netLeave() { if (NET.room) { try { await NET.room.leave(); } catch (e) { } } NET.room = null; NET.solo = true; NET.isHost = true; NET.me = 'me'; NET.acts = []; NET.seen = {}; GAME.others.forEach(o => scene.remove(o.model)); GAME.others.clear(); }
 function myAct(k, v) {
@@ -2029,6 +2076,8 @@ function menuInit() {
   $('#muteVoice').onchange = e => { GAME.mute = e.target.checked; };
   $('#skipIntro').onclick = () => { endIntro(); };
   $('#copyCode').onclick = () => { const c = NET.code; try { navigator.clipboard.writeText(c).then(() => toast('Code copied: ' + c), () => toast('Code: ' + c)); } catch (e) { toast('Code: ' + c); } };
+  if (IN_CLAUDE) { const n = $('#mpNote'); n.textContent = 'On claude.ai, only people in your Claude organization can join your lobby. To play with friends on their own accounts, use the GitHub version: '; const a = document.createElement('a'); a.href = GH_URL; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'gmeyer301.github.io/Chad/liminal-work'; a.style.color = 'var(--scolite)'; n.appendChild(a); }
+  else { const n = $('#mpNote'); n.textContent = 'Host to get a 5-letter code. Friends open this same page, type the code and press Join. No Claude account needed. Up to 10 per lobby, bots included. (Talking characters only work on claude.ai.)'; }
   $('#menuTokens').textContent = P.tokens; bc(); setupTouch(); refreshHotbar();
   $('#death').addEventListener('click', () => ME.spect++); cvs.addEventListener('click', () => { if (GAME.playing && !ME.alive) ME.spect++; });
 }
