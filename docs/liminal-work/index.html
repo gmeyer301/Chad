@@ -172,6 +172,9 @@ input[type=text]{background:#0c0d08;border:1px solid var(--line);color:var(--ink
 .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
 .seg button{background:transparent;border:0;padding:10px 6px;font-weight:700;font-size:14px;color:var(--dim)}
 .seg button[aria-pressed=true]{background:var(--amber);color:#1a1204}
+.seg.gfx{grid-template-columns:repeat(4,1fr)}
+.seg.gfx button{padding:8px 4px;font-size:13px}
+#fps{position:absolute;left:calc(14px + var(--sl));top:calc(60px + var(--st));font-family:var(--tape);font-size:18px;color:var(--ok);text-shadow:0 1px 3px #000}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .stepper{display:flex;align-items:center;border:1px solid var(--line)}
 .stepper button{background:var(--panel2);border:0;width:38px;height:38px;font-size:20px}
@@ -272,6 +275,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
   <div id="itemName"></div>
   <div id="hotbar"></div>
   <div id="spect" hidden>You're down. <span id="spectName"></span> · tap to switch</div>
+  <div id="fps" hidden></div>
   <div id="clickToPlay" hidden>CLICK TO LOOK AROUND</div>
   <ul id="chatLog" aria-live="polite"></ul>
   <form id="chatForm" hidden autocomplete="off"><span id="chatTo"></span><div class="chatRow"><input type="text" id="chatIn" maxlength="160" aria-label="Chat message"><button type="submit">Say</button></div></form>
@@ -326,6 +330,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
       <div class="seg"><button class="modeBtn" data-m="harvest" aria-pressed="true" type="button">Harvest shift</button><button class="modeBtn" data-m="tag" aria-pressed="false" type="button">Entity tag</button></div>
     </div>
     <div class="row" style="justify-content:space-between"><span class="muted">Bot coworkers</span><div class="stepper"><button id="botMinus" type="button" aria-label="Fewer bots">−</button><span id="botN">0</span><button id="botPlus" type="button" aria-label="More bots">+</button></div></div>
+    <div class="f" style="display:grid;gap:4px;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">Graphics <div class="seg gfx"><button class="gfxBtn" data-q="auto" type="button">Auto</button><button class="gfxBtn" data-q="0" type="button">Low</button><button class="gfxBtn" data-q="1" type="button">Medium</button><button class="gfxBtn" data-q="2" type="button">High</button></div></div>
     <button class="big" id="bSolo" type="button">Play</button>
     <button class="big alt" id="bHost" type="button">Host for friends</button>
     <div class="join"><input type="text" id="codeIn" placeholder="CODE" maxlength="5" autocomplete="off" aria-label="Lobby code"><button id="bJoin" type="button">Join</button></div>
@@ -344,6 +349,8 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
   <button id="pHow" type="button">How to play</button>
   <label class="row muted"><input type="checkbox" id="muteVoice"> Mute the tape narrator</label>
   <label class="row muted"><input type="checkbox" id="voiceToggle" checked> Read character replies out loud</label>
+  <div class="muted" style="display:grid;gap:4px">Graphics (Low runs best on older computers)<div class="seg gfx"><button class="gfxBtn" data-q="auto" type="button">Auto</button><button class="gfxBtn" data-q="0" type="button">Low</button><button class="gfxBtn" data-q="1" type="button">Medium</button><button class="gfxBtn" data-q="2" type="button">High</button></div></div>
+  <label class="row muted"><input type="checkbox" id="showFps"> Show FPS</label>
   <button id="pLeave" type="button" style="color:var(--danger)">Leave shift</button>
 </div></div></div>
 
@@ -939,7 +946,7 @@ function makeElevator() {
   const ce = mesh(new THREE.PlaneGeometry(W, W), mat(0x4a4d52, { m: .5 }), 0, H, 0, g); ce.rotation.x = Math.PI / 2;
   mesh(G.box(W + .2, H, .15), wallM, 0, H / 2, -W / 2 - .07, g); mesh(G.box(.15, H, W + .2), wallM, -W / 2 - .07, H / 2, 0, g); mesh(G.box(.15, H, W + .2), wallM, W / 2 + .07, H / 2, 0, g);
   const front = mat(0x8a9097, { m: .3, r: .4 }); mesh(G.box(.9, H, .2), front, -1.35, H / 2, W / 2 + .05, g); mesh(G.box(.9, H, .2), front, 1.35, H / 2, W / 2 + .05, g); mesh(G.box(1.8, .5, .2), front, 0, H - .25, W / 2 + .05, g);
-  const dm = mat(0xb9c0c7, { m: .35, r: .3 }); const dL = mesh(G.box(.92, H - .5, .06), dm, -.45, (H - .5) / 2, W / 2 + .05, g), dR = mesh(G.box(.92, H - .5, .06), dm, .45, (H - .5) / 2, W / 2 + .05, g);
+  const dm = mat(0xb9c0c7, { m: .35, r: .3 }); const dL = mesh(G.box(.92, H - .5, .06), dm, -.45, (H - .5) / 2, W / 2 + .05, g), dR = mesh(G.box(.92, H - .5, .06), dm, .45, (H - .5) / 2, W / 2 + .05, g); dL.userData.dyn = dR.userData.dyn = true;
   mesh(new THREE.PlaneGeometry(1.6, .5), basic(0xfff8e0), 0, H - .01, 0, g).rotation.x = Math.PI / 2;
   const rail = mat(0xd9b65a, { m: .5, r: .3 }); [-1, 1].forEach(s => { const r = mesh(G.cyl(.03, .03, W - .4, 8), rail, s * (W / 2 - .12), 1, 0, g); r.rotation.x = Math.PI / 2; });
   const pnl = new THREE.Group(); pnl.position.set(W / 2 - .02, 1.3, 1.2); g.add(pnl); mesh(G.box(.04, .6, .3), mat(0x2a2d31, { m: .6 }), 0, 0, 0, pnl); const btn = mesh(G.cyl(.06, .06, .04, 16), basic(0xff3b3b), -.03, .12, 0, pnl); btn.rotation.z = Math.PI / 2;
@@ -1001,8 +1008,12 @@ function newWorld(theme) {
 function setAtmos(th, o = {}) {
   scene.fog = new THREE.Fog(o.fog ?? th.fog, th.fogN, th.fogF); scene.background = new THREE.Color(o.fog ?? th.fog);
   hemi.color.setHex(th.hemi[0]); hemi.groundColor.setHex(th.hemi[1]); hemi.intensity = th.hemi[2]; PL.forEach(l => { l.color.setHex(th.light || 0xffffff); });
-  sun.intensity = th.outdoor ? .8 : 0; setHum(th.hum || 0);
+  sun.intensity = th.outdoor ? .8 : 0; setHum(th.hum || 0); W.hemiBase = th.hemi[2];
+  if (typeof camera !== 'undefined') { camera.far = th.outdoor ? 420 : th.fogF + 8; camera.updateProjectionMatrix(); }
 }
+// static scenery never moves, so compute its matrices once instead of every frame
+function freezeStatic(o) { if (o.userData && o.userData.dyn) return; o.updateMatrix(); o.matrixAutoUpdate = false; o.children.forEach(freezeStatic); }
+function freezeWorld() { W.group.updateMatrixWorld(true); W.group.children.forEach(freezeStatic); }
 /* colliders */
 function cellOfX(x) { return Math.floor(x / W.CS + W.N / 2); }
 function addBox(x0, z0, x1, z1, tag) {
@@ -1098,7 +1109,7 @@ function buildLevel(li, seed, crew) {
   wallDecor(th, rng, crew);
   spawnCrystals(L, rng, free.slice(0, 30));
   spawnItems(rng, free.slice(10, 40), 15 + (P.upg.loot || 0) * 3);
-  W.heightAt = () => 0; return W;
+  W.heightAt = () => 0; freezeWorld(); return W;
 }
 function shuffle(a, rng) { for (let i = a.length - 1; i > 0; i--) { const j = (rng() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function spawnCrystals(L, rng, cells) {
@@ -1107,7 +1118,7 @@ function spawnCrystals(L, rng, cells) {
 function pickLoot(rng) { const tot = LOOT_TABLE.reduce((a, b) => a + b[1], 0); let r = rng() * tot; for (const [k, w] of LOOT_TABLE) { if ((r -= w) < 0) return k; } return 'water'; }
 function spawnItems(rng, cells, n) {
   for (let i = 0; i < n && i < cells.length; i++) { const c = cells[i]; const [x, z] = W.cellCenter(c[0], c[1]); const px = x + (rng() - .5) * 3, pz = z + (rng() - .5) * 3; const type = pickLoot(rng);
-    const m = makeItemMesh(type, 1.6); const y = (W.heightAt ? W.heightAt(px, pz) : 0) + .35; m.position.set(px, y, pz); const gl = glowSprite(0xfff2b0, .8, .35); m.add(gl); W.group.add(m); W.items.push({ id: i, type, x: px, z: pz, y, mesh: m, taken: false }); }
+    const m = makeItemMesh(type, 1.6); m.userData.dyn = true; const y = (W.heightAt ? W.heightAt(px, pz) : 0) + .35; m.position.set(px, y, pz); const gl = glowSprite(0xfff2b0, .8, .35); m.add(gl); W.group.add(m); W.items.push({ id: i, type, x: px, z: pz, y, mesh: m, taken: false }); }
 }
 function decorate(th, rng, cells) {
   const p = th.props; cells.slice(0, 14).forEach(c => { const [x, z] = W.cellCenter(c[0], c[1]); const ox = x + (rng() - .5) * 2.5, oz = z + (rng() - .5) * 2.5;
@@ -1167,7 +1178,7 @@ function buildHills(L, th, rng, crew) {
   // still lifes on easels
   (crew || []).forEach((c, i) => { const f = free[40 + i]; if (!f) return; const [px, pz] = W.cellCenter(f[0], f[1]); const sl = makeStillLife(c.name, c.color, c.cos || []); sl.position.set(px, W.heightAt(px, pz) + 1.3, pz); sl.rotation.y = rng() * 6; W.group.add(sl); const ea = mesh(G.box(.06, 1.4, .06), mat(0x6a4a2a), px, W.heightAt(px, pz) + .7, pz, W.group); });
   spawnCrystals(L, rng, free.slice(0, 30)); spawnItems(rng, free.slice(12, 40), 14 + (P.upg.loot || 0) * 3);
-  W.dayT = 0; return W;
+  W.dayT = 0; freezeWorld(); return W;
 }
 function updateSky(dt, nightAmt) {
   if (!W.outdoor) return; const n = nightAmt; const day = new THREE.Color(0x9fd4ff), night = new THREE.Color(0x070a1c); const f = day.clone().lerp(night, n);
@@ -1230,7 +1241,7 @@ function buildSpawn(opts = {}) {
   W.inter.push({ get x() { return W.elev.toWorld(1.75, 1.2)[0]; }, y: 1.4, get z() { return W.elev.toWorld(1.75, 1.2)[1]; }, r: 2.2, get label() { return NET.isHost ? (GAME.mode === 'tag' ? 'Press: start ENTITY TAG round' : 'Press: start the shift (go to Level 0)') : 'Only the host can start the elevator'; }, act: () => { if (NET.isHost) hostStartShift(); } });
   if (opts.boss) { const b = makeBoss(); const [bx, bz] = W.elev.toWorld(0, 3.4); b.position.set(bx, 0, bz); b.rotation.y = Math.PI / 2; W.group.add(b); W.boss = b; }
   W.spawnPoints = []; for (let i = 0; i < 10; i++) W.spawnPoints.push([-2.6 + (i % 5) * 1.3, 1.8 + Math.floor(i / 5) * 1.3]);
-  return W;
+  freezeWorld(); return W;
 }
 function drawBoard() {
   const c = W.boardCanvas; if (!c) return; const x = c.getContext('2d'); x.fillStyle = '#b8895a'; x.fillRect(0, 0, 512, 256); speck(x, 512, 256, 2500, ['#8a6338', '#d4a878'], .6, 2);
@@ -1245,7 +1256,8 @@ function nearestFixtures(x, z) {
 
 /* ============ renderer, player, input ============ */
 const renderer = new THREE.WebGLRenderer({ antialias: !IS_TOUCH, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, IS_TOUCH ? 1.25 : 1.75)); renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+const GFX = { pick: 'auto', cur: 1, lights: 2, frames: 0, t: 0, slow: 0 };
+function applyGfx(q, quiet) { GFX.cur = q; const dpr = devicePixelRatio || 1; renderer.setPixelRatio([Math.min(dpr, 1) * .65, Math.min(dpr, IS_TOUCH ? 1 : 1.25), Math.min(dpr, IS_TOUCH ? 1.5 : 1.75)][q]); GFX.lights = [1, 2, 4][q]; if (typeof resize === 'function') resize(); } renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
 $('#view').appendChild(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(72, 1, .05, 420); scene.add(camera);
 const flash = new THREE.SpotLight(0xfff2d8, 0, 28, .55, .45, 1.4); flash.position.set(.15, -.1, 0); camera.add(flash); const flashT = new THREE.Object3D(); flashT.position.set(0, -.2, -6); camera.add(flashT); flash.target = flashT;
@@ -1471,7 +1483,8 @@ let lightTimer = 0;
 function updateLights(dt) {
   lightTimer -= dt; const t = performance.now() / 1000;
   if (lightTimer <= 0 && W) { lightTimer = .25; const fx = nearestFixtures(camera.position.x, camera.position.z); PL.forEach((l, i) => { const f = fx[i]; if (!f) { l.intensity = 0; l.userData.f = null; return; } l.position.set(f.x, f.y, f.z); l.userData.f = f; }); }
-  PL.forEach(l => { const f = l.userData.f; if (!f) return; let I = (W.th.lightI || 1.2); if (f.fl >= 0) I *= (Math.sin(t * 23 + f.fl) > .3 && Math.sin(t * 3.1 + f.fl * 2) > -.6) ? 1 : .08; l.intensity = W.outdoor ? 0 : I; });
+  PL.forEach((l, i) => { if (i >= GFX.lights) { l.intensity = 0; l.visible = false; return; } l.visible = true; }); if (!W.outdoor && W.hemiBase) hemi.intensity = W.hemiBase * (1 + (4 - GFX.lights) * .12);
+  PL.forEach((l, i) => { const f = l.userData.f; if (!f || i >= GFX.lights) return; let I = (W.th.lightI || 1.2); if (f.fl >= 0) I *= (Math.sin(t * 23 + f.fl) > .3 && Math.sin(t * 3.1 + f.fl * 2) > -.6) ? 1 : .08; l.intensity = W.outdoor ? 0 : I; });
   flash.intensity = ME.fl && ME.alive ? 2.6 : 0;
 }
 
@@ -1926,8 +1939,8 @@ function drawVHS(i, t) {
   x.restore(); vhsFx(x, w, h); vhsTex.needsUpdate = true;
 }
 function drawTVIdle(t) {
-  const c = vhsCanvas, x = c.getContext('2d'), w = c.width, h = c.height; if (Math.floor(t * 12) === Math.floor((t - .016) * 12)) return;
-  x.fillStyle = '#05070a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 1500; i++) { const v = Math.random() * 120 | 0; x.fillStyle = `rgb(${v},${v},${v})`; x.fillRect(Math.random() * w, Math.random() * h, 3, 2); }
+  const c = vhsCanvas, x = c.getContext('2d'), w = c.width, h = c.height; if (Math.floor(t * 6) === Math.floor((t - .02) * 6)) return; if (camera.position.distanceTo(W.tv.position) > 9 && GAME.playing) return;
+  x.fillStyle = '#05070a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 500; i++) { const v = Math.random() * 120 | 0; x.fillStyle = `rgb(${v},${v},${v})`; x.fillRect(Math.random() * w, Math.random() * h, 3, 2); }
   x.fillStyle = 'rgba(0,0,30,.6)'; x.fillRect(0, h / 2 - 40, w, 80); x.fillStyle = '#fff'; x.font = 'bold 30px monospace'; x.textAlign = 'center'; x.fillText(Math.floor(t) % 2 ? 'STOP ■' : '', w / 2, h / 2 - 5); x.font = '16px monospace'; x.fillText('INSERT TAPE · PRESS E TO REWIND', w / 2, h / 2 + 25); x.textAlign = 'left'; vhsTex.needsUpdate = true;
 }
 
@@ -2115,8 +2128,8 @@ function hud(dt) {
     (g.ph === 'count' ? `<span class="count">ELEVATOR LEAVES IN ${fmtTime(g.t)}</span>` : '') + (L.night ? `<span class="sub">${g.nt > 50 ? 'NIGHT. They are out.' : 'Daytime'}</span>` : ''); }
   else if (g.sc === 'tag' && g.tg) html = `<span class="lvl">ENTITY TAG</span><span class="count">${fmtTime(g.tg.t)}</span><span class="sub">${ME.monster ? 'You are a MONSTER. Touch workers to tag them.' : 'Survive! Monsters: ' + g.tg.m.length}</span>`;
   else if (g.sc === 'boss') html = '<span class="lvl">HEADQUARTERS</span><span class="sub">Payday!</span>';
-  top.innerHTML = html;
-  const crew = crewList(); $('#crew').innerHTML = crew.map(c => `<li class="${c.alive ? '' : 'dead'} ${c.mo ? 'mon' : ''}"><i style="background:${c.color}"></i>${escapeHtml(c.name)}${c.me ? ' (you)' : ''}</li>`).join('');
+  if (top._h !== html) { top.innerHTML = html; top._h = html; }
+  const crew = crewList(); const ch = crew.map(c => `<li class="${c.alive ? '' : 'dead'} ${c.mo ? 'mon' : ''}"><i style="background:${c.color}"></i>${escapeHtml(c.name)}${c.me ? ' (you)' : ''}</li>`).join(''); const ce = $('#crew'); if (ce._h !== ch) { ce.innerHTML = ch; ce._h = ch; }
   $('#spect').hidden = ME.alive || !GAME.playing; $('#fl').hidden = !ME.fl; document.body.classList.toggle('monster', ME.monster);
 }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -2223,8 +2236,14 @@ function arcadeSetup() {
 
 /* ============ main loop & boot ============ */
 let lastT = performance.now();
+function setGfxPick(p) { GFX.pick = p; P.gfx = p; save(); $$('.gfxBtn').forEach(b => b.setAttribute('aria-pressed', b.dataset.q === p)); applyGfx(p === 'auto' ? 1 : +p); GFX.frames = 0; GFX.t = 0; GFX.slow = 0; }
+function gfxTick(dt) {
+  GFX.frames++; GFX.t += dt; if (GFX.t < 2) return; const fps = GFX.frames / GFX.t; GFX.frames = 0; GFX.t = 0; const fe = $('#fps'); if (!fe.hidden) fe.textContent = Math.round(fps) + ' FPS';
+  if (GFX.pick !== 'auto' || !GAME.playing || GAME.introOn || overlayOpen()) return;
+  if (fps < 38) { GFX.slow++; if (GFX.slow >= 2 && GFX.cur > 0) { applyGfx(GFX.cur - 1); GFX.slow = 0; toast('Graphics lowered to keep the game smooth.'); } } else GFX.slow = 0;
+}
 function frame(now) {
-  requestAnimationFrame(frame); const dt = Math.min(.05, (now - lastT) / 1000) || .016; lastT = now; GT += dt;
+  requestAnimationFrame(frame); const dt = Math.min(.05, (now - lastT) / 1000) || .016; lastT = now; GT += dt; gfxTick(dt);
   try {
     if (GAME.playing) { if (!GAME.camOverride && !GAME.introOn) updatePlayer(dt); if (NET.isHost) hostTick(dt); netTick(dt); localTick(dt); if (GAME.camOverride) camTween(dt); else if (!GAME.introOn) updateCamera(dt); AIM = ME.alive && !GAME.cine ? findAim() : null; }
     else menuCam(dt);
@@ -2235,7 +2254,9 @@ function frame(now) {
 function boot() {
   loadImg('eye', IMG_EYE); loadImg('bob', IMG_BOB); loadImg('glorp', IMG_GLORP);
   $('#insaneImg').src = IMG_EYE; $('#logoBob').src = IMG_BOB; $('#logoGlorp').src = IMG_GLORP;
-  buildSpawn(); menuInit(); arcadeSetup(); chatSetup(); $('#hud').hidden = true; requestAnimationFrame(frame);
+  buildSpawn(); menuInit(); arcadeSetup(); chatSetup();
+  $$('.gfxBtn').forEach(b => b.onclick = () => { setGfxPick(b.dataset.q); SFX.click(); }); setGfxPick(P.gfx || 'auto');
+  $('#showFps').onchange = e => { $('#fps').hidden = !e.target.checked; }; $('#hud').hidden = true; requestAnimationFrame(frame);
   try { speechSynthesis && speechSynthesis.getVoices(); } catch (e) { }
   $('#loading').hidden = true;
 }
