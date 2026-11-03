@@ -473,13 +473,13 @@ function audioInit() {
 }
 function setHum(v) { if (humGain) humGain.gain.setTargetAtTime(v, AC.currentTime, .5); }
 function tone(freq, dur, type = 'sine', vol = .2, slide = 0, delay = 0) {
-  if (!AC || vol < .003) return; const t = AC.currentTime + delay; const o = AC.createOscillator(), g = AC.createGain();
+  if (!AC || !(vol >= .003) || !isFinite(freq) || !isFinite(dur) || !isFinite(delay)) return; const t = AC.currentTime + delay; const o = AC.createOscillator(), g = AC.createGain();
   o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + slide), t + dur);
   g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0008, t + dur); o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05);
 }
 let _nb = null;
 function noise(dur, vol = .2, filt = 1000, ftype = 'lowpass', delay = 0, fEnd) {
-  if (!AC || vol < .003) return; const t = AC.currentTime + delay;
+  if (!AC || !(vol >= .003) || !isFinite(dur) || !isFinite(filt) || !isFinite(delay)) return; const t = AC.currentTime + delay;
   if (!_nb) { const n = AC.sampleRate * 2; _nb = AC.createBuffer(1, n, AC.sampleRate); const d = _nb.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; }
   const s = AC.createBufferSource(); s.buffer = _nb; s.loop = true; const f = AC.createBiquadFilter(); f.type = ftype; f.frequency.setValueAtTime(filt, t);
   if (fEnd) f.frequency.exponentialRampToValueAtTime(fEnd, t + dur);
@@ -2264,7 +2264,7 @@ function decorBlueHosp(rng, cells) { cells.slice(0, 36).forEach(c => { const [x,
 
 /* ---------- builders ---------- */
 function buildDLC(d, seed, crew) {
-  if (d === 3) return buildCorridor('hosp', seed, crew, d); if (d === 6) return buildCorridor('hotel', seed, crew, d); if (d === 2) return buildHub(seed, crew);
+  if (d === 3) return buildCorridor('hosp', seed, crew, d); if (d === 6) return buildCorridor('hotel', seed, crew, d); if (d === 5) return buildCorridor('blue', seed, crew, d); if (d === 2) return buildHub(seed, crew);
   const D = DLC[d]; buildLevel(-1, seed, crew, { name: D.name, sub: D.sub, quota: 0, per: 0, theme: D.theme, ents: D.ents, noElev: true, noCrystals: true }); W.dlc = d; const rng = mulberry(seed + 99);
   const far = W.free.filter(([x, z]) => Math.abs(x - W.ec[0]) + Math.abs(z - W.ec[1]) > 1); shuffle(far, rng); W.dfree = far;
   if (d === 0) setupEnd(rng); else if (d === 1) setupFunPlus(rng); else if (d === 5) setupBlueHosp(rng); return W;
@@ -2319,27 +2319,43 @@ function setupBlueHosp(rng) {
   W.goal = { x: gx, z: gz, r: 1.8, on: () => true }; W.exitPos = [gx, gz];
 }
 function buildCorridor(kind, seed, crew, d) {
-  const hosp = kind === 'hosp'; newWorld(hosp ? 'chaseH' : 'chaseT'); W.N = 0; W.CS = 5; W.heightAt = () => 0; W.chase = true; W.dlc = d; W.seed = seed; W.free = null;
-  const th = hosp ? { fog: 0x1a0204, fogN: 3, fogF: 36, hemi: [0xff9a90, 0x200404, .6], light: 0xff4040, lightI: 1.8, hum: .06, san: .35 } : { fog: 0x0a0402, fogN: 3, fogF: 32, hemi: [0xffb070, 0x100503, .5], light: 0xffa860, lightI: 1.7, hum: .03, san: .35 };
-  W.th = th; setAtmos(th); const rng = mulberry(seed); const LEN = hosp ? 240 : 300, Wd = 7, H = 3.4, z0 = 44, z1 = -LEN - 6, len = z0 - z1, zc = (z0 + z1) / 2; W.dmgMul = hosp ? 1.5 : 1.6; W.goalZ = -LEN;
-  const ft = T(hosp ? 'hospFloor' : 'wood').clone(); ft.needsUpdate = true; ft.repeat.set(Wd / 2, len / 2); mesh(new THREE.PlaneGeometry(Wd, len), mat(0xffffff, { map: ft, r: .85, nocache: true }), 0, 0, zc, W.group).rotation.x = -Math.PI / 2;
-  mesh(new THREE.PlaneGeometry(Wd, len), mat(0x5a5650, { r: .95 }), 0, H, zc, W.group).rotation.x = Math.PI / 2;
-  const wt = T(hosp ? 'hospWall' : 'hotelWall').clone(); wt.needsUpdate = true; wt.repeat.set(len / 2.5, 1); const wm = mat(0xffffff, { map: wt, r: .85, nocache: true });
+  const hosp = kind === 'hosp', blue = kind === 'blue', hotel = kind === 'hotel'; newWorld('hall-' + kind); W.N = 0; W.CS = 5; W.heightAt = () => 0; W.chase = !blue; W.hall = blue; W.dlc = d; W.seed = seed; W.free = null;
+  const th = hosp ? { fog: 0x160103, fogN: 2, fogF: 26, hemi: [0xff8a80, 0x200404, .5], light: 0xff3030, lightI: 1.9, hum: .07, san: .4 }
+    : hotel ? { fog: 0x0a0402, fogN: 3, fogF: 32, hemi: [0xffb070, 0x100503, .5], light: 0xffa860, lightI: 1.7, hum: .03, san: .35 }
+    : { fog: 0x9fc4e8, fogN: 6, fogF: 40, hemi: [0xdcecff, 0x6a8ab0, 1.0], light: 0xdcecff, lightI: 1.3, hum: .02, san: -.6 };
+  W.th = th; setAtmos(th); const rng = mulberry(seed); const LEN = hosp ? 330 : hotel ? 300 : 200, Wd = 7, H = 3.4, z0 = 44, z1 = -LEN - 6, len = z0 - z1, zc = (z0 + z1) / 2; W.dmgMul = hosp ? 9 : 1.6; W.goalZ = -LEN;
+  const ft = T(hosp ? 'hospFloor' : hotel ? 'wood' : 'blueHospFloor').clone(); ft.needsUpdate = true; ft.repeat.set(Wd / 2, len / 2); mesh(new THREE.PlaneGeometry(Wd, len), mat(0xffffff, { map: ft, r: .85, nocache: true }), 0, 0, zc, W.group).rotation.x = -Math.PI / 2;
+  mesh(new THREE.PlaneGeometry(Wd, len), mat(blue ? 0xe8f0f8 : 0x5a5650, { r: .95 }), 0, H, zc, W.group).rotation.x = Math.PI / 2;
+  const wt = T(hosp ? 'hospWall' : hotel ? 'hotelWall' : 'blueHospWall').clone(); wt.needsUpdate = true; wt.repeat.set(len / 2.5, 1); const wm = mat(0xffffff, { map: wt, r: .85, nocache: true });
   [-1, 1].forEach(s => { mesh(G.box(.3, H, len), wm, s * (Wd / 2 + .15), H / 2, zc, W.group); addBox(s * Wd / 2 - (s < 0 ? .3 : 0), z1, s * Wd / 2 + (s > 0 ? .3 : 0), z0, 'wall'); });
   mesh(G.box(Wd, H, .3), wm, 0, H / 2, z0, W.group); addBox(-Wd / 2, z0, Wd / 2, z0 + .3, 'wall'); addBox(-Wd / 2, z1 - .3, Wd / 2, z1, 'wall');
-  for (let z = z0 - 4; z > z1; z -= 8) { mesh(new THREE.PlaneGeometry(1.2, .5), basic(hosp ? 0xffd0d0 : 0xffd8a0, { map: T('panel') }), 0, H - .01, z, W.group).rotation.x = Math.PI / 2; W.fixtures.push({ x: 0, y: H - .2, z, fl: rng() < (hosp ? .5 : .3) ? rng() * 10 : -1 }); }
-  for (let z = 20; z > -LEN + 6; z -= 12) { [-1, 1].forEach(s => { const dm = mesh(new THREE.PlaneGeometry(1.2, 2.3), mat(0xffffff, { map: TEXGEN.door() }), s * (Wd / 2 - .01), 1.15, z + (s > 0 ? 6 : 0), W.group); dm.rotation.y = -s * Math.PI / 2; }); }
-  const step = hosp ? 7 : 5.5; for (let z = -8; z > -LEN + 8; z -= step) { const gapW = hosp ? 1.7 : 1.55; const gap = (rng() - .5) * (Wd - gapW - 1); const segs = [[-Wd / 2 + .1, gap - gapW / 2], [gap + gapW / 2, Wd / 2 - .1]];
-    segs.forEach(([a, b]) => { let x = a; while (b - x > .5) { const room = b - x; let o, w, dd; const k = rng();
-      if (hosp) { if (room > 2.1 && k < .4) { o = makeBed(); w = 2.0; dd = .95; } else if (room > .8 && k < .65) { o = makeWheelchair(); w = .7; dd = .7; } else if (room > 1.1 && k < .85) { o = new THREE.Group(); mesh(G.box(1, .8, .6), mat(0x9aa8b0, { m: .4 }), 0, .55, 0, o); mesh(G.box(1, .05, .6), mat(0xdddddd), 0, .96, 0, o); w = 1.0; dd = .6; } else { o = makeIV(); w = .45; dd = .45; } }
-      else { if (room > 1.3 && k < .55) { o = makeLuggageCart(); w = 1.2; dd = .6; } else if (room > .7 && k < .8) { o = makeRocker(); w = .6; dd = .6; } else { o = new THREE.Group(); mesh(G.box(.8, .9, .6), mat(0x5a1a1a, { r: .7 }), 0, .45, 0, o); mesh(G.box(.85, .05, .65), mat(0xf2f2f2), 0, .92, 0, o); w = .8; dd = .6; } }
-      if (w > room) break; const cxp = x + w / 2, czp = z + (rng() - .5) * 1.2; o.position.set(cxp, 0, czp); if (w === 2.0) o.rotation.y = 0; else o.rotation.y = rng() * .6 - .3; W.group.add(o); addBox(cxp - w / 2, czp - dd / 2, cxp + w / 2, czp + dd / 2, 'prop'); x += w + .05 + rng() * .4; } }); }
-  const ex = new THREE.Group(); ex.position.set(0, 0, -LEN); W.group.add(ex); mesh(new THREE.PlaneGeometry(Wd - .2, H - .1), basic(0xffffff), 0, H / 2, -5.6, ex); ex.add(glowSprite(hosp ? 0xffffff : 0xffe6a0, 12, .8)); const sg = cv(256, 64), sx2 = sg.getContext('2d'); sx2.fillStyle = hosp ? '#0a5a20' : '#5a3a00'; sx2.fillRect(0, 0, 256, 64); sx2.fillStyle = hosp ? '#7cff9a' : '#ffd36b'; sx2.font = 'bold 44px sans-serif'; sx2.textAlign = 'center'; sx2.fillText('EXIT', 128, 48);
+  for (let z = z0 - 4; z > z1; z -= 8) { mesh(new THREE.PlaneGeometry(1.2, .5), basic(hosp ? 0xffc0c0 : hotel ? 0xffd8a0 : 0xffffff, { map: T('panel') }), 0, H - .01, z, W.group).rotation.x = Math.PI / 2; W.fixtures.push({ x: 0, y: H - .2, z, fl: rng() < (hosp ? .75 : hotel ? .3 : 0) ? rng() * 10 : -1 }); }
+  for (let z = 20; z > -LEN + 6; z -= 12) { [-1, 1].forEach(s => { const dm = mesh(new THREE.PlaneGeometry(1.2, 2.3), mat(blue ? 0xcfe0f0 : 0xffffff, { map: TEXGEN.door() }), s * (Wd / 2 - .01), 1.15, z + (s > 0 ? 6 : 0), W.group); dm.rotation.y = -s * Math.PI / 2; }); }
+  const place = (o, cxp, czp, w, dd, collide) => { o.position.set(cxp, 0, czp); W.group.add(o); if (collide) addBox(cxp - w / 2, czp - dd / 2, cxp + w / 2, czp + dd / 2, 'prop'); };
+  if (blue) {
+    // calm hallway: furniture lines the walls and leaves the middle open
+    for (let z = 10; z > -LEN + 8; z -= 3.2) { const s = rng() < .5 ? -1 : 1, k = rng(); let o, w = .7, dd = .7, col = false; if (k < .22) { o = makeBed(); o.rotation.y = Math.PI / 2; w = .95; dd = 2; col = true; } else if (k < .42) o = makeWheelchair(); else if (k < .58) o = makeWalker(); else if (k < .78) o = makeRocker(); else if (k < .9) o = makeIV();
+      else { o = new THREE.Group(); mesh(G.box(.6, .8, .5), mat(0xe9f2fa), 0, .4, 0, o); mesh(G.cyl(.08, .06, .25, 10), mat(0xffffff), 0, .93, 0, o); for (let i = 0; i < 4; i++) mesh(G.sph(.06, 6, 6), mat([0xff8fb8, 0xffe14a, 0xb98cff][i % 3]), (rng() - .5) * .14, 1.1, (rng() - .5) * .14, o); col = true; w = .6; dd = .5; }
+      o.rotation.y += s > 0 ? -Math.PI / 2 : Math.PI / 2; place(o, s * (Wd / 2 - .6), z + (rng() - .5), w, dd, col); }
+    W.hallEnts = []; for (let i = 0; i < 9; i++) W.hallEnts.push({ type: 'faceling', x: (rng() - .5) * 4, z: -10 - i * (LEN - 30) / 9 }); W.hallEnts.push({ type: 'cuddles', x: 1, z: -4 });
+  } else {
+    // obstacle field: every row leaves one gap you must weave through
+    const step = hosp ? 4.4 : 5.5, gapW = hosp ? 1.25 : 1.55; let prev = 0;
+    for (let z = -8; z > -LEN + 8; z -= step) { let gap = (rng() - .5) * (Wd - gapW - 1); if (hosp && Math.abs(gap - prev) < 1.6) gap = prev > 0 ? -Math.abs(gap) - 1 : Math.abs(gap) + 1; gap = clamp(gap, -Wd / 2 + gapW / 2 + .4, Wd / 2 - gapW / 2 - .4); prev = gap;
+      [[-Wd / 2 + .1, gap - gapW / 2], [gap + gapW / 2, Wd / 2 - .1]].forEach(([a, b]) => { let x = a; while (b - x > .45) { const room = b - x; let o, w, dd; const k = rng();
+        if (hosp) { if (room > 2.1 && k < .4) { o = makeBed(); w = 2.0; dd = .95; } else if (room > .8 && k < .65) { o = makeWheelchair(); w = .7; dd = .7; } else if (room > 1.1 && k < .85) { o = new THREE.Group(); mesh(G.box(1, .8, .6), mat(0x9aa8b0, { m: .4 }), 0, .55, 0, o); mesh(G.box(1, .05, .6), mat(0xdddddd), 0, .96, 0, o); w = 1.0; dd = .6; } else { o = makeIV(); w = .45; dd = .45; } }
+        else { if (room > 1.3 && k < .55) { o = makeLuggageCart(); w = 1.2; dd = .6; } else if (room > .7 && k < .8) { o = makeRocker(); w = .6; dd = .6; } else { o = new THREE.Group(); mesh(G.box(.8, .9, .6), mat(0x5a1a1a, { r: .7 }), 0, .45, 0, o); mesh(G.box(.85, .05, .65), mat(0xf2f2f2), 0, .92, 0, o); w = .8; dd = .6; } }
+        if (w > room) { if (room > .45) { const f = makeIV(); place(f, x + room / 2, z, room, .45, true); } break; } o.rotation.y = w === 2.0 ? 0 : rng() * .6 - .3; place(o, x + w / 2, z + (rng() - .5) * .8, w, dd, true); x += w + .02 + rng() * .15; } }); }
+    // rolling gurneys that slide across the hallway
+    W.movers = []; if (hosp) for (let i = 0; i < 10; i++) { const z = -30 - i * ((LEN - 60) / 10) - step / 2; const g = makeBed(); g.rotation.y = 0; W.group.add(dyn(g)); const box = addBox(-1, z - .5, 1, z + .5, 'mover'); W.movers.push({ g, box, z, amp: 2.2, sp: .9 + rng() * .8, ph: rng() * 6 }); }
+  }
+  const ex = new THREE.Group(); ex.position.set(0, 0, -LEN); W.group.add(ex); mesh(new THREE.PlaneGeometry(Wd - .2, H - .1), basic(0xffffff), 0, H / 2, -5.6, ex); ex.add(glowSprite(hotel ? 0xffe6a0 : 0xffffff, 12, .8)); const sg = cv(256, 64), sx2 = sg.getContext('2d'); sx2.fillStyle = hotel ? '#5a3a00' : '#0a5a20'; sx2.fillRect(0, 0, 256, 64); sx2.fillStyle = hotel ? '#ffd36b' : '#7cff9a'; sx2.font = 'bold 44px sans-serif'; sx2.textAlign = 'center'; sx2.fillText('EXIT', 128, 48);
   mesh(new THREE.PlaneGeometry(1.6, .4), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sg) }), 0, H - .35, 2, ex);
   W.start = [0, 4, 0]; W.goal = { line: true, z: -LEN + 3, on: () => true };
-  const pick = a => a[(rng() * a.length) | 0];
-  W.chaseEnts = hosp ? ['howler', 'bacteria', 'smiler', 'skinstealer', 'hound', 'hound', 'partygoer', 'growler', 'moth', 'primary'].map((t, i) => ({ type: t, x: (rng() - .5) * 5, z: 24 + i * 1.8 })) : [{ type: 'clump', x: 0, z: 28 }];
-  const amb = hosp ? ['growler', 'smiler', 'skinstealer', 'partygoer', 'bacteria'] : ['growler', 'smiler', 'growler', 'skinstealer']; amb.forEach((t, i) => W.chaseEnts.push({ type: t, x: (rng() < .5 ? -1 : 1) * 2.7, z: -40 - i * ((LEN - 80) / amb.length) - rng() * 15, dorm: true }));
+  if (hosp) { W.chaseEnts = ['howler', 'bacteria', 'smiler', 'skinstealer', 'hound', 'hound', 'partygoer', 'growler', 'moth', 'moth', 'primary', 'bacteria'].map((t, i) => ({ type: t, x: (rng() - .5) * 5, z: 18 + i * 1.4 }));
+    ['growler', 'smiler', 'skinstealer', 'partygoer', 'bacteria', 'growler', 'howler', 'hound', 'skinstealer', 'growler', 'smiler', 'partygoer'].forEach((t, i) => W.chaseEnts.push({ type: t, x: (i % 2 ? -1 : 1) * 2.9, z: -25 - i * ((LEN - 50) / 12) - rng() * 8, dorm: true })); }
+  else if (hotel) W.chaseEnts = [{ type: 'clump', x: 0, z: 24 }];
+  W.dlcTick = dt => { if (W.movers) W.movers.forEach(m => { const x = Math.sin(GT * m.sp + m.ph) * m.amp; m.g.position.set(x, 0, m.z); m.box.x0 = x - 1; m.box.x1 = x + 1; }); };
   freezeWorld(); return W;
 }
 function buildHub(seed, crew) {
@@ -2381,6 +2397,7 @@ function dqAct(from, v) {
 function hostDLCTick(dt) {
   const d = HS.lv, D = HS.dq; if (D.solved) D.st = (D.st || 0) + dt;
   if (W.chase) { if (!HS.ents.length && !HS.chaseSpawned) { HS.chaseSpawned = true; W.chaseEnts.forEach(c => HS.ents.push({ id: ++HS.eid, type: c.type, def: ENT_DEF[c.type], x: c.x, z: c.z, rot: Math.PI, st: 0, dorm: !!c.dorm, sp: 0 })); } simChase(dt); }
+  else if (W.hall) { if (!HS.ents.length && !HS.chaseSpawned) { HS.chaseSpawned = true; W.hallEnts.forEach(c => HS.ents.push({ id: ++HS.eid, type: c.type, def: ENT_DEF[c.type], x: c.x, z: c.z, rot: 0, st: 0, sp: 0, t: 0 })); } simHall(dt); }
   else if (W.free && DLC[d].ents && Object.keys(DLC[d].ents).length) { if (!HS.ents.length) spawnEnts({ ents: DLC[d].ents }); simEnts(dt); }
   simFollowBots(dt);
   if (HS.ph === 'play' && !D.done) { const pl = hostPlayers(); if (pl.length && pl.every(p => p.dead)) { HS.ph = 'fired'; HS.t = 4; } }
@@ -2391,8 +2408,15 @@ function simChase(dt) {
   HS.chT = (HS.chT || 0) + dt; const pl = hostPlayers().filter(p => p.alive);
   HS.ents.forEach(e => { if (!pl.length) { e.st = 0; e.sp = 0; return; } let best = null, bd = 1e9; pl.forEach(p => { const d = Math.hypot(p.x - e.x, p.z - e.z); if (d < bd) { bd = d; best = p; } });
     if (e.dorm) { if (bd < 8.5) { e.dorm = false; spatial(SFX.scream, e.x, e.z, 20); } else { e.st = 0; e.sp = 0; return; } }
-    if (HS.chT < 2.5) { e.st = 0; e.sp = 0; return; } const clump = e.type === 'clump'; const sp = Math.min(clump ? 6.0 + HS.chT * .03 : 5.8 + HS.chT * .02, clump ? 7.6 : 7.0);
-    e.st = 1; moveEnt(e, best.x, best.z, sp, dt); if (best.bot && bd < e.def.r + .6 && best.bot.hurtCool <= 0) { best.bot.hp -= e.def.dmg * 1.5; best.bot.hurtCool = 1.2; if (best.bot.hp <= 0) best.bot.alive = false; } });
+    const clump = e.type === 'clump'; if (HS.chT < (clump ? 2.5 : 1.5)) { e.st = 0; e.sp = 0; return; } const fly = e.type === 'moth' || e.type === 'bacteria';
+    const sp = clump ? Math.min(6.3 + HS.chT * .03, 7.8) : Math.min((fly ? 6.2 : 6.5) + HS.chT * .02, fly ? 7.2 : 7.6);
+    e.st = 1; if (clump) { moveEnt(e, best.x, best.z, sp, dt, true); e.x = clamp(e.x, -2.4, 2.4); } else if (fly) { moveEnt(e, best.x, best.z, sp, dt, true); e.x = clamp(e.x, -3.1, 3.1); } else moveEnt(e, best.x, best.z, sp, dt); if (best.bot && bd < e.def.r + .6 && best.bot.hurtCool <= 0) { best.bot.hp -= e.def.dmg * 1.5; best.bot.hurtCool = 1.2; if (best.bot.hp <= 0) best.bot.alive = false; } });
+}
+function simHall(dt) {
+  const pl = hostPlayers().filter(p => p.alive && !p.bot);
+  HS.ents.forEach(e => { e.t -= dt; if (e.type === 'cuddles') { const n = pl.map(p => [p, Math.hypot(p.x - e.x, p.z - e.z)]).sort((a, b) => a[1] - b[1])[0]; if (n && n[1] > 2.2) { moveEnt(e, n[0].x, n[0].z, 3.4, dt); e.st = 1; } else { e.st = 0; e.sp = 0; } return; }
+    if (!e.tg || e.t <= 0 || Math.hypot(e.tg[0] - e.x, e.tg[1] - e.z) < .4) { e.tg = [(Math.random() - .5) * 4.5, clamp(e.z + (Math.random() - .5) * 16, W.goalZ + 6, 30)]; e.t = 6 + Math.random() * 6; e.wait = Math.random() < .4 ? 2 + Math.random() * 3 : 0; }
+    if (e.wait > 0) { e.wait -= dt; e.sp = 0; return; } moveEnt(e, e.tg[0], e.tg[1], 1.1, dt); e.st = 0; });
 }
 function simFollowBots(dt) {
   const hum = hostPlayers().filter(p => !p.bot && p.alive);
