@@ -2,7 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b0c08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Liminal Work">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}#menu{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important}</style>
 </head>
 <body>
 <title>Liminal Work</title>
@@ -2682,5 +2691,21 @@ boot();
 
 </script>
 
+<script>
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+(function () {
+  const standalone = matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone) return;
+  let deferred = null; const btn = document.createElement('button'); btn.type = 'button'; btn.id = 'installBtn'; btn.textContent = 'Add to Home Screen';
+  btn.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:31;padding:10px 16px;background:#ffb43b;color:#1a1204;border:0;font:700 14px Chivo,system-ui,sans-serif;box-shadow:0 3px 0 #9a6a10';
+  const tip = document.createElement('div'); tip.style.cssText = 'position:fixed;left:16px;right:16px;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:31;background:#16170f;border:1px solid #ffb43b;color:#f3ecd2;padding:12px;font:14px/1.45 Chivo,system-ui,sans-serif;max-width:420px;margin:0 auto';
+  tip.hidden = true; tip.innerHTML = 'On iPhone/iPad: tap the <b>Share</b> button in Safari (the square with an arrow), then <b>Add to Home Screen</b>.<br>On Android: tap the <b>⋮</b> menu in Chrome, then <b>Add to Home screen</b> or <b>Install app</b>.';
+  const show = () => { const m = document.getElementById('menu'); btn.hidden = !m || m.hidden; if (btn.hidden) tip.hidden = true; };
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+  btn.onclick = async () => { if (deferred) { deferred.prompt(); try { await deferred.userChoice; } catch (er) {} deferred = null; } else tip.hidden = !tip.hidden; };
+  addEventListener('appinstalled', () => { btn.remove(); tip.remove(); });
+  document.body.append(btn, tip); setInterval(show, 500); show();
+})();
+</script>
 </body>
 </html>
