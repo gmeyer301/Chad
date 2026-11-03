@@ -376,7 +376,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
       <button class="lvSkip" data-to="hq" type="button">Headquarters</button><button class="lvSkip" data-to="0" type="button">Level 0</button><button class="lvSkip" data-to="1" type="button">Level 37 · Poolrooms</button><button class="lvSkip" data-to="2" type="button">Level Fun =)</button>
       <button class="lvSkip" data-to="3" type="button">The School</button><button class="lvSkip" data-to="4" type="button">Level 5 · Hotel</button><button class="lvSkip" data-to="boss" type="button">Payday (Boss)</button><button class="lvSkip" data-to="5" type="button">Level 94 · Motion</button><button class="lvSkip" data-to="end" type="button">The Ending</button></div></div>
     <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">CHEATS</h3><div class="ownTools">
-      <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button></div></div>
+      <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button><button id="ownStickers" type="button">Give me every sticker</button></div></div>
     <p class="muted">Your progress saves when you reach each level. Using cheats turns off the Employee of the Eternity run.</p>
   </div>
 </div></div></div>
@@ -2155,6 +2155,7 @@ function ownerSetup() {
   $('#ownGod').onclick = () => { ME.god = !ME.god; used(); $('#ownGod').setAttribute('aria-pressed', ME.god); toast(ME.god ? 'God mode ON: no damage, no sanity loss.' : 'God mode OFF.'); };
   $('#ownItems').onclick = () => { used(); ME.inv = ['extractor', 'water', 'glorps', 'jar', 'rock']; if (!ME.alive) revive(100); refreshHotbar(); toast('Inventory filled.'); };
   $('#ownLight').onclick = () => { used(); ME.inv[4] = 'flashlight'; refreshHotbar(); toast('Flashlight added to slot 5.'); };
+  $('#ownStickers').onclick = () => { let n = 0; ACHS.forEach(a => { if (!P.ach[a.id]) { P.ach[a.id] = Date.now(); n++; } }); save(); if (W && W.boardCanvas) drawBoard(); SFX.ach(); toast(n ? 'Unlocked ' + n + ' stickers, plus every cosmetic they unlock!' : 'You already have every sticker.', 'good'); };
   $('#ownTokens').onclick = () => { addTokens(100); $('#menuTokens').textContent = P.tokens; toast('+100 tokens'); };
   $('#ownClear').onclick = () => { if (!NET.isHost) { toast('Only the host can do that.'); return; } used(); HS.ents = HS.ents.filter(e => e.def.friendly); HS.calm = 60; toast('Entities cleared for 60 seconds.'); };
 }
