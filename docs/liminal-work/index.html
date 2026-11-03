@@ -174,6 +174,16 @@ input[type=text]{background:#0c0d08;border:1px solid var(--line);color:var(--ink
 .seg button[aria-pressed=true]{background:var(--amber);color:#1a1204}
 .seg.gfx{grid-template-columns:repeat(4,1fr)}
 .seg.gfx button{padding:8px 4px;font-size:13px}
+#finder{position:absolute;left:50%;top:calc(96px + var(--st));transform:translateX(-50%);display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.5);padding:3px 10px 3px 6px;font-family:var(--tape);font-size:18px;color:var(--scolite);text-shadow:0 1px 3px #000;white-space:nowrap}
+#finder i{display:inline-block;font-style:normal;font-size:18px;color:var(--scolite);transition:transform .12s linear;filter:drop-shadow(0 0 6px var(--scolite))}
+.lvGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.lvGrid button,.ownTools button{padding:10px;background:var(--panel2);border:1px solid var(--line);font-weight:700;text-align:left}
+.lvGrid button:disabled{opacity:.4}
+.ownTools{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+#ownGod[aria-pressed=true]{background:var(--amber);color:#1a1204}
+#ownPinForm{display:grid;grid-template-columns:1fr auto;gap:8px}
+#ownPinForm input{font-family:var(--tape);font-size:26px;letter-spacing:.3em}
+#ownPinForm button{padding:0 16px;background:var(--amber);color:#1a1204;border:0;font-weight:900}
 #fps{position:absolute;left:calc(14px + var(--sl));top:calc(60px + var(--st));font-family:var(--tape);font-size:18px;color:var(--ok);text-shadow:0 1px 3px #000}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .stepper{display:flex;align-items:center;border:1px solid var(--line)}
@@ -276,6 +286,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
   <div id="hotbar"></div>
   <div id="spect" hidden>You're down. <span id="spectName"></span> · tap to switch</div>
   <div id="fps" hidden></div>
+  <div id="finder" hidden><i aria-hidden="true">▲</i><span></span></div>
   <div id="clickToPlay" hidden>CLICK TO LOOK AROUND</div>
   <ul id="chatLog" aria-live="polite"></ul>
   <form id="chatForm" hidden autocomplete="off"><span id="chatTo"></span><div class="chatRow"><input type="text" id="chatIn" maxlength="160" aria-label="Chat message"><button type="submit">Say</button></div></form>
@@ -331,6 +342,8 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
     </div>
     <div class="row" style="justify-content:space-between"><span class="muted">Bot coworkers</span><div class="stepper"><button id="botMinus" type="button" aria-label="Fewer bots">−</button><span id="botN">0</span><button id="botPlus" type="button" aria-label="More bots">+</button></div></div>
     <div class="f" style="display:grid;gap:4px;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">Graphics <div class="seg gfx"><button class="gfxBtn" data-q="auto" type="button">Auto</button><button class="gfxBtn" data-q="0" type="button">Low</button><button class="gfxBtn" data-q="1" type="button">Medium</button><button class="gfxBtn" data-q="2" type="button">High</button></div></div>
+    <div class="f" id="contRow" hidden style="display:grid;gap:4px;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">Start from
+      <div class="seg"><button class="contBtn" data-c="0" type="button">Level 0</button><button class="contBtn" data-c="1" type="button" id="contSaved">Saved level</button></div></div>
     <button class="big" id="bSolo" type="button">Play</button>
     <button class="big alt" id="bHost" type="button">Host for friends</button>
     <div class="join"><input type="text" id="codeIn" placeholder="CODE" maxlength="5" autocomplete="off" aria-label="Lobby code"><button id="bJoin" type="button">Join</button></div>
@@ -344,6 +357,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
 <div class="ovl" id="pause" hidden><div class="win"><header><h2>PAUSED</h2><button data-close type="button" aria-label="Close">×</button></header><div class="body">
   <p class="muted" id="pCode"></p>
   <button class="big" id="pResume" type="button">Resume</button>
+  <button id="pOwner" type="button" style="color:var(--amber)">Owner mode (skip levels)</button>
   <button id="pLocker" type="button">Locker (outfit and stickers)</button>
   <button id="pAch" type="button">Sticker book</button>
   <button id="pHow" type="button">How to play</button>
@@ -354,6 +368,18 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
   <button id="pLeave" type="button" style="color:var(--danger)">Leave shift</button>
 </div></div></div>
 
+<div class="ovl" id="owner" hidden><div class="win"><header><h2>OWNER MODE</h2><button data-close type="button" aria-label="Close">×</button></header><div class="body">
+  <div id="ownLock"><p class="muted" id="ownPinMsg"></p><form id="ownPinForm"><input type="password" inputmode="numeric" maxlength="4" id="ownPin" aria-label="Owner PIN" autocomplete="off"><button type="submit">Unlock</button></form><p id="ownErr" class="muted" style="color:var(--danger)" hidden></p></div>
+  <div id="ownBody" hidden style="display:grid;gap:14px">
+    <p class="muted" id="ownHostNote">Only the host can skip levels or fill the quota in this lobby.</p>
+    <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">SKIP TO</h3><div class="lvGrid">
+      <button class="lvSkip" data-to="hq" type="button">Headquarters</button><button class="lvSkip" data-to="0" type="button">Level 0</button><button class="lvSkip" data-to="1" type="button">Level 37 · Poolrooms</button><button class="lvSkip" data-to="2" type="button">Level Fun =)</button>
+      <button class="lvSkip" data-to="3" type="button">The School</button><button class="lvSkip" data-to="4" type="button">Level 5 · Hotel</button><button class="lvSkip" data-to="boss" type="button">Payday (Boss)</button><button class="lvSkip" data-to="5" type="button">Level 94 · Motion</button><button class="lvSkip" data-to="end" type="button">The Ending</button></div></div>
+    <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">CHEATS</h3><div class="ownTools">
+      <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button></div></div>
+    <p class="muted">Your progress saves when you reach each level. Using cheats turns off the Employee of the Eternity run.</p>
+  </div>
+</div></div></div>
 <div class="ovl" id="arcade" hidden><div class="win"><header><h2>WORKSTATION 4 · LiminalOS 95</h2><button data-close type="button" aria-label="Close">×</button></header><div class="body">
   <div id="arcTabs"><button data-t="wac" type="button">WAC-MAN</button><button data-t="worm" type="button">WORM</button><button data-t="apple" type="button">APPLE CLICKER</button><button data-t="upg" type="button">UPGRADES</button></div>
   <p class="tokens" style="margin:0">Tokens: <span id="arcTok">0</span></p>
@@ -779,7 +805,7 @@ function makeCrystal(rng) {
   const base = mesh(new THREE.DodecahedronGeometry(.32, 0), mat(0x55504a, { r: .95, flat: true }), 0, .08, 0, g); base.scale.set(1.3, .45, 1.2);
   for (let i = 0; i < n; i++) { const h = .5 + rng() * .8, r = .08 + rng() * .08; const c = mesh(new THREE.OctahedronGeometry(1, 0), m, 0, 0, 0, g); c.scale.set(r, h, r);
     c.position.set((rng() - .5) * .4, h * .6, (rng() - .5) * .4); c.rotation.set((rng() - .5) * .8, rng() * 3, (rng() - .5) * .8); }
-  const gl = glowSprite(0x3a8cff, 2.2, .55); gl.position.y = .6; g.add(gl); g.userData.glow = gl; return g;
+  const gl = glowSprite(0x3a8cff, 2.6, .6); gl.material.fog = false; gl.position.y = .6; g.add(gl); g.userData.glow = gl; return g;
 }
 
 /* ---------- entities ---------- */
@@ -1115,6 +1141,12 @@ function shuffle(a, rng) { for (let i = a.length - 1; i > 0; i--) { const j = (r
 function spawnCrystals(L, rng, cells) {
   cells.forEach((c, i) => { const [x, z] = W.cellCenter(c[0], c[1]); const px = x + (rng() - .5) * (W.CS - 1.6), pz = z + (rng() - .5) * (W.CS - 1.6); const m = makeCrystal(rng); m.position.set(px, W.heightAt ? W.heightAt(px, pz) : 0, pz); m.rotation.y = rng() * 6; W.group.add(m); W.crystals.push({ id: i, x: px, z: pz, mesh: m, taken: false, per: L.per }); });
 }
+function spawnExtraCrystals(n) {
+  if (!W || !W.free || !W.crystals.length) return 0; const L = LEVELS[W.li]; let made = 0; const base = W.baseCry || (W.baseCry = W.crystals.length);
+  while (W.crystals.length - base < n) { const k = W.crystals.length - base; const rng = mulberry(W.seed + 7919 + k * 131); const cells = W.free.filter(([x, z]) => { const [wx, wz] = W.cellCenter(x, z); return Math.hypot(wx - W.elev.x, wz - W.elev.z) > 9; });
+    const c = cells[(rng() * cells.length) | 0]; const [x, z] = W.cellCenter(c[0], c[1]); const px = x + (rng() - .5) * (W.CS - 1.6), pz = z + (rng() - .5) * (W.CS - 1.6); const m = makeCrystal(rng); m.position.set(px, W.heightAt(px, pz), pz); m.rotation.y = rng() * 6; W.group.add(m); W.crystals.push({ id: W.crystals.length, x: px, z: pz, mesh: m, taken: false, per: L.per }); made++; }
+  return made;
+}
 function pickLoot(rng) { const tot = LOOT_TABLE.reduce((a, b) => a + b[1], 0); let r = rng() * tot; for (const [k, w] of LOOT_TABLE) { if ((r -= w) < 0) return k; } return 'water'; }
 function spawnItems(rng, cells, n) {
   for (let i = 0; i < n && i < cells.length; i++) { const c = cells[i]; const [x, z] = W.cellCenter(c[0], c[1]); const px = x + (rng() - .5) * 3, pz = z + (rng() - .5) * 3; const type = pickLoot(rng);
@@ -1238,7 +1270,7 @@ function buildSpawn(opts = {}) {
   const pl = new THREE.Group(); pl.position.set(-11, 0, -5.5); W.group.add(pl); mesh(G.cyl(.3, .22, .5, 12), mat(0x8a4a2a), 0, .25, 0, pl); for (let i = 0; i < 9; i++) { const l = mesh(G.sph(.22, 8, 6), mat(0x2f8a3a), Math.cos(i) * .25, .7 + (i % 3) * .2, Math.sin(i) * .25, pl); l.scale.set(.5, 1.4, .5); }
   // elevator
   placeElevator(10.15, 0, -Math.PI / 2);
-  W.inter.push({ get x() { return W.elev.toWorld(1.75, 1.2)[0]; }, y: 1.4, get z() { return W.elev.toWorld(1.75, 1.2)[1]; }, r: 2.2, get label() { return NET.isHost ? (GAME.mode === 'tag' ? 'Press: start ENTITY TAG round' : 'Press: start the shift (go to Level 0)') : 'Only the host can start the elevator'; }, act: () => { if (NET.isHost) hostStartShift(); } });
+  W.inter.push({ get x() { return W.elev.toWorld(1.75, 1.2)[0]; }, y: 1.4, get z() { return W.elev.toWorld(1.75, 1.2)[1]; }, r: 2.2, get label() { return NET.isHost ? (GAME.mode === 'tag' ? 'Press: start ENTITY TAG round' : 'Press: start the shift (go to ' + LEVELS[MENU.cont ? clamp(P.prog || 0, 0, 5) : 0].name + ')') : 'Only the host can start the elevator'; }, act: () => { if (NET.isHost) hostStartShift(); } });
   if (opts.boss) { const b = makeBoss(); const [bx, bz] = W.elev.toWorld(0, 3.4); b.position.set(bx, 0, bz); b.rotation.y = Math.PI / 2; W.group.add(b); W.boss = b; }
   W.spawnPoints = []; for (let i = 0; i < 10; i++) W.spawnPoints.push([-2.6 + (i % 5) * 1.3, 1.8 + Math.floor(i / 5) * 1.3]);
   freezeWorld(); return W;
@@ -1421,18 +1453,19 @@ function updatePlayer(dt) {
   const p = { x: ME.x + ME.vx * dt, z: ME.z + ME.vz * dt }; collide(p, .33); const moved = Math.hypot(p.x - ME.x, p.z - ME.z); ME.x = p.x; ME.z = p.z; ME.y = W.heightAt(ME.x, ME.z);
   ME.stepAcc += moved; if (ME.stepAcc > (ME.running ? 1.9 : 1.5)) { ME.stepAcc = 0; flag === 1 ? SFX.splash() : SFX.step(ME.running ? 1.3 : 1); }
   ME.bob += moved * 2.4; ME.boost = Math.max(0, ME.boost - dt); ME.slow = Math.max(0, ME.slow - dt);
-  if (ME.poison > 0) { ME.poison -= dt; ME.hp -= 4 * dt; if (ME.hp <= 0) die('Poisoned by moth jelly'); }
+  if (ME.poison > 0 && !ME.god) { ME.poison -= dt; ME.hp -= 4 * dt; if (ME.hp <= 0) die('Poisoned by moth jelly'); }
   ME.inEl = !!(W.elev && W.elev.inside(ME.x, ME.z));
   updateUse(dt); updateSanity(dt); entityContact(dt);
   // deposit
   if (ME.inEl && ME.carry > 0 && GAME.g && GAME.g.sc === 'lvl' && (GAME.g.ph === 'play' || GAME.g.ph === 'count')) { myAct('dep', ME.carry); toast('Deposited ' + ME.carry + ' shards!', 'good'); SFX.deposit(); ME.carry = 0; burstAt(W.elev.obj.userData.depGlow); }
   // squid
-  if (W.theme === 'pool' && flag === 2 && !ME.sq && !GAME.cine) { ME.sq = 1; GAME.frozen = true; SFX.splash(); setTimeout(() => SFX.scream(), 600); toast('You fell into the deep end!', 'bad'); }
+  if (W.theme === 'pool' && flag === 2 && !ME.sq && !GAME.cine && !ME.god) { ME.sq = 1; GAME.frozen = true; SFX.splash(); setTimeout(() => SFX.scream(), 600); toast('You fell into the deep end!', 'bad'); }
   if (ME.sq) { ME.sq += dt; ME.y = W.heightAt(ME.x, ME.z) - Math.min(1.6, Math.max(0, ME.sq - 1.6) * 1.2); camShake = .2; if (ME.sq > 3.2) { GAME.frozen = false; die('Dragged under by a Flesh Squid'); } }
   if (ME.hurtCool > 0) ME.hurtCool -= dt;
 }
 function burstAt(o) { if (!o) return; const v = new THREE.Vector3(); o.getWorldPosition(v); const fl = glowSprite(0x7fd0ff, 3, 1); fl.position.copy(v); scene.add(fl); PARTS.push({ m: fl, fade: true, t: 0 }); }
 function updateSanity(dt) {
+  if (ME.god) { ME.san = maxSan(); return; }
   if (!GAME.g || W.spawn || GAME.g.sc === 'tag' || ME.monster) { ME.san = Math.min(maxSan(), ME.san + dt * 5); return; }
   let drain = (W.th.san || .3) * (W.outdoor && GAME.g.nt > 50 ? 1.6 : 1);
   if (W.th.dark && !ME.fl) drain += .3; if (ME.inEl) drain = -.8;
@@ -1447,7 +1480,7 @@ function entityContact(dt) {
   GAME.entVis.forEach(e => { const def = ENT_DEF[e.type]; if (!def || def.friendly || !def.dmg) return; if (e.st !== 1) return; const d = Math.hypot(e.x - ME.x, e.z - ME.z); if (d < def.r + .55) { hurt(def.dmg, 'Caught by ' + entName(e.type)); ME.hurtCool = 1.2; } });
 }
 function entName(t) { return { howler: 'a Howler', nocliphowler: 'the noclipped Howler', bacteria: 'the Bacteria', smiler: 'a Smiler', skinstealer: 'a Skin-Stealer', hound: 'a Hound', partygoer: 'a Partygoer', primary: 'Primary Color Man', moth: 'a Deathmoth', growler: 'a Growler', partyhost: 'a Party Host' }[t] || 'something'; }
-function hurt(n, cause) { if (!ME.alive) return; ME.hp -= n; SFX.hurt(); camShake = .35; flashScreen('#8a0000'); if (ME.hp <= 0) die(cause); }
+function hurt(n, cause) { if (!ME.alive || ME.god) return; ME.hp -= n; SFX.hurt(); camShake = .35; flashScreen('#8a0000'); if (ME.hp <= 0) die(cause); }
 function die(cause) {
   if (!ME.alive) return; ME.alive = false; ME.hp = 0; ME.carry = 0; ME.ext = null; ME.fl = false; ME.deathT = 0; ME.sq = 0; ME.insane = 0; ME.inv = ['extractor', null, null, null, null]; refreshHotbar(); if (ME.flawless) { ME.flawless = false; }
   SFX.hurt(); const d = $('#death'); d.querySelector('b').textContent = cause || 'You died'; d.hidden = false; setTimeout(() => d.hidden = true, 4200); ME.spect = 0;
@@ -1597,28 +1630,30 @@ function hostAct(from, a) {
   else if (k === 'tag') { if (HS.tg && !HS.tg.m.includes(v)) { HS.tg.m.push(v); HS.tg.k[from] = (HS.tg.k[from] || 0) + 1; const b = HS.bots.find(q => q.id === v); if (b) b.monster = true; } }
 }
 function hostPlayers() {
-  const arr = []; if (GAME.playing) arr.push({ id: NET.me, x: ME.x, z: ME.z, alive: ME.alive && !ME.sq && !GAME.cine, run: ME.running, fl: ME.fl, yaw: ME.yaw, inEl: ME.inEl, mo: ME.monster });
-  NET.peerCache.forEach(p => { const pr = p.presence; if (!pr.p) return; arr.push({ id: p.peer, x: pr.p[0] / 100, z: pr.p[2] / 100, alive: !!pr.al && !pr.sq, run: !!pr.rn, fl: !!pr.fl, yaw: pr.p[3] / 100, inEl: !!pr.ie, mo: !!pr.mo }); });
-  HS.bots.forEach(b => arr.push({ id: b.id, x: b.x, z: b.z, alive: b.alive, run: false, fl: false, bot: b, inEl: W.elev ? W.elev.inside(b.x, b.z) : false, mo: b.monster }));
+  const arr = []; if (GAME.playing) arr.push({ id: NET.me, x: ME.x, z: ME.z, alive: ME.alive && !ME.sq && !GAME.cine, dead: !ME.alive, run: ME.running, fl: ME.fl, yaw: ME.yaw, inEl: ME.inEl, mo: ME.monster });
+  NET.peerCache.forEach(p => { const pr = p.presence; if (!pr.p) return; arr.push({ id: p.peer, x: pr.p[0] / 100, z: pr.p[2] / 100, alive: !!pr.al && !pr.sq, dead: !pr.al, run: !!pr.rn, fl: !!pr.fl, yaw: pr.p[3] / 100, inEl: !!pr.ie, mo: !!pr.mo }); });
+  HS.bots.forEach(b => arr.push({ id: b.id, x: b.x, z: b.z, alive: b.alive, dead: !b.alive, run: false, fl: false, bot: b, inEl: W.elev ? W.elev.inside(b.x, b.z) : false, mo: b.monster }));
   return arr;
 }
 function startRide(to) { HS.rid++; HS.rto = to; HS.rideT = to.sc === 'end' ? 8 : 5.5; HS.ph = 'ride'; }
 function hostLoad(to) {
-  HS.lvT = 0; HS.sc = to.sc; HS.lv = to.lv || 0; HS.sd = (Math.random() * 1e9) | 0; HS.ph = 'play'; HS.bk = 0; HS.cr.clear(); HS.im.clear(); HS.ents = []; HS.t = 0; HS.dayT = 0; HS.nt = 0; HS.bossT = 0; HS.endT = 0;
+  HS.lvT = 0; HS.calm = 0; HS.xc = 0; HS.supT = 0; HS.sc = to.sc; HS.lv = to.lv || 0; HS.sd = (Math.random() * 1e9) | 0; HS.ph = 'play'; HS.bk = 0; HS.cr.clear(); HS.im.clear(); HS.ents = []; HS.t = 0; HS.dayT = 0; HS.nt = 0; HS.bossT = 0; HS.endT = 0;
   HS.bots.forEach(b => { b.alive = true; b.hp = 100; b.carry = 0; b.path = null; b.goal = null; b.monster = false; b.placed = false; b.wp = null; b.harvT = 0; b.skip = null; });
   if (to.sc === 'tag') { const ids = hostPlayers().map(p => p.id); const m = ids[(Math.random() * ids.length) | 0]; HS.tg = { t: 300, m: [m], k: {} }; const b = HS.bots.find(q => q.id === m); if (b) b.monster = true; } else HS.tg = null;
 }
-function hostStartShift() { if (GAME.g && GAME.g.ph === 'ride') return; if (!W.spawn) return; ME.flawless = NET.solo && HS.botCount === 0 && HS.md === 'harvest'; startRide(HS.md === 'tag' ? { sc: 'tag', lv: 0 } : { sc: 'lvl', lv: 0 }); }
+function hostStartShift() { if (GAME.g && GAME.g.ph === 'ride') return; if (!W.spawn) return; ME.flawless = NET.solo && HS.botCount === 0 && HS.md === 'harvest'; const lv = MENU.cont ? clamp(P.prog || 0, 0, 5) : 0; if (lv > 0) ME.flawless = false; startRide(HS.md === 'tag' ? { sc: 'tag', lv: 0 } : { sc: 'lvl', lv }); }
 let hostAccum = 0;
 function hostTick(dt) {
   if (!NET.isHost) return;
   if (HS.ph === 'ride') { HS.rideT -= dt; if (HS.rideT <= 0) hostLoad(HS.rto); }
   else if (HS.sc === 'lvl' && W && W.li === HS.lv && W.seed === HS.sd) {
-    const L = LEVELS[HS.lv]; if (!HS.ents.length && !L.night) spawnEnts(L);
+    const L = LEVELS[HS.lv]; if (HS.calm > 0) HS.calm -= dt; if (!HS.ents.some(e => !e.def.friendly) && !L.night && !(HS.calm > 0)) { HS.ents = HS.ents.filter(e => e.def.friendly); spawnEnts(L); }
     if (L.night) { HS.dayT += dt; const cyc = HS.dayT % 140; const n = cyc < 60 ? 0 : cyc < 70 ? (cyc - 60) / 10 : cyc < 130 ? 1 : 1 - (cyc - 130) / 10; HS.nt = n; if (n > .5 && !HS.ents.length) spawnEnts(L); if (n < .2 && HS.ents.length) HS.ents = []; }
     HS.lvT += dt; if (HS.ph === 'play' && HS.bk >= L.quota) { HS.ph = 'count'; HS.t = 60; }
+    HS.supT = (HS.supT || 0) + dt; if (HS.supT > 2 && HS.ph === 'play') { HS.supT = 0; const left = W.crystals.filter(c => !HS.cr.has(c.id)).length; const carried = HS.bots.reduce((a, b) => a + (b.alive ? b.carry : 0), 0) + ME.carry + NET.peerCache.reduce((a, p) => a + (p.presence.cr || 0), 0);
+      if (left < 10 && HS.bk + carried + left * L.per < L.quota * 1.4 && (HS.xc || 0) < 60) HS.xc = (HS.xc || 0) + 10; }
     if (HS.ph === 'count') { HS.t -= dt; if (HS.t <= 0) { HS.ph = 'gone'; HS.bots.forEach(b => { if (!W.elev.inside(b.x, b.z)) b.alive = false; }); startRide(HS.lv < 4 ? { sc: 'lvl', lv: HS.lv + 1 } : HS.lv === 4 ? { sc: 'boss' } : { sc: 'end' }); } }
-    if (HS.ph === 'play' || HS.ph === 'count') { const pl = hostPlayers(); if (pl.length && pl.every(p => !p.alive)) { HS.ph = 'fired'; HS.t = 7; } }
+    if (HS.ph === 'play' || HS.ph === 'count') { const pl = hostPlayers(); if (pl.length && pl.every(p => p.dead)) { HS.ph = 'fired'; HS.t = 7; } }
     if (HS.ph === 'fired') { HS.t -= dt; if (HS.t <= 0) hostLoad({ sc: 'spawn' }); }
     simEnts(dt); simBots(dt);
   } else if (HS.sc === 'spawn' && W && W.spawn && !W.boss) { simSpawnBots(dt);
@@ -1631,7 +1666,7 @@ function hostTick(dt) {
   hostAccum += dt; if (hostAccum > .08 || NET.solo) { hostAccum = 0; GAME.g = serializeHS(); if (NET.solo) applyState(GAME.g); else applyState(GAME.g); }
 }
 function serializeHS() {
-  return { sc: HS.sc, lv: HS.lv, sd: HS.sd, ph: HS.ph, t: Math.ceil(HS.t), bk: HS.bk, cr: [...HS.cr], im: [...HS.im], rid: HS.rid, rto: HS.rto, md: HS.md, nt: Math.round(HS.nt * 100),
+  return { sc: HS.sc, lv: HS.lv, sd: HS.sd, ph: HS.ph, t: Math.ceil(HS.t), bk: HS.bk, cr: [...HS.cr], im: [...HS.im], rid: HS.rid, rto: HS.rto, md: HS.md, nt: Math.round(HS.nt * 100), xc: HS.xc || 0,
     en: HS.ents.map(e => [ENT_KEYS.indexOf(e.type), Math.round(e.x * 10), Math.round(e.z * 10), Math.round(e.rot * 100), e.st, e.id]),
     bt: HS.bots.map(b => [b.i, Math.round(b.x * 10), Math.round(b.z * 10), Math.round((b.rot || 0) * 100), b.alive ? 1 : 0, b.carry, b.monster ? 1 : 0, Math.round(b.sp * 10)]),
     tg: HS.tg ? { t: Math.ceil(HS.tg.t), m: HS.tg.m, w: HS.tg.w || '', k: HS.tg.k } : null };
@@ -1683,7 +1718,9 @@ function simEnts(dt) {
 /* ============ bots (host) ============ */
 function simBots(dt) {
   const g = HS; const L = LEVELS[g.lv]; const tag = g.sc === 'tag';
-  g.bots.forEach(b => { if (b.hurtCool > 0) b.hurtCool -= dt; if (!b.alive) { b.sp = 0; return; } b.t -= dt; const sp = 3.6;
+  g.bots.forEach(b => { if (b.hurtCool > 0) b.hurtCool -= dt;
+    if (!b.alive) { b.sp = 0; b.goal = null; if (!tag && g.ph === 'play') { b.deadT = (b.deadT || 0) + dt; if (b.deadT > 35) { b.deadT = 0; b.alive = true; b.hp = 100; b.carry = 0; b.path = null; const [x, z] = W.elev.toWorld(0, -.6); b.x = x; b.z = z; toast('HR sent ' + b.name + ' back to work.'); } } return; }
+    b.deadT = 0; b.t -= dt; const sp = 3.6;
     if (tag) { const pl = hostPlayers().filter(p => p.id !== b.id); if (b.monster) { const hum = pl.filter(p => !g.tg.m.includes(p.id) && p.alive).map(p => [p, Math.hypot(p.x - b.x, p.z - b.z)]).sort((a, c) => a[1] - c[1])[0];
         if (hum) { if (hum[1] < 1.3) { hostAct(b.id, [0, 'tag', hum[0].id]); } if (los(b.x, b.z, hum[0].x, hum[0].z)) moveEnt(b, hum[0].x, hum[0].z, sp * 1.12, dt); else { if (b.t <= 0) { pathTo(b, hum[0].x, hum[0].z); b.t = .7; } followPath(b, sp * 1.12, dt); } } else b.sp = 0; }
       else { const mon = pl.filter(p => g.tg.m.includes(p.id)).map(p => [p, Math.hypot(p.x - b.x, p.z - b.z)]).sort((a, c) => a[1] - c[1])[0];
@@ -1692,11 +1729,12 @@ function simBots(dt) {
       return; }
     // harvest
     const E = W.elev; const inEl = E.inside(b.x, b.z); if (inEl && b.carry) { g.bk += b.carry; b.carry = 0; }
-    const danger = g.ents.find(e => !e.def.friendly && e.def.dmg && e.st === 1 && e.tgt && e.tgt.id === b.id && Math.hypot(e.x - b.x, e.z - b.z) < 6);
+    if (inEl) b.hp = Math.min(100, b.hp + 15 * dt);
+    const danger = g.ents.find(e => { if (e.def.friendly || !e.def.dmg) return false; const d = Math.hypot(e.x - b.x, e.z - b.z); return d < 4.5 || (e.st === 1 && e.tgt && e.tgt.id === b.id && d < 12); });
     // unstick: if a bot has barely moved for 1.5s while it should be walking, shake it loose and pick a different target
     b.stk = (b.stk || 0) + dt; if (b.stk > 1.5) { const mv = Math.hypot(b.x - (b.sx ?? b.x), b.z - (b.sz ?? b.z)); b.sx = b.x; b.sz = b.z; b.stk = 0;
       if (mv < .3 && !(b.harvT > 0) && !inEl) { b.path = null; if (b.goal && b.goal !== 'home') b.skip = b.goal.id; b.goal = null; const a2 = Math.random() * TAU; const p = { x: b.x + Math.cos(a2) * .7, z: b.z + Math.sin(a2) * .7 }; collide(p, .3); b.x = p.x; b.z = p.z; } }
-    const goHome = g.ph === 'count' || b.carry >= L.per * 4 || danger;
+    const goHome = g.ph === 'count' || b.carry >= L.per * 3 || (danger && (b.carry > 0 || Math.hypot(b.x - E.x, b.z - E.z) < 22)) || b.hp < 45;
     // around the elevator: the grid square it sits in is mostly wall, so steer by hand there instead of pathfinding
     const [elx, elz] = E.toLocal(b.x, b.z); const bc = cellAt(b.x, b.z); const inCell = !inEl && bc[0] === W.ec[0] && bc[1] === W.ec[1];
     if (inCell && (elz < -1.9 || (Math.abs(elx) > 1.95 && elz < 2.1))) { const sx = Math.sign(elx) || 1; const [wx, wz] = Math.abs(elx) <= 1.95 ? E.toWorld(sx * 2.25, elz) : E.toWorld(sx * 2.25, 2.4); moveEnt(b, wx, wz, sp, dt); b.path = null; return; }
@@ -1710,7 +1748,8 @@ function simBots(dt) {
       if (followPath(b, danger ? sp * 1.5 : sp, dt)) moveEnt(b, ox, oz, sp, dt); return; }
     if (inEl) { if (E.open < .7) { b.sp = 0; return; } const [lx, lz] = E.toLocal(b.x, b.z); const [wx, wz] = Math.abs(lx) > .3 && lz < 1.3 ? E.toWorld(0, Math.max(lz, -.4)) : E.toWorld(0, 3.4); moveEnt(b, wx, wz, sp, dt); b.path = null; return; }
     if (b.harvT > 0) { b.harvT -= dt; b.sp = 0; if (b.harvT <= 0 && b.goal && b.goal !== 'home' && !g.cr.has(b.goal.id)) { g.cr.add(b.goal.id); b.carry += L.per; b.goal = null; } return; }
-    if (!b.goal || b.goal === 'home' || g.cr.has(b.goal.id)) { const opts = W.crystals.filter(c => !g.cr.has(c.id) && c.id !== b.skip && !g.bots.some(o => o !== b && o.goal && o.goal.id === c.id)).map(c => [c, Math.hypot(c.x - b.x, c.z - b.z)]).sort((a, c) => a[1] - c[1]); b.goal = opts[0] ? opts[0][0] : null; b.path = null; if (!b.goal) { b.sp = 0; return; } }
+    if (!b.goal || b.goal === 'home' || g.cr.has(b.goal.id)) { const opts = W.crystals.filter(c => !g.cr.has(c.id) && c.id !== b.skip && !g.bots.some(o => o !== b && o.alive && o.goal && o.goal.id === c.id)).map(c => [c, Math.hypot(c.x - b.x, c.z - b.z)]).sort((a, c) => a[1] - c[1]); b.goal = opts[0] ? opts[0][0] : null; b.path = null; if (!b.goal) { b.sp = 0; return; } }
+    if (b.goal !== b.lastGoal) { b.lastGoal = b.goal; b.goalT = 0; } b.goalT += dt; if (b.goalT > 25) { b.skip = b.goal.id; b.goal = null; b.path = null; return; }
     if (!b.path) pathTo(b, b.goal.x, b.goal.z);
     const d = Math.hypot(b.goal.x - b.x, b.goal.z - b.z); if (d < 1.4) { b.harvT = 1.1; b.sp = 0; } else if (followPath(b, sp, dt)) moveEnt(b, b.goal.x, b.goal.z, sp, dt);
   });
@@ -1734,6 +1773,7 @@ function applyState(g) {
   if (!g) return; GAME.g = g; const key = g.sc + ':' + g.lv + ':' + g.sd;
   if (g.rid !== GAME.rid) { const first = GAME.rid === -1; GAME.rid = g.rid; if (!first && g.ph === 'ride' && GAME.key) onRideStart(g.rto); }
   if (key !== GAME.key && g.ph !== 'ride' && !GAME.waitLoad) loadScene(g);
+  if (W && GAME.key === key && g.sc === 'lvl' && (g.xc || 0) > (W.xc || 0)) { W.xc = g.xc; if (spawnExtraCrystals(g.xc)) toast('New scolite crystals grew out of the walls!', 'good'); }
   if (W && GAME.key === key) { (g.cr || []).forEach(id => { const c = W.crystals[id]; if (c && !c.taken) { c.taken = true; c.mesh.visible = false; } }); (g.im || []).forEach(id => { const it = W.items[id]; if (it && !it.taken) { it.taken = true; it.mesh.visible = false; } }); }
   const wasMon = ME.monster; ME.monster = g.sc === 'tag' && !!g.tg && g.tg.m.includes(NET.me); if (ME.monster && !wasMon && GAME.key === key) { bigText(GAME.tagStarted ? 'YOU\'VE BEEN TAGGED!' : 'YOU ARE THE MONSTER', '#ff3030'); SFX.scream(); ME.fl = false; } if (g.sc === 'tag' && GAME.key === key) GAME.tagStarted = true;
   syncEnts(g.en || []);
@@ -1756,7 +1796,7 @@ function loadScene(g) {
   if (g.sc === 'spawn') { buildSpawn(); respawn(); resetKit(true); const sp = W.spawnPoints[myCrewIndex() % 10]; ME.x = sp[0]; ME.z = sp[1]; ME.yaw = 0; ME.pitch = 0; ME.y = 0;
     setMusicTitle(''); if (!GAME.introSeenSession) { GAME.introSeenSession = true; playIntro(false); } }
   else if (g.sc === 'lvl') { buildLevel(g.lv, g.sd, crew); respawn(); placeInElevator(); W.elev.target = 0; W.elev.open = 0; setTimeout(() => { if (W && W.elev) { W.elev.target = 1; GAME.arrived = true; SFX.ding(); setTimeout(SFX.door, 200); sub('Entities can\'t cross the yellow-and-black ring around the elevator, and they leave you alone for the first 20 seconds.', 6000); } }, 1300); const L = LEVELS[g.lv]; titleCard(L.name, L.sub, `QUOTA ${L.quota.toLocaleString()} · ${L.per} SHARDS PER CRYSTAL`);
-    ach(['', 'pool', 'fun', 'school', 'hotel', 'motion'][g.lv] || 'first-none'); }
+    ach(['', 'pool', 'fun', 'school', 'hotel', 'motion'][g.lv] || 'first-none'); if (NET.isHost && g.md !== 'tag') { P.prog = g.lv; MENU.cont = true; save(); } }
   else if (g.sc === 'boss') { buildSpawn({ boss: true }); placeInElevator(); W.elev.target = 0; W.elev.open = 0; setTimeout(() => { if (W && W.elev) { W.elev.target = 1; SFX.ding(); SFX.door(); sub('BOSS: Great work, team! Here\'s your paych—'); } }, 1500); W.dyn.push({ x0: W.elev.toWorld(0, 2.2)[0] - .1, x1: W.elev.toWorld(0, 2.2)[0] + .1, z0: -2, z1: 2, tag: 'barrier' }); titleCard('HEADQUARTERS', 'Payday?', ''); }
   else if (g.sc === 'end') { buildSpawn(); W.group.visible = false; scene.background = new THREE.Color(0); showEnd(); }
   else if (g.sc === 'tag') { const li = g.sd % 5; buildLevel(li, g.sd, crew); W.crystals.forEach(c => { c.mesh.visible = false; c.taken = true; }); respawn(); resetKit(true); ME.inv = ['flashlight', null, null, null, null]; ME.sel = 0; refreshHotbar();
@@ -1793,7 +1833,7 @@ function updateWatcher(dt) {
 }
 /* ---------- end ---------- */
 function showEnd() {
-  ach('fall'); if (ME.flawless && NET.solo && HS.botCount === 0) { ach('flawless'); }
+  ach('fall'); P.prog = 0; MENU.cont = false; save(); if (ME.flawless && NET.solo && HS.botCount === 0) { ach('flawless'); }
   const e = $('#endScreen'); e.hidden = false; e.classList.remove('go'); void e.offsetWidth; e.classList.add('go'); ME.alive = false; GAME.frozen = true; setTimeout(() => { GAME.frozen = false; }, 14000);
 }
 /* ---------- visuals sync ---------- */
@@ -2094,6 +2134,34 @@ function menuInit() {
   $('#menuTokens').textContent = P.tokens; bc(); setupTouch(); refreshHotbar();
   $('#death').addEventListener('click', () => ME.spect++); cvs.addEventListener('click', () => { if (GAME.playing && !ME.alive) ME.spect++; });
 }
+/* ---------- owner mode ---------- */
+let OWNER_OK = false;
+(async () => { try { if (IN_CLAUDE) { const u = await window.claude.use('user'); if (u && u.isOwner && u.isOwner()) OWNER_OK = true; } } catch (e) { } })();
+function pinHash(s) { let h = 7; for (const ch of 'lw:' + s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h.toString(36); }
+function openOwner() {
+  ovl('#pause', false); const lock = $('#ownLock'), body = $('#ownBody'); const unlocked = OWNER_OK || GAME.ownerUnlocked;
+  lock.hidden = unlocked; body.hidden = !unlocked; $('#ownPinMsg').textContent = P.ownerPin ? 'Enter your owner PIN.' : 'First time here: make up a 4-digit owner PIN. You\'ll need it every time you open Owner Mode on this device.'; $('#ownPin').value = ''; $('#ownErr').hidden = true;
+  $('#ownHostNote').hidden = NET.isHost; $$('#ownBody .lvSkip').forEach(b => b.disabled = !NET.isHost); $('#ownGod').setAttribute('aria-pressed', !!ME.god); ovl('#owner', true); if (!unlocked) setTimeout(() => $('#ownPin').focus(), 50);
+}
+function ownerSetup() {
+  $('#pOwner').onclick = () => openOwner();
+  $('#ownPinForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#ownPin').value.trim(); if (!/^\d{4}$/.test(v)) { $('#ownErr').textContent = 'The PIN has to be 4 digits.'; $('#ownErr').hidden = false; return; }
+    if (!P.ownerPin) { P.ownerPin = pinHash(v); save(); } else if (P.ownerPin !== pinHash(v)) { $('#ownErr').textContent = 'Wrong PIN.'; $('#ownErr').hidden = false; SFX.hurt(); return; }
+    GAME.ownerUnlocked = true; SFX.ach(); openOwner(); });
+  const used = () => { ME.flawless = false; };
+  $$('#ownBody .lvSkip').forEach(b => b.onclick = () => { if (!NET.isHost) return; used(); const t = b.dataset.to; closeAllOvl(); if (GAME.watcher) { scene.remove(GAME.watcher.obj); GAME.watcher = null; } GAME.waitLoad = false;
+    hostLoad(t === 'boss' ? { sc: 'boss' } : t === 'end' ? { sc: 'end' } : t === 'hq' ? { sc: 'spawn' } : { sc: 'lvl', lv: +t }); toast('Owner skip!', 'good'); });
+  $('#ownQuota').onclick = () => { if (!NET.isHost) { toast('Only the host can do that.'); return; } if (HS.sc === 'lvl') { used(); HS.bk = Math.max(HS.bk, LEVELS[HS.lv].quota); toast('Quota filled. Get to the elevator!', 'good'); } else toast('You need to be in a level.'); };
+  $('#ownGod').onclick = () => { ME.god = !ME.god; used(); $('#ownGod').setAttribute('aria-pressed', ME.god); toast(ME.god ? 'God mode ON: no damage, no sanity loss.' : 'God mode OFF.'); };
+  $('#ownItems').onclick = () => { used(); ME.inv = ['extractor', 'water', 'glorps', 'jar', 'rock']; if (!ME.alive) revive(100); refreshHotbar(); toast('Inventory filled.'); };
+  $('#ownLight').onclick = () => { used(); ME.inv[4] = 'flashlight'; refreshHotbar(); toast('Flashlight added to slot 5.'); };
+  $('#ownTokens').onclick = () => { addTokens(100); $('#menuTokens').textContent = P.tokens; toast('+100 tokens'); };
+  $('#ownClear').onclick = () => { if (!NET.isHost) { toast('Only the host can do that.'); return; } used(); HS.ents = HS.ents.filter(e => e.def.friendly); HS.calm = 60; toast('Entities cleared for 60 seconds.'); };
+}
+function contSetup() {
+  const row = $('#contRow'); const upd = () => { const lv = clamp(P.prog || 0, 0, 5); row.hidden = !(lv > 0); $('#contSaved').textContent = 'Saved: ' + LEVELS[lv].name; $$('.contBtn').forEach(b => b.setAttribute('aria-pressed', (b.dataset.c === '1') === !!MENU.cont)); };
+  MENU.cont = (P.prog || 0) > 0; $$('.contBtn').forEach(b => b.onclick = () => { MENU.cont = b.dataset.c === '1'; upd(); SFX.click(); }); upd(); MENU.refreshCont = upd;
+}
 function menuErr(t) { const e = $('#menuErr'); e.textContent = t; e.hidden = !t; }
 async function startGame(kind) {
   audioInit(); setHum(.05); menuErr(''); P.name = ($('#nameIn').value.trim() || P.name).slice(0, 18); save();
@@ -2109,7 +2177,7 @@ function showCode() { const b = $('#codeBadge'); if (NET.solo) { b.hidden = true
 function quitToMenu() {
   netLeave(); GAME.playing = false; GAME.key = ''; GAME.rid = -1; GAME.g = null; GAME.cine = false; GAME.camOverride = null; GAME.introOn = false; GAME.waitLoad = false; GAME.frozen = false; $('#vhs').hidden = true; try { speechSynthesis.cancel(); } catch (e) { }
   GAME.entVis.forEach(v => W && W.group.remove(v.obj)); GAME.entVis.clear(); GAME.botVis.forEach(b => scene.remove(b.model)); GAME.botVis.clear(); if (GAME.self && GAME.self.model) GAME.self.model.visible = false; if (GAME.watcher) { scene.remove(GAME.watcher.obj); GAME.watcher = null; }
-  ME.alive = true; ME.monster = false; ME.sq = 0; closeAllOvl(); $$('#death,#fired,#endScreen,#insane').forEach(e => e.hidden = true); $('#fade').classList.remove('on'); buildSpawn(); $('#hud').hidden = true; $('#menu').hidden = false; $('#menuTokens').textContent = P.tokens; try { document.exitPointerLock(); } catch (e) { } camera.fov = 72; camera.updateProjectionMatrix();
+  ME.alive = true; ME.monster = false; ME.sq = 0; closeAllOvl(); $$('#death,#fired,#endScreen,#insane').forEach(e => e.hidden = true); $('#fade').classList.remove('on'); buildSpawn(); $('#hud').hidden = true; $('#menu').hidden = false; $('#menuTokens').textContent = P.tokens; if (MENU.refreshCont) MENU.refreshCont(); try { document.exitPointerLock(); } catch (e) { } camera.fov = 72; camera.updateProjectionMatrix();
 }
 function openPause() { if (!GAME.playing) return; $('#pCode').textContent = NET.solo ? 'Solo shift' : 'Lobby code: ' + NET.code + ' · ' + (NET.peerCache.length + 1) + ' players'; ovl('#pause', true); }
 let menuAng = 0;
@@ -2129,6 +2197,8 @@ function hud(dt) {
   else if (g.sc === 'tag' && g.tg) html = `<span class="lvl">ENTITY TAG</span><span class="count">${fmtTime(g.tg.t)}</span><span class="sub">${ME.monster ? 'You are a MONSTER. Touch workers to tag them.' : 'Survive! Monsters: ' + g.tg.m.length}</span>`;
   else if (g.sc === 'boss') html = '<span class="lvl">HEADQUARTERS</span><span class="sub">Payday!</span>';
   if (top._h !== html) { top.innerHTML = html; top._h = html; }
+  const fd = $('#finder'); let near = null, nd = 1e9; if (g.sc === 'lvl' && W && !W.spawn && ME.alive) W.crystals.forEach(c => { if (c.taken) return; const d = Math.hypot(c.x - ME.x, c.z - ME.z); if (d < nd) { nd = d; near = c; } });
+  if (near) { const b = Math.atan2(-(near.x - ME.x), -(near.z - ME.z)); const rel = angDiff(ME.yaw, b); fd.hidden = false; fd.querySelector('i').style.transform = `rotate(${-rel}rad)`; fd.querySelector('span').textContent = Math.round(nd) + 'm to nearest crystal · ' + W.crystals.filter(c => !c.taken).length + ' left'; } else fd.hidden = true;
   const crew = crewList(); const ch = crew.map(c => `<li class="${c.alive ? '' : 'dead'} ${c.mo ? 'mon' : ''}"><i style="background:${c.color}"></i>${escapeHtml(c.name)}${c.me ? ' (you)' : ''}</li>`).join(''); const ce = $('#crew'); if (ce._h !== ch) { ce.innerHTML = ch; ce._h = ch; }
   $('#spect').hidden = ME.alive || !GAME.playing; $('#fl').hidden = !ME.fl; document.body.classList.toggle('monster', ME.monster);
 }
@@ -2254,7 +2324,7 @@ function frame(now) {
 function boot() {
   loadImg('eye', IMG_EYE); loadImg('bob', IMG_BOB); loadImg('glorp', IMG_GLORP);
   $('#insaneImg').src = IMG_EYE; $('#logoBob').src = IMG_BOB; $('#logoGlorp').src = IMG_GLORP;
-  buildSpawn(); menuInit(); arcadeSetup(); chatSetup();
+  buildSpawn(); menuInit(); arcadeSetup(); chatSetup(); ownerSetup(); contSetup();
   $$('.gfxBtn').forEach(b => b.onclick = () => { setGfxPick(b.dataset.q); SFX.click(); }); setGfxPick(P.gfx || 'auto');
   $('#showFps').onchange = e => { $('#fps').hidden = !e.target.checked; }; $('#hud').hidden = true; requestAnimationFrame(frame);
   try { speechSynthesis && speechSynthesis.getVoices(); } catch (e) { }
