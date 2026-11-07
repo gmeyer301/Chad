@@ -441,7 +441,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
       <button class="lvSkip" data-to="d4" type="button">Level 1 · Garage</button><button class="lvSkip" data-to="d5" type="button">Level !- · Blue Hospital</button><button class="lvSkip" data-to="d6" type="button">Level !+ (Clump)</button></div></div>
     <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">ENDLESS PAIN (DLC 2)</h3><div class="lvGrid" id="ownEP"></div></div>
     <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">CHEATS</h3><div class="ownTools">
-      <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button><button id="ownStickers" type="button">Give me every sticker</button></div></div>
+      <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button><button id="ownStickers" type="button">Give me every sticker</button><button id="ownDLC" type="button">Unlock both DLCs</button><button id="ownWipe" type="button" style="background:#5a1010;color:#fff;border-color:#a02020">Delete my data</button></div></div>
     <p class="muted">Your progress saves when you reach each level. Using cheats turns off the Employee of the Eternity run.</p>
   </div>
 </div></div></div>
@@ -2441,7 +2441,7 @@ function buildCorridor(kind, seed, crew, d) {
   mesh(new THREE.PlaneGeometry(1.6, .4), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sg) }), 0, H - .35, 2, ex);
   W.start = [0, 4, 0]; W.goal = { line: true, z: -LEN + 3, on: () => true };
   if (hosp) { W.chaseEnts = ['howler', 'bacteria', 'smiler', 'skinstealer', 'hound', 'hound', 'partygoer', 'growler', 'moth', 'moth', 'primary', 'bacteria'].map((t, i) => ({ type: t, x: (rng() - .5) * 4.4, z: (W.start ? W.start[1] : 4) + 2.6 + i * .45 }));
-    ['growler', 'smiler', 'skinstealer', 'partygoer', 'bacteria', 'growler', 'howler', 'hound', 'skinstealer', 'growler', 'smiler', 'partygoer'].forEach((t, i) => W.chaseEnts.push({ type: t, x: (i % 2 ? -1 : 1) * 2.9, z: -25 - i * ((LEN - 50) / 12) - rng() * 8, dorm: true })); }
+    ['growler', 'smiler', 'skinstealer', 'partygoer', 'bacteria', 'growler', 'howler', 'hound', 'skinstealer', 'growler', 'smiler', 'partygoer'].forEach((t, i) => W.chaseEnts.push({ type: t, x: (rng() - .5) * 4.4, z: W.start[1] + 8.2 + i * .45 })); }
   else if (hotel) W.chaseEnts = [{ type: 'clump', x: 0, z: (W.start ? W.start[1] : 4) + 3.2 }];
   W.dlcTick = dt => { if (W.movers) W.movers.forEach(m => { const x = Math.sin(GT * m.sp + m.ph) * m.amp; m.g.position.set(x, 0, m.z); m.box.x0 = x - 1; m.box.x1 = x + 1; }); };
   freezeWorld(); return W;
@@ -3214,6 +3214,9 @@ function ownerSetup() {
   $('#ownGod').onclick = () => { ME.god = !ME.god; used(); $('#ownGod').setAttribute('aria-pressed', ME.god); toast(ME.god ? 'God mode ON: no damage, no sanity loss.' : 'God mode OFF.'); };
   $('#ownItems').onclick = () => { used(); ME.inv = ['extractor', 'water', 'glorps', 'jar', 'rock']; if (!ME.alive) revive(100); refreshHotbar(); toast('Inventory filled.'); };
   $('#ownLight').onclick = () => { used(); ME.inv[4] = 'flashlight'; refreshHotbar(); toast('Flashlight added to slot 5.'); };
+  $('#ownDLC').onclick = () => { P.dlc = true; P.dlc2 = true; save(); if (MENU.refreshDLC) MENU.refreshDLC(); if (MENU.refreshEP) MENU.refreshEP(); $$('.modeBtn[data-m="dlc"],.modeBtn[data-m="ep"]').forEach(b => b.hidden = false); SFX.ach(); toast('Distant Memory and Endless Pain unlocked! Pick them under Mode.', 'good'); };
+  $('#ownWipe').onclick = () => { const b = $('#ownWipe'); if (b.dataset.arm !== '1') { b.dataset.arm = '1'; b.textContent = 'Tap again to delete EVERYTHING'; setTimeout(() => { b.dataset.arm = ''; b.textContent = 'Delete my data'; }, 4000); return; }
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) { } save = () => {}; P = DEF_PROFILE(); try { localStorage.removeItem(SAVE_KEY); } catch (e) { } toast('All data deleted. Restarting...', 'bad'); setTimeout(() => { try { localStorage.removeItem(SAVE_KEY); } catch (e) { } location.reload(); }, 900); };
   $('#ownStickers').onclick = () => { let n = 0; ACHS.forEach(a => { if (!P.ach[a.id]) { P.ach[a.id] = Date.now(); n++; } }); save(); if (W && W.boardCanvas) drawBoard(); SFX.ach(); toast(n ? 'Unlocked ' + n + ' stickers, plus every cosmetic they unlock!' : 'You already have every sticker.', 'good'); };
   $('#ownTokens').onclick = () => { addTokens(100); $('#menuTokens').textContent = P.tokens; toast('+100 tokens'); };
   $('#ownClear').onclick = () => { if (!NET.isHost) { toast('Only the host can do that.'); return; } used(); HS.ents = HS.ents.filter(e => e.def.friendly); HS.calm = 60; toast('Entities cleared for 60 seconds.'); };
