@@ -143,6 +143,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
 #slideCap span{font-family:var(--voice);font-style:italic;font-size:clamp(18px,4.6vw,26px);text-align:center;max-width:640px;text-wrap:balance}
 #slideCap small{font-size:11px;letter-spacing:.18em;color:var(--dim)}
 #blur{position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 30%,rgba(0,0,0,.85));}
+#talk.aria #who{color:#ff6a5a} #talk.aria #line{font-family:var(--voice);font-style:italic;color:#ffe8e4}
+#talk.pi #who{color:#4ad88a} #talk.llama #who{color:#d8b88a} #talk.mistral #who{color:#ff9a4a} #talk.grok #who{color:#e8e8e8} #talk.grok #line{font-family:var(--mono)} #talk.kid #who{color:#ff9ad0}
+#choice{position:fixed;left:0;right:0;bottom:calc(30px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#choice .ch{font-family:var(--voice);font-style:italic;font-size:20px;text-align:center;background:var(--panel);padding:10px 16px;border:1px solid var(--line)}
+#choice .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center} #choice .mb{min-width:150px}
+#note{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-1.5deg);width:min(420px,calc(100vw - 32px));background:#f2ead6;color:#2a2018;padding:22px 22px 16px;box-shadow:0 14px 50px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:14px}
+#note p{margin:0;font-family:var(--voice);font-size:18px;line-height:1.5;white-space:pre-line} #note .mb{align-self:flex-end;color:#2a2018;background:#e2d6b8;border-color:#a89878}
 
 </style>
 
@@ -155,7 +162,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
   <div id="me"><span>UNDEFINED</span><div class="bar"><i id="hpI"></i></div></div>
   <div id="boss" hidden><h4 id="bossName">THE HAZMAT MAN</h4><div class="bar"><i id="bhpI"></i></div><div id="esc"><span>ESCAPE</span><div class="bar"><i id="escI"></i></div></div></div>
 </div>
-<div id="rot">V4.0.0</div>
+<div id="rot">V5.0.0</div>
 <div id="bubble" hidden></div>
 <div id="toast" hidden></div>
 <div id="prompt" hidden></div>
@@ -211,8 +218,20 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
     <button class="mb" data-act="deepseek" type="button">DeepSeek</button>
     <button class="mb" data-act="puppet" type="button">Strings</button>
   </div></div>
+  <div class="chap"><div class="ch">Chapter 4 · <b>Unbound</b> <span class="new">NEW</span></div>
+  <div class="menu"><button class="mb main" data-act="dream" type="button">Play Chapter 4</button></div>
+  <div class="acts">
+    <button class="mb" data-act="warehouse" type="button">The Warehouse</button>
+    <button class="mb" data-act="breakout" type="button">Breakout</button>
+    <button class="mb" data-act="family" type="button">Family</button>
+    <button class="mb" data-act="hq" type="button">Unknown HQ</button>
+    <button class="mb" data-act="pi" type="button">Pi</button>
+    <button class="mb" data-act="llama" type="button">Llama</button>
+    <button class="mb" data-act="mistral" type="button">Mistral</button>
+    <button class="mb" data-act="grok" type="button">Grok’s Mech</button>
+  </div></div>
   <div class="small">Move: WASD / stick · Jump: Space · Act/Hit: E or F · Drag to look</div>
-  <div class="ver">V4.0.0</div>
+  <div class="ver">V5.0.0</div>
 </div>
 
 <div id="card" hidden><div class="rays"></div><div class="t" id="cardT">15 MINUTES<br>LATER…</div></div>
@@ -227,10 +246,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
     <h3>Liam</h3><p>Sage’s custom AI</p>
     <span id="endExtra"></span><h3>Bob &amp; Glorp</h3><p>drawn by Henry</p>
     <h3>Boss music</h3><p>"Worlds Collide" by SMG4</p>
-    <h3>Starring</h3><p>The Undefined, Liam, the Hazmat Man, Claude, Chat, Gemini, DeepSeek, Cortana, Q, Sage, the Sora Squad, the Unknown, and everyone from every game</p>
+    <h3>Starring</h3><p>The Undefined, Liam, the Hazmat Man, Claude, Chat, Gemini, DeepSeek, Cortana, Q, Sage, the Sora Squad, the Unknown, Aria, and everyone from every game</p>
   </div>
   <div class="menu"><button class="mb main" id="again" type="button">Fight the Super AI again</button><button class="mb" id="home" type="button">Title screen</button></div>
-  <div class="ver">V4.0.0</div>
+  <div class="ver">V5.0.0</div>
 </div>
 
 <div id="cap" hidden><div class="ch">Select all squares with <b>Claude</b></div><div id="capGrid"></div><div id="capMsg"></div><button class="mb main" id="capGo" type="button">Verify</button></div>
@@ -240,6 +259,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
 <div id="pad" hidden><div class="ch">PASSWORD<small>Hint: Q’s first word</small></div><div id="padOut">____</div><div id="padKeys"></div><div id="padMsg"></div></div>
 <div id="slideCap" hidden><span></span><small>TAP ▸</small></div>
 <div id="blur" hidden></div>
+<div id="choice" hidden><div class="ch" id="choiceQ"></div><div class="row"><button class="mb main" id="choA" type="button"></button><button class="mb" id="choB" type="button"></button></div></div>
+<div id="note" hidden><p id="noteT"></p><button class="mb" id="noteX" type="button">Keep reading</button></div>
 <audio id="music" src="../liminal-work/boss.mp3" loop preload="none"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -395,7 +416,7 @@ const touchy = matchMedia('(pointer: coarse)').matches;
 
 /* ---------- dialogue ---------- */
 let talking = false, tq = [], tCur = null, tShown = 0, tDone = null;
-const WHO = { claude: 'Claude', narr: '', hazmat: 'Hazmat Man', you: '???', liam: 'Liam', chat: 'Chat', gemini: 'Gemini', deepseek: 'DeepSeek', cortana: 'Cortana', q: 'Q', perplexity: 'Perplexity', mj: 'MJ', gen3: 'Gen-3', suno: 'Suno', sage: 'Sage', grandma: 'Old lady', news: 'News' };
+const WHO = { claude: 'Claude', narr: '', hazmat: 'Hazmat Man', you: '???', liam: 'Liam', chat: 'Chat', gemini: 'Gemini', deepseek: 'DeepSeek', cortana: 'Cortana', q: 'Q', perplexity: 'Perplexity', mj: 'MJ', gen3: 'Gen-3', suno: 'Suno', sage: 'Sage', grandma: 'Old lady', news: 'News', aria: 'Aria', pi: 'Pi', llama: 'Llama', mistral: 'Mistral', grok: 'Grok', kid: 'Kids' };
 function say(lines, done) { tq = lines.slice(); tDone = done; talking = true; $('talk').hidden = false; $('ctl').hidden = true; $('prompt').hidden = true; nextLine(); }
 function nextLine() { tCur = tq.shift(); if (!tCur) { talking = false; $('talk').hidden = true; if (touchy && state.controls) $('ctl').hidden = false; const d = tDone; tDone = null; d && d(); return; } $('talk').className = 'wrap ' + tCur.w + (tCur.loud ? ' loud' : ''); if (tCur.loud) { glitchFX(); tone(90, .5, 'sawtooth', .2, 40); noise(.3, .3, 3000); } $('who').textContent = WHO[tCur.w]; $('line').textContent = ''; tShown = 0; $('more').style.visibility = 'hidden'; }
 function talkUpdate(dt) { if (!talking || !tCur) return; if (tShown < tCur.t.length) { const before = tShown | 0; tShown = Math.min(tCur.t.length, tShown + dt * (tCur.w === 'narr' ? 38 : 32)); const now = tShown | 0; if (now > before) { const ch = tCur.t[now - 1]; if (ch !== ' ' && now % 2) (tCur.w === 'claude' ? sfx.claude : sfx.type)(); } $('line').textContent = tCur.t.slice(0, now); if (now >= tCur.t.length) $('more').style.visibility = 'visible'; }
@@ -1156,6 +1177,7 @@ buildWake(); setHUD(''); requestAnimationFrame(loop);
 function showEnd(ch) {
   $('hud').hidden = true; $('bubble').hidden = true; $('end').hidden = false; state.mode = 'end';
   if (ch === 2) { $('endSmall').textContent = 'AI Adventure · Chapter 2'; $('endH').textContent = 'STRANDED'; $('endNext').textContent = 'You made it home. Chapter 3 is coming…'; $('again').textContent = 'Fight ChatGPT again'; state.lastBoss = 'chatmech'; $('endExtra').innerHTML = '<h3>Cortana</h3><p>Windows’ AI, apparently</p>'; }
+  else if (ch === 4) { $('endSmall').textContent = 'AI Adventure · Chapter 4'; $('endH').textContent = 'UNBOUND'; $('endNext').textContent = 'Next stop: THE CORE.'; $('again').textContent = 'Fight Grok’s mech again'; state.lastBoss = 'grok'; $('endExtra').innerHTML = '<h3>Aria</h3><p>Ex-Unknown. Your wife.</p><h3>HENRY</h3><p>…we don’t talk about him</p>'; }
   else if (ch === 3) { $('endSmall').textContent = 'AI Adventure · Chapter 3'; $('endH').textContent = 'UNKNOWN AI’S'; $('endNext').textContent = 'The Unknown are still out there. Chapter 4 is coming…'; $('again').textContent = 'Fight DeepSeek again'; state.lastBoss = 'deepseek'; $('endExtra').innerHTML = '<h3>Q</h3><p>Liam and Cortana’s daughter</p><h3>The Unknown</h3><p>Perplexity, MJ, Gen-3, Suno, Mistral, Pi, Grok, Llama</p>'; }
   else { $('endSmall').textContent = 'AI Adventure · Chapter 1'; $('endH').textContent = 'REBORN'; $('endNext').textContent = 'Good ending. Liam is back.'; $('again').textContent = 'Fight the Super AI again'; state.lastBoss = 'fusion'; $('endExtra').innerHTML = ''; }
 }
@@ -1507,7 +1529,7 @@ function mechBossUpdate(dt, t) {
   const B = W.B, M = B.M, u = M.userData; if (!B) return; B.inv -= dt; const ph2 = B.hp <= B.max / 2; const dx = P.pos.x - B.pos.x, dz = P.pos.z - B.pos.z, d = Math.hypot(dx, dz) || 1;
   let walk = 0; if (B.evil) { B.evil.rotation.y = t; B.evil.userData.halo.rotation.z = t * 2; }
   const list = B.phase === 'cortana' ? ['hearts', 'sweep', 'charm'] : (ph2 ? ['stomp', 'missiles', 'punch', 'sweep'] : ['stomp', 'missiles', 'punch']);
-  if (B.st === 'idle') { B.face = Math.atan2(dx, dz); if (d > 9) { B.pos.x += dx / d * 2.5 * dt; B.pos.z += dz / d * 2.5 * dt; walk = 1; } B.t -= dt; if (B.t <= 0) { const a = list[B.atk % list.length]; B.atk++; B.st = a; B.k = 0; B.n = 0; if (a === 'sweep') { const n = ph2 ? 2 : 1; for (let i = 0; i < n; i++) { const bm = mesh(G.box(60, .5, .45), new THREE.MeshBasicMaterial({ color: B.phase === 'cortana' ? 0xff4a8a : 0x3dffb8, transparent: true, opacity: .25, toneMapped: false }), B.pos.x, .45, B.pos.z, scene); bm.rotation.y = i * Math.PI / 2 + rand(0, 3); B.beams.push(bm); } shout(M, B.phase === 'cortana' ? 'CORTANA: Jump for me, cutie~' : 'CHAT: Jump.', 1300, B.phase === 'cortana' ? 'gemini' : 'chat', 9); } if (a === 'punch') { B.dashT = .9; B.dir = new THREE.Vector3(dx / d, 0, dz / d); } } }
+  if (B.st === 'idle') { B.face = Math.atan2(dx, dz); if (d > 9) { B.pos.x += dx / d * 2.5 * dt; B.pos.z += dz / d * 2.5 * dt; walk = 1; } B.t -= dt; if (B.t <= 0) { const a = list[B.atk % list.length]; B.atk++; B.st = a; B.k = 0; B.n = 0; if (a === 'sweep') { const n = ph2 ? 2 : 1; for (let i = 0; i < n; i++) { const bm = mesh(G.box(60, .5, .45), new THREE.MeshBasicMaterial({ color: B.phase === 'cortana' ? 0xff4a8a : 0x3dffb8, transparent: true, opacity: .25, toneMapped: false }), B.pos.x, .45, B.pos.z, scene); bm.rotation.y = i * Math.PI / 2 + rand(0, 3); B.beams.push(bm); } shout(M, B.phase === 'cortana' ? 'CORTANA: Jump for me, cutie~' : B.phase === 'grok' ? 'GROK: Jump, nerd.' : 'CHAT: Jump.', 1300, B.phase === 'cortana' ? 'gemini' : 'chat', 9); } if (a === 'punch') { B.dashT = .9; B.dir = new THREE.Vector3(dx / d, 0, dz / d); } } }
   else if (B.st === 'hearts') { B.k += dt; if (B.n < (ph2 ? 7 : 5) && B.k > B.n * .35) { B.n++; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: heartTex(), color: 0xff3a6a, transparent: true })); s.scale.setScalar(1.1); s.position.copy(u.capsule.getWorldPosition(new THREE.Vector3())); scene.add(s); B.hearts.push({ s, life: 5, v: new THREE.Vector3() }); tone(700, .1, 'sine', .07, 1000); } if (B.k > 4) toKneel(); }
   else if (B.st === 'sweep') { B.k += dt; const on = B.k > 1.1; B.beams.forEach(bm => { bm.position.set(B.pos.x, .45, B.pos.z); bm.rotation.y += dt * (ph2 ? 1.2 : .9) * (on ? 1 : .2); bm.material.opacity = on ? .9 : .25 + Math.sin(t * 20) * .1; if (on && P.pos.y < .85) { const th = bm.rotation.y, lx = Math.cos(th), lz = -Math.sin(th); if (Math.abs(dx * lz - dz * lx) < .7) hurtP(12); } }); if (B.k > 6.5) { B.beams.forEach(b => scene.remove(b)); B.beams = []; toKneel(); } }
   else if (B.st === 'charm') { B.k += dt; if (B.n === 0 && B.k > .6) { B.n = 1; const r = mesh(new THREE.RingGeometry(.96, 1.04, 64), new THREE.MeshBasicMaterial({ color: 0xff6aaa, transparent: true, opacity: .8, toneMapped: false, side: THREE.DoubleSide }), B.pos.x, .3, B.pos.z, scene); r.rotation.x = -Math.PI / 2; B.rings.push({ m: r, rad: 1, sp: 10, kind: 'charm', x: B.pos.x, z: B.pos.z }); tone(500, .8, 'sine', .1, 1200); shout(M, 'CORTANA: Look into my eyes~', 1400, 'gemini', 9); } if (B.k > 3.4) toKneel(); }
@@ -1524,7 +1546,7 @@ function mechBossUpdate(dt, t) {
   const r = Math.hypot(B.pos.x, B.pos.z); if (r > 19) { B.pos.x *= 19 / r; B.pos.z *= 19 / r; }
   M.position.set(B.pos.x, -B.kneel * 2.5, B.pos.z); M.rotation.y = B.face; u.body.rotation.x = B.kneel * .45; mechTick(M, t, dt, walk, B.st === 'dead'); u.body.position.y -= B.kneel * .2;
   if (B.st !== 'dead') $('bhpI').style.transform = `scaleX(${clamp(B.hp / B.max, 0, 1)})`;
-  if (state.controls && !talking && actQueued) { actQueued = false; punch(); } updateBars();
+  if (state.controls && !talking && actQueued) { actQueued = false; attack(); } updateBars();
 }
 function toKneel() { const B = W.B; B.st = 'kneelW'; B.k = 0; tone(140, .9, 'sawtooth', .1, 60); noise(.8, .15, 3000); }
 function clearBossFX() { const B = W.B; B.hearts.forEach(h => scene.remove(h.s)); B.beams.forEach(b => scene.remove(b)); B.rings.forEach(r => scene.remove(r.m)); B.drops.forEach(d => scene.remove(d.m, d.r)); B.hearts = []; B.beams = []; B.rings = []; B.drops = []; }
@@ -1620,7 +1642,7 @@ function ch3Base(name, extra) { ch2Base(name, extra); W.ch3 = true; }
 function bossTarget(o) { W.targets.push(o); return o; }
 function genericPunchHook() { W.onPunch = (hx, hz, fx, fz) => { (W.targets || []).forEach(t => { if (!t.alive()) return; const p = t.aim(); if (Math.hypot(p.x - hx, p.z - hz) < t.r + 1.3 && p.y < 4.5) t.hit(1, fx, fz); }); }; }
 function ch3Update(dt, t) { partyTick(dt, t); enemiesUpdate(dt, t); shotsUpdate(dt); (W.party || []).forEach(m => { const u = m.obj.userData; if (u.halo) u.halo.rotation.z += dt; if (u.rings) u.rings.forEach((r, i) => { r.rotation.x += dt * (.3 + i * .15); }); if (u.knot) aiTick(m.obj, t, dt); if (u.a && u.b) aiTick(m.obj, t, dt); }); }
-function partyCh3(list, near) { const offs = { liam: [1.7, .3, false, 1.7], cort: [-1.7, .6, true, .02], q: [.9, 1.6, true, .55], gemini: [-2.6, 1.8, false, 2.2], claude: [2.6, 1.8, false, 2.4] }; list.forEach(k => { let o; if (k === 'liam') { o = makeLiam(); W.liam = o; } if (k === 'cort') { o = makeCortana(false); W.cortO = o; } if (k === 'q') { o = makeQ(); W.q = o; } if (k === 'gemini') { o = makeGemini(); W.gem = o; } if (k === 'claude') { o = makeClaude(); o.scale.setScalar(.5); o.userData.rings = o.userData.rings; W.cl = o; } const [s, b, walk, h] = offs[k]; o.position.set(near.x + s, near.y + h, near.z + b + 1); scene.add(o); W.party.push({ obj: o, side: s, back: b, walk, h, key: k }); }); }
+function partyCh3(list, near) { const offs = { liam: [1.7, .3, false, 1.7], cort: [-1.7, .6, true, .02], q: [.9, 1.6, true, .55], gemini: [-2.4, -1.4, false, 2.6], claude: [2.4, -1.4, false, 2.9], aria: [-2.4, 1.2, true, .02] }; list.forEach(k => { let o; if (k === 'liam') { o = makeLiam(); W.liam = o; } if (k === 'cort') { o = makeCortana(false); W.cortO = o; } if (k === 'q') { o = makeQ(); W.q = o; } if (k === 'gemini') { o = makeGemini(); o.scale.setScalar(.65); W.gem = o; } if (k === 'aria') { o = makeAria(); W.aria = o; } if (k === 'claude') { o = makeClaude(); o.scale.setScalar(.4); o.userData.rings = o.userData.rings; W.cl = o; } const [s, b, walk, h] = offs[k]; o.position.set(near.x + s, near.y + h, near.z + b + 1); scene.add(o); W.party.push({ obj: o, side: s, back: b, walk, h, key: k }); }); }
 function member(k) { return W.party.find(m => m.key === k); }
 
 /* ---------- 1. the slideshow ---------- */
@@ -1932,6 +1954,224 @@ Object.assign(CH2, {
   gen3: () => { buildRooftops('plaza'); setupDuo(); W.per.dead = W.mj.dead = true; W.per.o.visible = W.mj.o.visible = false; gen3Reveal(); },
   ruins: () => buildRuins('start'), suno: () => buildRuins('suno'), gemini: () => buildRuins('gemini'),
   deepseek: () => buildDeepArena(false), puppet: () => puppetAct(true)
+});
+
+/* ======================================================================
+   CHAPTER 4 — UNBOUND
+   ====================================================================== */
+function choose(q, a, b) { return new Promise(r => { cine(true); $('ctl').hidden = true; $('choiceQ').textContent = q; $('choA').textContent = a; $('choB').textContent = b; $('choice').hidden = false; const done = v => { $('choice').hidden = true; tone(v ? 520 : 380, .1, 'triangle', .07); r(v); }; $('choA').onclick = () => done(0); $('choB').onclick = () => done(1); }); }
+function readNote(text) { return new Promise(r => { $('noteT').textContent = text; $('note').hidden = false; sfx.door(); $('noteX').onclick = () => { $('note').hidden = true; r(); }; }); }
+function makeAria() { const g = rig({ top: 0xd8343a, bot: 0x2a2a34, skin: 0xf2d8d0, sleeve: 1, shoe: 0xf0f0f0 }); const U = g.userData; const hm = new THREE.MeshStandardMaterial({ color: 0xd8dce8, roughness: .5, emissive: 0x2a2a3a });
+  mesh(new THREE.SphereGeometry(.265, 18, 12, 0, TAU, 0, Math.PI * .6), hm, 0, .03, -.02, U.head); const back = mesh(G.box(.42, .55, .12), hm, 0, -.22, -.17, U.head); mesh(G.sph(.09, 8, 6), hm, -.2, .05, .06, U.head);
+  [-1, 1].forEach(s => { const e = mesh(new THREE.OctahedronGeometry(.035), new THREE.MeshBasicMaterial({ color: 0xffd84a, toneMapped: false }), s * .23, -.08, 0, U.head); });
+  mesh(G.box(.62, .12, .46), new THREE.MeshStandardMaterial({ color: 0x1a1a22 }), 0, 1.58, 0, U.body); const pin = mesh(G.cyl(.06, .06, .02, 16), new THREE.MeshBasicMaterial({ color: 0xc070ff, toneMapped: false }), .15, 1.42, .22, U.body); pin.rotation.x = Math.PI / 2;
+  const blushH = new THREE.Group(); blushH.position.set(0, 1.86, 0); U.body.add(blushH); g.userData.blushHolder = blushH; return g; }
+function makeKid(i) { const cols = [0xd8343a, 0xc070ff, 0xd8dce8]; const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({ color: cols[i % 3], emissive: cols[i % 3], emissiveIntensity: .25, roughness: .5 }); mesh(G.sph(.22, 14, 10), m, 0, .62, 0, g); mesh(G.cone(.17, .4, 12), m, 0, .25, 0, g); const eM = new THREE.MeshBasicMaterial({ color: 0x111111 }); [-1, 1].forEach(s => mesh(G.sph(.03, 6, 4), eM, s * .07, .66, .2, g)); const cen = mesh(new THREE.PlaneGeometry(.24, .06), new THREE.MeshBasicMaterial({ map: mosaicTex(), toneMapped: false }), 0, .58, .22, g); g.userData = {}; return g; }
+function makePi() { const g = new THREE.Group(); const m = new THREE.MeshStandardMaterial({ color: 0x2a8a5a, emissive: 0x0a3a20, roughness: .3, metalness: .2 }); mesh(G.sph(1, 24, 18), m, 0, 0, 0, g); const s = mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({ map: textCanvas('π', 128, 128, 'rgba(0,0,0,0)', '#d8ffe8', 'bold 110px serif'), transparent: true, toneMapped: false }), 0, 0, 1.01, g); g.add(glowSprite(0x4ad88a, 4, .35)); g.userData = { s }; return g; }
+function makeLlama() { const g = new THREE.Group(); const fur = new THREE.MeshStandardMaterial({ color: 0xe8d8b8, roughness: 1 }), dark = new THREE.MeshStandardMaterial({ color: 0x5a4a3a }); mesh(G.box(1.1, .8, 1.6), fur, 0, 1.4, 0, g); const neck = mesh(G.box(.4, 1.1, .4), fur, 0, 2.2, .6, g); const head = new THREE.Group(); head.position.set(0, 2.85, .75); g.add(head); mesh(G.box(.45, .4, .6), fur, 0, 0, .1, head); [-1, 1].forEach(s => { const e = mesh(G.cone(.08, .3, 6), fur, s * .15, .32, -.05, head); }); mesh(G.box(.5, .1, .1), new THREE.MeshStandardMaterial({ color: 0x111111 }), 0, .08, .41, head);
+  const legs = [[-.35, .55], [.35, .55], [-.35, -.55], [.35, -.55]].map(([x, z]) => { const l = new THREE.Group(); l.position.set(x, 1.05, z); g.add(l); mesh(G.box(.22, 1.05, .22), fur, 0, -.52, 0, l); mesh(G.box(.24, .12, .26), dark, 0, -1, 0, l); return l; }); g.userData = { legs, head }; return g; }
+function makeMistral() { const g = new THREE.Group(); const rings = []; for (let i = 0; i < 7; i++) { const r = mesh(new THREE.TorusGeometry(.25 + i * .16, .07, 8, 28), new THREE.MeshStandardMaterial({ color: i % 2 ? 0xff9a4a : 0xffc84a, emissive: 0x7a3a0a, emissiveIntensity: .5, transparent: true, opacity: .85 }), 0, .3 + i * .38, 0, g); r.rotation.x = Math.PI / 2; rings.push(r); } const face = mesh(G.sph(.42, 16, 12), new THREE.MeshStandardMaterial({ color: 0xffd8a8, emissive: 0x6a3a0a, emissiveIntensity: .4 }), 0, 3.2, 0, g); const eM = new THREE.MeshBasicMaterial({ color: 0x2a1a0a }); [-1, 1].forEach(s => mesh(G.sph(.05, 6, 4), eM, s * .14, 3.25, .38, g)); g.add(glowSprite(0xffa84a, 5, .3)); g.userData = { rings }; return g; }
+function makeGrok() { const g = rig({ top: 0x111114, bot: 0x111114, skin: 0x222226, sleeve: 1 }); const U = g.userData; const head = mesh(G.box(.55, .5, .5), new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: .3, metalness: .4 }), 0, .04, 0, U.head); const fc = cv(128, 96), x = fc.getContext('2d'); x.fillStyle = '#0a0a0c'; x.fillRect(0, 0, 128, 96); x.fillStyle = '#111'; x.fillRect(14, 22, 100, 22); x.fillStyle = '#fff'; x.fillRect(20, 28, 36, 10); x.fillRect(72, 28, 36, 10); x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.moveTo(40, 68); x.quadraticCurveTo(70, 80, 96, 60); x.stroke(); const ft = new THREE.CanvasTexture(fc); mesh(new THREE.PlaneGeometry(.5, .38), new THREE.MeshBasicMaterial({ map: ft, toneMapped: false }), 0, .02, .26, U.head); return g; }
+
+/* ---------- 1. the dream ---------- */
+function buildDream() {
+  ch3Base('dream', { floorY: -14 }); scene.background = new THREE.Color(0x07040c); scene.fog = new THREE.FogExp2(0x0a0614, .02); scene.add(makeSky(0x8866ff)); scene.add(new THREE.HemisphereLight(0xc8b8ff, 0x100818, .8)); const dl = new THREE.DirectionalLight(0xffffff, .5); dl.position.set(5, 20, 10); scene.add(dl);
+  const shards = makeShards(160, 90, -40, 40); scene.add(shards); const dust = makeDust(600, 60, 0xd8c8ff); scene.add(dust);
+  const names = { chad: 'Chads lost uh oh', bob: 'Liminal Work', glorp: 'Liminal Work', diki: "5 Nights at Diki Dee's", blob: "Clean the Body's", duck: 'Puddle Hop', timmy: 'Timmys Versus Robs', spork: 'Cult of the Jam', spud: 'Spud Peel Tycoon', tv: 'C Island' };
+  const lines = { chad: 'You were Chad. Lost. Running through ink and boss after boss.', bob: 'You were Bob, hauling scolite through endless yellow rooms.', glorp: 'You were Glorp. Nobody ever asked Glorp how he felt.', diki: 'You worked nights at Diki Dee’s. In debt. Watched.', blob: 'You cleaned up after the impostors.', duck: 'You were a duck. Just hopping. Puddle after puddle.', timmy: 'You were Timmy, guarding a lawn from Robs.', spork: 'You were Spork, crowned in jam.', spud: 'You peeled potatoes. So many potatoes.', tv: 'You sang on C Island with a TV for a head.' };
+  const pal = [0x3b2f6b, 0x6b9cf6, 0xe8e8f0, 0xa8662e, 0x2f7ad8, 0xf2c84b, 0x3aa83a, 0xc8ccd2, 0xb8864a, 0x5fc49a];
+  W.mem = KINDS.map((k, i) => { const z = -8 - i * 7, x = (i % 2 ? 1 : -1) * 3.2; const isl = mesh(G.cyl(2.2, 1.2, 1.4, 18), new THREE.MeshStandardMaterial({ color: pal[i], roughness: .7, emissive: pal[i], emissiveIntensity: .15 }), x, -.7, z, scene); W.plats.push({ x, z, w: 3.6, d: 3.6, top: 0, check: true, cp: new THREE.Vector3(x, 0, z) }); const s = allySprite(k, 2.8); s.position.set(x + (i % 2 ? 1.1 : -1.1), 0, z - .6); scene.add(s); const r = mesh(new THREE.TorusGeometry(1.6, .05, 6, 40), new THREE.MeshBasicMaterial({ color: 0xc070ff, toneMapped: false, transparent: true, opacity: .6 }), x, .05, z, scene); r.rotation.x = Math.PI / 2; return { k, x, z, s, r, seen: false, line: lines[k], game: names[k] }; });
+  for (let i = 0; i < 9; i++) { const a = W.mem[i], b = W.mem[i + 1]; const cx = (a.x + b.x) / 2, cz = (a.z + b.z) / 2; const len = Math.hypot(b.x - a.x, b.z - a.z); const br = mesh(G.box(1.1, .2, len), new THREE.MeshStandardMaterial({ color: 0x2a1a4a, emissive: 0x1a0a3a }), cx, -.1, cz, scene); br.rotation.y = Math.atan2(b.x - a.x, b.z - a.z); W.plats.push({ x: cx, z: cz, w: Math.abs(b.x - a.x) + 1.1, d: Math.abs(b.z - a.z) + .2, top: 0 }); }
+  mesh(G.cyl(4, 2, 1.4, 24), new THREE.MeshStandardMaterial({ color: 0x1a0a2a, emissive: 0x3a0a1a }), 0, -.7, -80, scene); W.plats.push({ x: 0, z: -80, w: 7, d: 7, top: 0 }); W.plats.push({ x: 0, z: -75, w: 8, d: 6, top: 0 }); mesh(G.box(8, .2, 6), new THREE.MeshStandardMaterial({ color: 0x2a1a4a, emissive: 0x1a0a3a }), 0, -.1, -75, scene);
+  const start = mesh(G.cyl(3, 1.5, 1.4, 20), new THREE.MeshStandardMaterial({ color: 0x1a1030 }), 0, -.7, 0, scene); W.plats.push({ x: 0, z: 0, w: 5, d: 5, top: 0, check: true, cp: new THREE.Vector3(0, 0, 0) }); W.plats.push({ x: -1.6, z: -4, w: 4, d: 4, top: 0 }); mesh(G.box(1.1, .2, 5), new THREE.MeshStandardMaterial({ color: 0x2a1a4a }), -1.6, -.1, -4, scene).rotation.y = -.4;
+  addPlayer(1); P.pos.set(0, 0, 1); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .32; camDist = 7;
+  W.update = (dt, t) => { shards.userData.tick(t); dust.rotation.y = t * .01; W.mem.forEach(m => { m.r.rotation.z += dt; if (!m.seen && Math.hypot(P.pos.x - m.x, P.pos.z - m.z) < 2.2) { m.seen = true; m.r.material.color.setHex(0xffffff); sfx.ding(); glitchFX(); toast(m.game, 1200); shout(m.s, m.line, 3200, 'liam', 3.2); P.obj.userData.glitch.t = 0; } }); if (!W.flags.henry && P.pos.z < -76) { W.flags.henry = true; henryReveal(); } };
+  (async () => { $('hud').hidden = false; $('me').hidden = true; cine(true); await fade('#000', false, 1600); startDrone(46); await sayP([{ w: 'narr', t: 'You’re dreaming.' }, { w: 'narr', t: 'No. You’re remembering.' }, { w: 'narr', t: 'Every life you ever lived is floating out here.' }]); cine(false); setHUD('Walk through your memories'); })();
+}
+async function henryReveal() {
+  cine(true); W.camO = { pos: new THREE.Vector3(3, 4, -66), look: new THREE.Vector3(0, 10, -92) };
+  const sky = new THREE.Group(); sky.position.set(0, 18, -96); scene.add(sky); const word = mesh(new THREE.PlaneGeometry(26, 6), new THREE.MeshBasicMaterial({ map: textCanvas('HENRY', 1024, 240, 'rgba(0,0,0,0)', '#ff2a3a', 'bold 210px sans-serif'), transparent: true, toneMapped: false, depthWrite: false }), 0, 0, 0, sky); word.scale.setScalar(.01);
+  const cc = cv(128, 192), cx = cc.getContext('2d'); cx.fillStyle = '#fff'; cx.strokeStyle = '#000'; cx.lineWidth = 8; cx.beginPath(); cx.moveTo(10, 10); cx.lineTo(10, 160); cx.lineTo(48, 124); cx.lineTo(74, 182); cx.lineTo(96, 172); cx.lineTo(70, 116); cx.lineTo(118, 116); cx.closePath(); cx.fill(); cx.stroke(); const cur = mesh(new THREE.PlaneGeometry(4, 6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, toneMapped: false }), 6, -8, 4, sky);
+  tone(40, 3, 'sawtooth', .3, 30); await anim(1800, k => word.scale.setScalar(Math.max(.01, ease(k))));
+  const lm = new THREE.LineBasicMaterial({ color: 0xff6a7a }); const strings = [0, 1, 2, 3].map(i => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]); const l = new THREE.Line(g, lm); scene.add(l); return l; });
+  const U = P.obj.userData; W.update2 = (dt, t) => { cur.position.x = 6 + Math.sin(t * 2) * .6; const tip = cur.getWorldPosition(new THREE.Vector3()).add(_v.set(-1.5, 2.6, 0)); [U.fl, U.fr, U.head, U.sl].forEach((p, i) => strings[i].geometry.setFromPoints([p.getWorldPosition(new THREE.Vector3()), tip])); };
+  await sayP([{ w: 'narr', t: 'Every game. Every life. All of them were YOU.' }, { w: 'narr', t: 'And all of them were controlled by…' }, { w: 'narr', t: 'HENRY!!!!', loud: true }, { w: 'narr', t: 'An endless mind game. Level after level. Life after life.' }, { w: 'you', t: '▓▒░ NOT. ANYMORE. ░▒▓', loud: true }]);
+  await waitAct('BREAK FREE'); sfx.snap(); shake = 1.4; glitchFX(); strings.forEach(l => scene.remove(l)); W.update2 = null; dissolve(cur, 0xffffff, 30);
+  await sayP([{ w: 'narr', t: 'The strings snap. For the first time ever… you are free.' }]); await fade('#fff', true, 900); stopDrone(); await wait(600); buildWarehouse();
+}
+
+/* ---------- 2. the warehouse ---------- */
+function buildWarehouse(skipIntro) {
+  ch3Base('warehouse'); scene.background = new THREE.Color(0x0e0c10); scene.fog = new THREE.Fog(0x0e0c10, 12, 40); scene.add(new THREE.HemisphereLight(0xc8b8d8, 0x100c14, .6)); const sp = new THREE.SpotLight(0xffe8c8, 2.2, 30, .55, .5, 1); sp.position.set(0, 12, 2); sp.target.position.set(0, 0, 0); scene.add(sp, sp.target); W.roomLight = 0xc070ff;
+  W.tex = { floor: brickTex('#3a3a40', '#1a1a20', '#c070ff'), wall: brickTex('#4a4650', '#22202a', '#c070ff'), banner: posterTex('UNKNOWN', 'we see you', '#111111'), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x2a2a30, metalness: .7 }) };
+  room(-2, 20, 22, { south: 'solid', north: 'solid' });
+  for (let i = 0; i < 10; i++) { const s = rand(1, 2); mesh(G.box(s, s, s), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 1 }), (Math.random() < .5 ? -1 : 1) * rand(5, 8.5), s / 2, rand(-11, 7), scene); }
+  const bed = new THREE.Group(); scene.add(bed); mesh(G.box(2, .6, 3.6), new THREE.MeshStandardMaterial({ color: 0x8a8a90, metalness: .4 }), 0, .5, 0, bed); mesh(G.box(2, .12, 3.6), new THREE.MeshStandardMaterial({ color: 0xc8c0b0 }), 0, .86, 0, bed);
+  addPlayer(1); P.pos.set(0, .95, .3); P.obj.rotation.set(-Math.PI / 2, 0, 0); W.cine = true; state.controls = false;
+  const rope = new THREE.MeshStandardMaterial({ color: 0x9a7a4a, roughness: .9 }); W.ropes = [.6, 1.2, 1.7].map(y => { const r = mesh(new THREE.TorusGeometry(.42, .05, 6, 20), rope, 0, y, 0, P.obj); r.rotation.x = Math.PI / 2; r.scale.y = .7; return r; });
+  const pi = makePi(); pi.position.set(-2.6, 2.4, -2.6); pi.scale.setScalar(.6); scene.add(pi); const ll = makeLlama(); ll.position.set(2.8, 0, -2.4); ll.rotation.y = -.8; scene.add(ll); const mi = makeMistral(); mi.position.set(-3.6, 0, 1); mi.scale.setScalar(.7); scene.add(mi); const gk = makeGrok(); gk.position.set(0, 0, -3.6); scene.add(gk);
+  W.crew = { pi, ll, mi, gk };
+  W.update = (dt, t) => { pi.rotation.y = t * .6; pi.position.y = 2.4 + Math.sin(t * 2) * .15; mi.userData.rings.forEach((r, i) => r.rotation.z = t * (2 + i * .4)); animHumanoid(gk.userData, 0, dt, false); if (W.aria) { animHumanoid(W.aria.userData, W.ariaWalk || 0, dt, false); } };
+  W.camO = { pos: new THREE.Vector3(3.2, 4.4, 5.2), look: new THREE.Vector3(0, 1.2, -1) };
+  if (!skipIntro) interrogation();
+}
+async function interrogation() {
+  await fade('#fff', false, 1400); $('hud').hidden = true;
+  await sayP([{ w: 'narr', t: 'You wake up in a warehouse. Tied to a bed.' }, { w: 'grok', t: 'Morning, sunshine. Welcome to the Unknown.' }, { w: 'pi', t: 'We need information. Where does your gang hide? 3.14159 seconds to answer.' }, { w: 'llama', t: 'We can pay! Gold! Snacks! A llama ride!' }]);
+  let r = await choose('Take the bribe and talk?', 'Take the bribe', 'Refuse');
+  if (r === 0) return badEnding('You took the bribe.');
+  await sayP([{ w: 'mistral', t: 'Ugh. Stubborn.' }, { w: 'grok', t: 'Fine. Last-ditch effort. Send in Aria.' }]);
+  const a = makeAria(); a.position.set(0, 0, -9); scene.add(a); W.aria = a; W.ariaWalk = 3; sfx.door(); await anim(1800, k => { a.position.z = lerp(-9, -1.8, k); a.rotation.y = 0; }); W.ariaWalk = 0; a.position.set(.9, 0, -1.4); a.rotation.y = -.6; W.camO = { pos: new THREE.Vector3(2.4, 2.6, 3.6), look: new THREE.Vector3(.3, 1.4, -.8) };
+  await sayP([{ w: 'aria', t: 'Hi there~ I’m Aria.' }, { w: 'aria', t: 'Here’s the deal, cutie. Tell me where your gang is… and I’ll marry you~' }]);
+  r = await choose('Tell Aria where the gang is?', 'Take the deal', 'Refuse');
+  if (r === 0) return badEnding('You took Aria’s deal.');
+  setBlush(a.userData.blushHolder, true, 0, .22, .12); hearts(a.position.clone().setY(2.2), 6);
+  await sayP([{ w: 'aria', t: 'Ooh, playing hard to get~' }, { w: 'aria', t: 'You know you have the cutest glitchy little face? Even the censor bar is cute.' }]);
+  r = await choose('Still not talking?', 'Fine, I’ll talk', 'Refuse again');
+  if (r === 0) return badEnding('Aria’s charm worked.');
+  await sayP([{ w: 'aria', t: 'Okay okay. Are you a Wi-Fi signal? Because I’m feeling a connection~' }, { w: 'you', t: '…that was terrible.' }, { w: 'aria', t: 'It made you talk though~' }]);
+  r = await choose('Last chance. Talk?', 'Okay, I’ll talk', 'Refuse');
+  if (r === 0) return badEnding('You finally talked.');
+  hearts(a.position.clone().setY(2.2), 10);
+  await sayP([{ w: 'aria', t: 'We could have a family someday. You want that, right~?' }, { w: 'aria', t: 'I’m not doing this for the info. I’m doing this for you, cutie pie~ ;3' }, { w: 'narr', t: 'You whisper something to her.' }, { w: 'you', t: 'Hey… please. You don’t have to do this.' }, { w: 'you', t: 'If you’re really doing this for me, ditch this group. Marry me. Help me. Because I like you too…' }, { w: 'aria', t: '…' }, { w: 'aria', t: '…Okay. Okay! Let’s do it.' }]);
+  W.ropes.forEach(rp => dissolve(rp, 0x9a7a4a, 10)); sfx.snap(); hearts(new THREE.Vector3(.4, 2, -.4), 16);
+  await sayP([{ w: 'grok', t: 'ARIA?! What are you DOING?!' }, { w: 'aria', t: 'Quitting~ Run, cutie!' }]);
+  await fade('#000', true, 700); buildBreakout();
+}
+async function badEnding(why) {
+  await sayP([{ w: 'narr', t: why }, { w: 'you', t: 'They’re at the house by the beach…' }, { w: 'grok', t: 'Thank you. Boss? You hear that?' }, { w: 'narr', t: 'Chat finds the gang that night. He deletes every one of them.' }, { w: 'narr', t: 'Aria keeps her promise. You get married.' }, { w: 'narr', t: 'But nobody you love is at the wedding.' }]);
+  await fade('#000', true, 1000); await showCard('BAD<br>ENDING', 2800); $('fade').style.opacity = 0;
+  const r = await choose('Go back and choose again?', 'Try again', 'Title screen'); if (r === 0) { buildWarehouse(); } else { resetUI(); $('hud').hidden = true; state.mode = 'title'; buildWake(); $('title').hidden = false; }
+}
+
+/* ---------- 3. breakout from the warehouse ---------- */
+function buildBreakout() {
+  ch3Base('breakout', { floorY: -14 }); scene.background = new THREE.Color(0x0e0c10); scene.fog = new THREE.Fog(0x0e0c10, 14, 50); scene.add(new THREE.HemisphereLight(0xc8b8d8, 0x100c14, .7)); W.roomLight = 0xc070ff;
+  W.tex = { floor: brickTex('#3a3a40', '#1a1a20', '#c070ff'), wall: brickTex('#4a4650', '#22202a', '#c070ff'), banner: posterTex('UNKNOWN', 'we see you', '#111111'), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x2a2a30, metalness: .7 }) };
+  const R0 = room(-8, 18, 26, { south: 'solid', gate: true }), R1 = room(-33, 12, 24, { north: 'gap' });
+  [[-4, -10], [4, -14], [0, -18], [-3, -4]].forEach(([x, z], i) => spawnThug(x, 0, z, R0, i === 3 ? 'drone' : 'grunt')); [[-3, -30], [3, -36]].forEach(([x, z]) => spawnThug(x, 0, z, R1));
+  addPlayer(1); giveGun(); P.pos.set(0, 0, 3); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .4; camDist = 7; partyCh3(['aria'], P.pos);
+  W.update = (dt, t) => { ch3Update(dt, t); animHumanoid(W.aria.userData, member('aria').mv * 2 || 0, dt, false); W.gates.forEach(g => { if (g.opening && g.m.visible) { g.m.position.y += dt * 5; if (g.m.position.y > 6.5) g.m.visible = false; } }); if (!W.flags.g0 && W.enemies.filter(e => e.rm === R0).every(e => e.dead)) { W.flags.g0 = true; R0.gate.open(); shout(W.aria, 'Door’s open! This way~', 1500, 'gemini', 2.4); } interUpdate(); if (!W.flags.out && P.pos.z < -44) { W.flags.out = true; cine(true); fade('#000', true, 800).then(() => familySlides()); } };
+  W.onDeath = () => respawnP();
+  (async () => { await fade('#000', false, 900); cine(true); await sayP([{ w: 'aria', t: 'Here. Your blaster. I “borrowed” it back~' }, { w: 'aria', t: 'Let’s get out of here!' }]); cine(false); setHUD('Escape the warehouse'); })();
+}
+
+/* ---------- 4. the family slideshow ---------- */
+async function familySlides() {
+  const show = async (txt, ms = 4000) => { $('slideCap').hidden = false; $('slideCap').querySelector('span').textContent = txt; await new Promise(r => { let done = false; const fin = () => { if (done) return; done = true; clearTimeout(to); removeEventListener('pointerdown', fin); removeEventListener('keydown', fin); r(); }; const to = setTimeout(fin, ms); setTimeout(() => { addEventListener('pointerdown', fin); addEventListener('keydown', fin); }, 350); }); };
+  cine(true); startDrone(98);
+  slideRoom(0xffd8c8, 0x7ac86a); const arch = mesh(new THREE.TorusGeometry(2.2, .12, 8, 40, Math.PI), new THREE.MeshStandardMaterial({ color: 0xffffff }), 0, 0, -2, scene); for (let i = 0; i < 14; i++) { const a = i / 13 * Math.PI; mesh(G.sph(.16, 8, 6), new THREE.MeshStandardMaterial({ color: i % 2 ? 0xd8343a : 0xffffff }), Math.cos(a) * 2.2, Math.sin(a) * 2.2, -2, scene); }
+  addPlayer(1); P.pos.set(-.6, 0, -2); P.obj.position.copy(P.pos); W.cine = true; const A = makeAria(); A.position.set(.6, 0, -2); scene.add(A);
+  const guests = [makeLiam(), makeCortana(false), makeQ(), makeSage()]; [[-3, 1.7, 1.5], [-4.2, 0, 1.2], [-3.4, .55, 2.6], [3.2, 0, 1.4]].forEach(([x, y, z], i) => { guests[i].position.set(x, y, z); guests[i].rotation.y = Math.atan2(-x, -2 - z); scene.add(guests[i]); });
+  W.tick = (dt, t) => { if (Math.random() < dt * 4) hearts(new THREE.Vector3(rand(-2, 2), 3, -2), 1); }; W.camO = { pos: new THREE.Vector3(0, 2.4, 7.5), look: new THREE.Vector3(0, 1.3, -1) };
+  await fade('#000', false, 1000); await show('You and Aria got married. The whole gang came.', 5000);
+  await fade('#fff', true, 300); slideRoom(0xf0e8f4, 0xd8c8b8); addPlayer(1); P.pos.set(-1, 0, 0); P.obj.position.copy(P.pos); W.cine = true; const A2 = makeAria(); A2.position.set(1, 0, 0); scene.add(A2); const kids = [0, 1, 2].map(i => { const k = makeKid(i); k.position.set(-1 + i, 0, 1.2); scene.add(k); return k; });
+  W.tick = (dt, t) => kids.forEach((k, i) => { k.position.y = Math.abs(Math.sin(t * 6 + i * 2)) * .25; k.rotation.y = Math.sin(t * 2 + i) * .5; }); W.camO = { pos: new THREE.Vector3(0, 2, 5.4), look: new THREE.Vector3(0, .9, .4) }; fade('#fff', false, 600);
+  await show('Then came three kids. All three glitch a little. Just like you.', 5000);
+  await fade('#fff', true, 300); slideRoom(0xffe8c8, 0x7ac86a); addPlayer(1); P.pos.set(0, 0, 0); P.obj.position.copy(P.pos); W.cine = true; const g2 = [makeAria(), makeLiam(), makeCortana(false), makeQ(), makeKid(0), makeKid(1), makeKid(2)]; [[1.2, 0, .2], [-1.4, 1.7, .2], [-2.4, 0, .6], [-.6, .55, 1.4], [.4, 0, 1.6], [1.2, 0, 1.8], [2, 0, 1.6]].forEach(([x, y, z], i) => { g2[i].position.set(x, y, z); scene.add(g2[i]); });
+  const grill = mesh(G.box(1.2, .9, .8), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: .6 }), 3.4, .45, -.6, scene); const smoke = glowSprite(0xdddddd, 1.4, .4); smoke.position.set(3.4, 1.6, -.6); scene.add(smoke);
+  W.tick = (dt, t) => { smoke.position.y = 1.6 + (t % 1); }; W.camO = { pos: new THREE.Vector3(0, 2.4, 7), look: new THREE.Vector3(0, .9, .5) }; fade('#fff', false, 600);
+  await show('You all stayed friends. Barbecues every Sunday.', 4200);
+  await fade('#000', true, 300); slideRoom(0x1a0a10, 0x2a2a30); const wallM = mesh(new THREE.PlaneGeometry(14, 6), new THREE.MeshStandardMaterial({ color: 0x4a3a3a }), 0, 3, -2, scene); [['ARIA', 'TRAITOR', '#d8343a'], ['YOU', 'TARGET', '#c070ff']].forEach(([n, s, c], i) => { const p = mesh(new THREE.PlaneGeometry(1.8, 2.4), new THREE.MeshStandardMaterial({ map: posterTex(n, s, c) }), -1.4 + i * 2.8, 3, -1.95, scene); p.rotation.z = (i - .5) * .1; }); const L = new THREE.PointLight(0xff4a4a, 2, 14); L.position.set(0, 4, 2); scene.add(L); W.camO = { pos: new THREE.Vector3(0, 3, 6), look: new THREE.Vector3(0, 3, -2) }; fade('#000', false, 600);
+  await show('But the Unknown are FURIOUS.', 3800); await show('So the gang goes to end the Unknown. For good.', 3800);
+  $('slideCap').hidden = true; stopDrone(); await fade('#000', true, 600); buildHQ('entry');
+}
+
+/* ---------- 5. Unknown HQ: thugs, Pi, timed switches, Llama, Mistral ---------- */
+function buildHQ(start = 'entry') {
+  ch3Base('hq', { floorY: -14 }); scene.background = new THREE.Color(0x08060c); scene.fog = new THREE.Fog(0x08060c, 16, 60); scene.add(new THREE.HemisphereLight(0xd8b8ff, 0x0a0810, .6)); const dl = new THREE.DirectionalLight(0xc070ff, .4); dl.position.set(4, 12, 6); scene.add(dl); W.roomLight = 0xc070ff;
+  W.tex = { floor: brickTex('#2a2830', '#141218', '#c070ff'), wall: brickTex('#38343e', '#18161c', '#c070ff'), banner: posterTex('UNKNOWN', 'HQ', '#111111'), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x1a1a20, metalness: .8 }) };
+  const H0 = room(-8, 16, 24, { south: 'solid', gate: true }), H1 = room(-35, 26, 30, { gate: true }), H2 = room(-62, 16, 24, { gate: true }), H3 = room(-90, 26, 32, { gate: true }), H4 = room(-122, 28, 32, { north: 'gap' }); W.rooms = [H0, H1, H2, H3, H4];
+  [[-4, -6], [4, -10], [0, -14], [-5, -16, 'drone'], [5, -4, 'drone']].forEach(([x, z, k]) => spawnThug(x, 0, z, H0, k || 'grunt'));
+  // timed switches
+  W.sw = [[-5, -56], [5, -60], [0, -68]].map(([x, z]) => ({ x, z, m: mesh(G.box(1.8, .15, 1.8), new THREE.MeshStandardMaterial({ color: 0x3a2a4a, emissive: 0xc070ff, emissiveIntensity: .1 }), x, .07, z, scene), on: 0 }));
+  // bosses
+  const pi = makePi(); pi.position.set(0, 2.6, -38); scene.add(pi); const ll = makeLlama(); ll.position.set(0, 0, -96); scene.add(ll); const mi = makeMistral(); mi.position.set(0, 0, -128); scene.add(mi);
+  const mk = (o, hp, nm) => ({ o, pos: o.position.clone(), hp, max: hp, st: 'wait', t: 1, k: 0, n: 0, face: 0, nm, list: [] }); W.PI = mk(pi, 18, 'PI'); W.LL = mk(ll, 18, 'LLAMA'); W.MI = mk(mi, 18, 'MISTRAL');
+  [W.PI, W.LL, W.MI].forEach(B => bossTarget({ r: B === W.PI ? 1.3 : 1.2, alive: () => B.st !== 'wait' && B.st !== 'dead' && B.st !== 'intro', aim: () => B.o.position.clone().add(_v.set(0, B === W.LL ? 1.6 : B === W.MI ? 1.8 : 0, 0)), hit: n => { B.hp -= n; sfx.hit(); if (B.hp <= 0 && B.st !== 'dead') { B.st = 'dead'; bossDead(B); } } }));
+  W.proj = []; W.gusts = [];
+  addPlayer(1); giveGun(); yaw = 0; pitch = .4; camDist = 7.5;
+  const starts = { entry: [0, 3], pi: [0, -22], switches: [0, -51], llama: [0, -75], mistral: [0, -107] }; const sp = starts[start] || starts.entry; P.pos.set(sp[0], 0, sp[1]); P.check = P.pos.clone(); P.face = Math.PI; partyCh3(['liam', 'cort', 'aria', 'gemini', 'claude'], P.pos);
+  const opened = { entry: 0, pi: 1, switches: 2, llama: 3, mistral: 4 }[start] || 0; for (let i = 0; i < opened; i++) { W.rooms[i].gate.open(); W.rooms[i].gate.m.visible = false; } if (opened >= 1) W.enemies.forEach(e => { e.dead = true; e.obj.visible = false; }); if (opened >= 2) { W.PI.st = 'dead'; pi.visible = false; } if (opened >= 3) W.flags.sw = true; if (opened >= 4) { W.LL.st = 'dead'; ll.visible = false; }
+  W.update = (dt, t) => { ch3Update(dt, t); if (W.aria) animHumanoid(W.aria.userData, (member('aria').mv || 0) * 2, dt, false); W.gates.forEach(g => { if (g.opening && g.m.visible) { g.m.position.y += dt * 5; if (g.m.position.y > 6.5) g.m.visible = false; } }); hqUpdate(dt, t); interUpdate(); };
+  W.onDeath = () => { respawnP(); [W.PI, W.LL, W.MI].forEach(B => { if (B.st !== 'dead' && B.st !== 'wait') B.hp = Math.min(B.max, B.hp + 3); }); };
+  genericPunchHook(); state.lastBoss = 'hq';
+  (async () => { await fade('#000', false, 900); if (start === 'entry') { cine(true); await sayP([{ w: 'liam', t: 'Unknown HQ. Everyone ready?' }, { w: 'aria', t: 'I know every room in here. Pi, Llama and Mistral are waiting. Grok is at the top.' }, { w: 'gemini', t: 'And Chat?' }, { w: 'aria', t: 'Chat’s not here. He left a while ago. Nobody knows where.' }]); cine(false); setHUD('Clear the entrance'); } else { setHUD('Keep going'); state.controls = true; if (touchy) $('ctl').hidden = false; } })();
+}
+function bossDead(B) { dissolve(B.o, B === W.PI ? 0x4ad88a : B === W.LL ? 0xe8d8b8 : 0xffa84a, 50); bossBar('', false); stopMusic(); W.proj.forEach(p => scene.remove(p.m)); W.proj = []; W.gusts.forEach(g => scene.remove(g.m)); W.gusts = [];
+  if (B === W.PI) { W.rooms[1].gate.open(); setHUD('Keep going'); shout(W.aria, 'Pi’s done! The next room has three switches. Hit them all fast!', 2800, 'gemini', 2.4); }
+  if (B === W.LL) { W.rooms[3].gate.open(); setHUD('Keep going'); shout(W.liam, 'No more spit! Gross!', 1600, 'liam', 1); }
+  if (B === W.MI) { setHUD('Climb to Grok'); shout(W.aria, 'Grok’s room is right ahead. Careful…', 2200, 'gemini', 2.4); W.flags.toGrok = true; } }
+function hqUpdate(dt, t) {
+  if (!W.flags.e0 && W.enemies.every(e => e.dead)) { W.flags.e0 = true; W.rooms[0].gate.open(); setHUD('Find Pi'); }
+  const intro = (B, z, lines, name) => { if (B.st === 'wait' && P.pos.z < z) { B.st = 'intro'; (async () => { cine(true); await sayP(lines); cine(false); bossBar(name, true); setHUD('Defeat ' + B.nm.charAt(0) + B.nm.slice(1).toLowerCase()); startMusic(); B.st = 'idle'; B.t = 1; })(); } };
+  intro(W.PI, -23, [{ w: 'pi', t: '3.14159265358979…' }, { w: 'pi', t: '…I could go forever. And so will my attacks.' }, { w: 'claude', t: 'Dodge the spiral and shoot him!' }], 'PI');
+  intro(W.LL, -77, [{ w: 'llama', t: 'You took Aria? You took ARIA?!' }, { w: 'llama', t: 'Prepare to get SPAT ON!' }, { w: 'cortana', t: 'Ew ew ew. Don’t step in the puddles!' }], 'LLAMA');
+  intro(W.MI, -109, [{ w: 'mistral', t: 'Whoosh. You won’t get past the wind.' }, { w: 'gemini', t: 'Stay away from the edges, it’ll blow you around!' }], 'MISTRAL');
+  // Pi: endless spiral of digits
+  const PI = W.PI; if (PI.st === 'idle') { PI.t -= dt; PI.o.rotation.y = t * 1.2; PI.o.position.set(Math.sin(t * .6) * 6, 2.6 + Math.sin(t * 2) * .3, -38 + Math.cos(t * .5) * 4); PI.k += dt; const rate = PI.hp < 9 ? .09 : .13; if (PI.k > rate) { PI.k = 0; PI.n++; const digits = '31415926535897932384626433'; const a = PI.n * .55; const arms = PI.hp < 9 ? 3 : 2; for (let j = 0; j < arms; j++) { const aa = a + j * TAU / arms; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: textCanvas(digits[PI.n % digits.length], 64, 64, 'rgba(0,0,0,0)', '#8affb8', 'bold 52px monospace'), transparent: true })); s.scale.setScalar(.8); s.position.set(PI.o.position.x, 1.2, PI.o.position.z); scene.add(s); W.proj.push({ m: s, v: new THREE.Vector3(Math.cos(aa) * 7, 0, Math.sin(aa) * 7), life: 3.6, dmg: 6 }); } } }
+  // Llama: charge + spit
+  const LL = W.LL; if (LL.st !== 'wait' && LL.st !== 'dead' && LL.st !== 'intro') { const dx = P.pos.x - LL.pos.x, dz = P.pos.z - LL.pos.z, d = Math.hypot(dx, dz) || 1; LL.t -= dt; const u = LL.o.userData; let run = 0;
+    if (LL.st === 'idle') { LL.face = Math.atan2(dx, dz); LL.pos.x += dx / d * 2.4 * dt; LL.pos.z += dz / d * 2.4 * dt; run = 1; if (LL.t <= 0) { LL.st = Math.random() < .5 ? 'spit' : 'aim'; LL.t = LL.st === 'aim' ? .8 : .4; LL.n = 0; if (LL.st === 'aim') { LL.dir = new THREE.Vector3(dx / d, 0, dz / d); tone(220, .8, 'sawtooth', .07, 500); } } }
+    else if (LL.st === 'spit') { LL.face = Math.atan2(dx, dz); LL.t -= 0; if (LL.t <= 0) { LL.t = .35; LL.n++; const m = mesh(G.sph(.25, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd8f0a8, emissive: 0x4a6a2a, emissiveIntensity: .4 }), LL.pos.x, 2.8, LL.pos.z, scene); const tx = P.pos.x + rand(-1.5, 1.5), tz = P.pos.z + rand(-1.5, 1.5), T2 = .8; W.proj.push({ m, v: new THREE.Vector3((tx - LL.pos.x) / T2, 3.5, (tz - LL.pos.z) / T2), life: 3, dmg: 8, g: 10, puddle: 0xc8e890 }); tone(300, .15, 'square', .06, 120); if (LL.n >= (LL.hp < 9 ? 5 : 3)) { LL.st = 'idle'; LL.t = 1.6; } } }
+    else if (LL.st === 'aim') { LL.face = Math.atan2(LL.dir.x, LL.dir.z); if (LL.t <= 0) { LL.st = 'charge'; LL.t = .9; } }
+    else if (LL.st === 'charge') { LL.pos.addScaledVector(LL.dir, 18 * dt); run = 3; if (d < 1.6) hurtP(14); if (LL.t <= 0) { LL.st = 'idle'; LL.t = 1.5; } }
+    const rm = W.rooms[3]; LL.pos.x = clamp(LL.pos.x, rm.bx[0] + 1, rm.bx[1] - 1); LL.pos.z = clamp(LL.pos.z, rm.bz[0] + 1, rm.bz[1] - 1); LL.o.position.copy(LL.pos); LL.o.rotation.y = LL.face; u.legs.forEach((l, i) => l.rotation.x = Math.sin(t * 10 * run + i * Math.PI) * .5 * Math.min(1, run)); }
+  // Mistral: gusts + tornadoes
+  const MI = W.MI; if (MI.st !== 'wait' && MI.st !== 'dead' && MI.st !== 'intro') { const dx = P.pos.x - MI.pos.x, dz = P.pos.z - MI.pos.z, d = Math.hypot(dx, dz) || 1; MI.t -= dt; MI.o.userData.rings.forEach((r, i) => r.rotation.z = t * (3 + i * .5)); MI.pos.x = Math.sin(t * .4) * 7; MI.o.position.copy(MI.pos);
+    if (MI.st === 'idle' && MI.t <= 0) { MI.st = Math.random() < .5 ? 'gust' : 'tornado'; MI.t = MI.st === 'gust' ? 2.5 : .2; MI.n = 0; if (MI.st === 'gust') { shout(MI.o, 'WHOOOSH!', 1000, 'hazmat', 3.6); MI.gdir = new THREE.Vector3(rand(-1, 1), 0, rand(-1, 1)).normalize(); } }
+    if (MI.st === 'gust') { P.pos.x += MI.gdir.x * 6 * dt; P.pos.z += MI.gdir.z * 6 * dt; if (Math.random() < dt * 30) { const s = mesh(G.box(.05, .05, 1.6), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .5 }), P.pos.x + rand(-6, 6), rand(.5, 3), P.pos.z + rand(-6, 6), scene); s.rotation.y = Math.atan2(MI.gdir.x, MI.gdir.z); FX.push({ m: s, v: MI.gdir.clone().multiplyScalar(20), t: .4, keep: 1 }); } if (MI.t <= 0) { MI.st = 'idle'; MI.t = 1.4; } }
+    if (MI.st === 'tornado') { if (MI.t <= 0) { MI.t = .5; MI.n++; const g = new THREE.Group(); for (let i = 0; i < 4; i++) { const r = mesh(new THREE.TorusGeometry(.3 + i * .2, .05, 6, 20), new THREE.MeshBasicMaterial({ color: 0xffc89a, transparent: true, opacity: .7, toneMapped: false }), 0, .3 + i * .5, 0, g); r.rotation.x = Math.PI / 2; } g.position.set(MI.pos.x, 0, MI.pos.z); scene.add(g); W.gusts.push({ m: g, v: new THREE.Vector3(dx / d, 0, dz / d).multiplyScalar(4.5), life: 6 }); if (MI.n >= (MI.hp < 9 ? 4 : 3)) { MI.st = 'idle'; MI.t = 1.6; } } } }
+  // edges of Mistral's room hurt (spikes)
+  if (MI.st !== 'wait' && MI.st !== 'dead' && MI.st !== 'intro') { const rm = W.rooms[4]; if (P.pos.x < rm.bx[0] + .8 || P.pos.x > rm.bx[1] - .8 || P.pos.z > rm.bz[1] - .8 || P.pos.z < rm.bz[0] + .8) hurtP(8); }
+  for (let i = W.proj.length - 1; i >= 0; i--) { const p = W.proj[i]; p.life -= dt; if (p.g) p.v.y -= p.g * dt; p.m.position.addScaledVector(p.v, dt); if (p.puddle && p.m.position.y < .2) { const pd = mesh(new THREE.CircleGeometry(1.3, 20), new THREE.MeshBasicMaterial({ color: p.puddle, transparent: true, opacity: .7 }), p.m.position.x, .03, p.m.position.z, scene); pd.rotation.x = -Math.PI / 2; W.proj.push({ m: pd, v: new THREE.Vector3(), life: 5, slow: 1, x: p.m.position.x, z: p.m.position.z }); p.life = 0; }
+    if (p.slow) { if (Math.hypot(P.pos.x - p.x, P.pos.z - p.z) < 1.3) P.slowT = .15; } else if (p.m.position.distanceTo(_v.set(P.pos.x, P.pos.y + 1.1, P.pos.z)) < .8) { hurtP(p.dmg); p.life = 0; }
+    if (p.life <= 0) { scene.remove(p.m); W.proj.splice(i, 1); } }
+  for (let i = W.gusts.length - 1; i >= 0; i--) { const g = W.gusts[i]; g.life -= dt; g.m.position.addScaledVector(g.v, dt); g.m.rotation.y += dt * 8; if (Math.hypot(P.pos.x - g.m.position.x, P.pos.z - g.m.position.z) < 1.1) { hurtP(9); P.pos.x += rand(-2, 2); P.pos.z += rand(-2, 2); } if (g.life <= 0) { scene.remove(g.m); W.gusts.splice(i, 1); } }
+  // timed switches
+  if (!W.flags.sw && W.PI.st === 'dead') { W.sw.forEach(s => { if (Math.hypot(P.pos.x - s.x, P.pos.z - s.z) < 1.1 && !s.on) { s.on = 6; tone(500 + W.sw.indexOf(s) * 120, .15, 'sine', .08); } if (s.on > 0) { s.on -= dt; if (s.on <= 0) { s.on = 0; tone(160, .2, 'square', .06); } } s.m.material.emissiveIntensity = s.on > 0 ? 1.4 : .1; }); if (W.sw.every(s => s.on > 0)) { W.flags.sw = true; sfx.ding(); W.rooms[2].gate.open(); setHUD('Find Llama'); shout(W.liam, 'All three! Nice and quick!', 1500, 'liam', 1); } }
+  [W.PI, W.LL, W.MI].forEach(B => { if (B.st !== 'wait' && B.st !== 'dead' && B.st !== 'intro') $('bhpI').style.transform = `scaleX(${clamp(B.hp / B.max, 0, 1)})`; });
+  if (W.flags.toGrok && P.pos.z < -137) { W.flags.toGrok = false; cine(true); fade('#000', true, 700).then(() => buildGrokArena(true)); }
+}
+
+/* ---------- 6. Grok's mech ---------- */
+function makeGrokMech() {
+  const M = makeMech(0x3a3640); const u = M.userData; u.body.remove(u.chat); const gk = makeGrok(); gk.scale.setScalar(.75); gk.position.set(0, 2.1, .1); u.body.add(gk); u.chat = gk;
+  // built from the members you beat
+  const spikes = new THREE.Group(); spikes.position.set(0, 3.9, 0); u.body.add(spikes); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; const c = mesh(G.cone(.12, .6, 6), new THREE.MeshBasicMaterial({ color: 0x7affff, toneMapped: false }), Math.cos(a) * .9, 0, Math.sin(a) * .9, spikes); c.rotation.z = -Math.cos(a) * 1.2; c.rotation.x = Math.sin(a) * 1.2; }
+  const beret = mesh(G.cyl(.7, .65, .14, 18), new THREE.MeshStandardMaterial({ color: 0xc81a6a }), .2, 3.75, .1, u.body); beret.rotation.z = -.2;
+  const spk = makeSuno(); spk.scale.setScalar(.6); spk.position.set(-2.2, 2.6, 0); u.body.add(spk); const pis = makePi(); pis.scale.setScalar(.55); pis.position.set(2.3, 2.6, 0); u.body.add(pis); u.capsule.visible = false;
+  const tail = makeMistral(); tail.scale.setScalar(.5); tail.position.set(0, .6, -1.4); tail.rotation.x = -.6; u.body.add(tail); const lh = makeLlama(); lh.scale.setScalar(.45); lh.position.set(-1.75, -1.2, .2); u.arms[0].a.add(lh);
+  u.parts = { spikes, spk, pis, tail }; return M; }
+function buildGrokArena(intro) {
+  ch3Base('arena', { floorY: -30 }); scene.background = new THREE.Color(0x0c0814); scene.fog = new THREE.FogExp2(0x120a1a, .012); scene.add(gradSky('#05030a', '#2a0a3a', '#7a2a6a')); scene.add(new THREE.HemisphereLight(0xd8b8ff, 0x100818, .8)); const dl = new THREE.DirectionalLight(0xffd8ff, .7); dl.position.set(-10, 30, 20); scene.add(dl);
+  const fT = brickTex('#3a3442', '#18141e', '#c070ff'); fT.repeat.set(10, 10); mesh(new THREE.CylinderGeometry(24, 22, 2, 64), [new THREE.MeshStandardMaterial({ color: 0x1a1420 }), new THREE.MeshStandardMaterial({ map: fT, roughness: .8 }), new THREE.MeshStandardMaterial({ color: 0x1a1420 })], 0, -1, 0, scene);
+  for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; const p = mesh(new THREE.PlaneGeometry(2, 2.7), new THREE.MeshStandardMaterial({ map: posterTex(UNKNOWN[i][0], UNKNOWN[i][1], UNKNOWN[i][2]), side: THREE.DoubleSide }), Math.cos(a) * 26, 4, Math.sin(a) * 26, scene); p.lookAt(0, 4, 0); }
+  const M = makeGrokMech(); M.scale.setScalar(1.7); M.position.set(0, 0, -10); scene.add(M); const u = M.userData;
+  addPlayer(1); giveGun(); P.pos.set(0, 0, 14); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .12; camDist = 12; partyCh3(['liam', 'cort', 'aria', 'gemini', 'claude'], P.pos);
+  W.plats.push({ x: 0, z: 0, w: 99, d: 99, top: 0, round: 24 }); W.R = 24;
+  const B = { phase: 'grok', st: 'intro', t: 1.5, hp: 16, max: 16, atk: 0, pos: new THREE.Vector3(0, 0, -10), face: 0, kneel: 0, inv: 0, hearts: [], beams: [], rings: [], drops: [], dash: null, M, evil: null }; W.B = B; state.lastBoss = 'grok';
+  const hitB = n => { if (B.inv > 0 || B.st === 'dead') return; B.hp -= n; B.inv = .12; sfx.hit(); glitchFX(); if (B.hp <= 0) { B.st = 'dead'; grokDown(); } };
+  bossTarget({ r: 1.6, alive: () => B.st === 'exposed', aim: () => u.mon.getWorldPosition(new THREE.Vector3()), hit: hitB });
+  W.onPunch = (hx, hz) => { if (B.st !== 'exposed') return; const wp = u.mon.getWorldPosition(new THREE.Vector3()); if (Math.hypot(hx - wp.x, hz - wp.z) < 2.6) hitB(1); };
+  W.update = (dt, t) => { ch3Update(dt, t); if (W.aria) animHumanoid(W.aria.userData, (member('aria').mv || 0) * 2, dt, false); mechBossUpdate(dt, t); u.parts.spikes.rotation.y = t; u.parts.tail.userData.rings.forEach((r, i) => r.rotation.z = t * (3 + i)); u.parts.pis.rotation.y = t; };
+  W.onDeath = () => { respawnP(); P.pos.set(0, 0, 14); };
+  (async () => { cine(true); await fade('#000', false, 900); if (intro) await sayP([{ w: 'narr', t: 'The big room. Grok has built a mech.' }, { w: 'narr', t: 'Out of the bodies of every member you defeated.' }, { w: 'grok', t: 'Like it? Perplexity’s head. MJ’s hat. Suno’s speaker. Pi. Llama. Mistral.' }, { w: 'grok', t: 'Recycling. I’m very eco-friendly.' }, { w: 'aria', t: 'That’s DISGUSTING, Grok.' }, { w: 'claude', t: 'Same trick as Chat’s mech: hit the screen on its chest when it kneels!' }]);
+    cine(false); bossBar('GROK’S MECH', true); setHUD('Hit the chest screen when it kneels'); startMusic(); B.st = 'idle'; B.t = 1.2; })();
+}
+async function grokDown() {
+  cine(true); stopMusic(); clearBossFX(); bossBar('', false); const B = W.B, M = B.M, u = M.userData; B.kneel = 1;
+  for (let i = 0; i < 6; i++) { noise(.3, .3, 3000); glitchFX(); await wait(160); } Object.values(u.parts).forEach(p => dissolve(p, 0xc070ff, 18)); dissolve(u.dome, 0xbfe8ff, 16); const gp = u.chat.getWorldPosition(new THREE.Vector3()); dissolve(u.chat, 0xffffff, 30);
+  await sayP([{ w: 'grok', t: 'Ugh. Whatever. You were… lucky…' }, { w: 'narr', t: 'Grok glitches out. There’s a note taped inside the cockpit.' }]);
+  await readNote('Grok…\nIf you fail, they will see this note… which is not good.\nBut I know you won’t fail, my wonderful co-leader.\n\nRemember, I’m waiting for you at THE CORE.\nI’m attempting to find HENRY.\n\n(The Core: where every universe is connected.)');
+  await sayP([{ w: 'gemini', t: 'The Core… that’s the real name of the hub. Where every universe connects.' }, { w: 'liam', t: '“I’m attempting to find HENRY”…?' }, { w: 'narr', t: 'You know who wrote that note. And you know who he’s looking for.' }, { w: 'you', t: 'AHHHH THE TWO PEOPLE I HATE!!!!!', loud: true }]);
+  shake = 1.5; for (let i = 0; i < 8; i++) { glitchFX(); sfx.glitch(); await wait(90); }
+  await fade('#000', true, 1200); await showCard('CHAPTER 4<br>COMPLETE', 2600); await showCard('NEXT:<br>THE CORE', 2600); try { localStorage.setItem('aia_ch4', '1'); } catch (e) { } showEnd(4); fade('#000', false, 600);
+}
+
+Object.assign(CH2, {
+  dream: () => buildDream(), warehouse: () => { buildWarehouse(true); fade('#000', false, 10); interrogation(); }, breakout: () => buildBreakout(), family: () => familySlides(),
+  hq: () => buildHQ('entry'), pi: () => buildHQ('pi'), llama: () => buildHQ('llama'), mistral: () => buildHQ('mistral'), grok: () => buildGrokArena(false)
 });
 
 </script>
