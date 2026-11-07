@@ -440,6 +440,7 @@ kbd{font-family:var(--tape);font-size:15px;background:#000;border:1px solid var(
       <button class="lvSkip" data-to="d0" type="button">Level The End</button><button class="lvSkip" data-to="d1" type="button">Level =)+</button><button class="lvSkip" data-to="d2" type="button">The Hub</button><button class="lvSkip" data-to="d3" type="button">Level ! (chase)</button>
       <button class="lvSkip" data-to="d4" type="button">Level 1 · Garage</button><button class="lvSkip" data-to="d5" type="button">Level !- · Blue Hospital</button><button class="lvSkip" data-to="d6" type="button">Level !+ (Clump)</button></div></div>
     <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">ENDLESS PAIN (DLC 2)</h3><div class="lvGrid" id="ownEP"></div></div>
+    <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">FINAL BOSS</h3><div class="lvGrid" id="ownUB"></div></div>
     <div><h3 style="margin:0 0 6px;font-family:var(--tape);font-weight:400;font-size:20px;color:var(--dim)">CHEATS</h3><div class="ownTools">
       <button id="ownQuota" type="button">Fill the quota</button><button id="ownGod" type="button" aria-pressed="false">God mode</button><button id="ownItems" type="button">Fill my inventory</button><button id="ownLight" type="button">Give me a flashlight</button><button id="ownClear" type="button">Clear entities (60s)</button><button id="ownTokens" type="button">+100 tokens</button><button id="ownStickers" type="button">Give me every sticker</button><button id="ownDLC" type="button">Unlock both DLCs</button><button id="ownWipe" type="button" style="background:#5a1010;color:#fff;border-color:#a02020">Delete my data</button></div></div>
     <p class="muted">Your progress saves when you reach each level. Using cheats turns off the Employee of the Eternity run.</p>
@@ -3257,6 +3258,7 @@ function epSetup() {
   const grid = $('#ownEP'); STAGES.forEach((s, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'lvSkip'; b.textContent = s.name.replace('LEVEL ', 'Lvl ').replace(/"/g, ''); b.onclick = () => { closeAllOvl(); ME.flawless = false; if (GAME.watcher) { scene.remove(GAME.watcher.obj); GAME.watcher = null; } GAME.waitLoad = false; if (GAME.cut) { GAME.cut = null; $('#cutBars').hidden = true; }
       if (i === 0) { if (!NET.isHost) { toast('Only the host can go to the shared start.'); return; } GAME.split = false; GAME.epTvSeen = false; HS.md = 'ep'; hostLoad({ sc: 'ep', lv: 0 }); } else epGo(i); toast('Owner skip!', 'good'); }; grid.appendChild(b); });
   $('#cutSkip').onclick = () => { const C = GAME.cut; if (!C) return; for (let i = C.i; i < C.steps.length; i++) { const st = C.steps[i]; if (!st._on && st.start) { st._on = true; try { st.start(); } catch (e) { } } } $('#fade').classList.remove('on'); endCut(); };
+  ubOwnerSetup();
   const gl = $('#lkGlitch'); gl.checked = P.glitchName !== false; gl.onchange = e => { P.glitchName = e.target.checked; displayName.c = null; save(); };
 }
 
@@ -3373,7 +3375,7 @@ function cutHandGrab() {
 }
 function ubAlliesArrive() { UB.allies.forEach(a => W.group.remove(a.g)); UB.allies = []; UB_ALLIES.forEach(([kind, name], i) => { const { g, tex } = makeAlly(kind, name); const [x, z] = ubRandSolid(false); g.position.set(x, 0, z); W.group.add(dyn(g)); const a = { kind, name, g, tex, x, z, tx: x, tz: z, shootT: 1 + Math.random() * 3, specT: 12 + Math.random() * 20, hop: 0 }; UB.allies.push(a); burstCode(x, 1, z); }); SFX.static(); }
 function burstCode(x, y, z) { for (let i = 0; i < 10; i++) { const c = mesh(G.box(.2, .2, .2), new THREE.MeshBasicMaterial({ color: Math.random() < .5 ? 0x7cff9a : 0xffffff, toneMapped: false }), x, y, z, W.group); dyn(c); UB.bolts.push({ fx: true, m: c, vx: (Math.random() - .5) * 6, vy: Math.random() * 6, vz: (Math.random() - .5) * 6, t: .8 }); } }
-function ubStart() { UB.on = true; if (P.epUbHalf && UB.hp > UB_MAX * .5) { UB.hp = UB_MAX * .5; ubPhase(3); toast('Checkpoint: he\'s already at half health!', 'good'); } UB.atkT = 2.5; $('#ubBar').hidden = false; ubBarUpd(); toast('Grab the glowing code fragments to hurt THE UNDEFINED!', 'good'); }
+function ubStart() { UB.on = true; if (GAME.ubPending) { const n = GAME.ubPending; GAME.ubPending = 0; UB.hp = UB_MAX * [0, 1, .75, .5, .25][n]; if (n > 1) ubPhase(n); $('#ubBar').hidden = false; ubBarUpd(); toast('Owner skip: phase ' + n, 'good'); UB.atkT = 2.5; return; } if (P.epUbHalf && UB.hp > UB_MAX * .5) { UB.hp = UB_MAX * .5; ubPhase(3); toast('Checkpoint: he\'s already at half health!', 'good'); } UB.atkT = 2.5; $('#ubBar').hidden = false; ubBarUpd(); toast('Grab the glowing code fragments to hurt THE UNDEFINED!', 'good'); }
 
 /* ----- damage ----- */
 function ubHurt(n, cause) { if (!ME.alive || ME.god || UB.iT > 0 || GAME.cut) return; if (UB.shield > 0) { UB.shield = 0; $('#ubShield').style.display = 'none'; SFX.ding(); toast('Glorp\'s shield blocked it!', 'good'); UB.iT = .8; return; } UB.iT = .7; hurt(n, cause); }
@@ -3497,6 +3499,15 @@ function ubCredits(on) { const c = $('#credits'); if (!c) return; if (on) { c.st
 STAGES.push({ name: 'THE VOID', sub: 'Every level. Put together. Breaking apart.', build(sd) { buildBossArena(sd); },
   obj: () => !UB ? '' : UB.done ? '' : UB.on ? 'Grab the glowing CODE FRAGMENTS to hurt him. Dodge everything. Don\'t fall.' : 'The elevator is at the end of the platform. Escape.',
   start() { ubUI(); toast('Careful: there are holes in the floor.'); }, onDeath() { if (UB && UB.on && !UB.done) ubRetry(); else epGo(W.ep); } });
+
+/* ----- owner skips ----- */
+function ubSkipPhase(n) { closeAllOvl(); const hp = UB_MAX * [0, 1, .75, .5, .25][n];
+  if (W && W.ep === 34 && UB && UB.on && !UB.done) { ubClear(); UB.hp = hp; if (n > UB.phase) ubPhase(n); else { UB.phase = n; UB.cap = hp; UB.atkT = 2.5; bigText('PHASE ' + n, '#c060ff'); } ubBarUpd(); toast('Owner skip: phase ' + n, 'good'); return; }
+  if (W && W.ep === 34 && UB && !UB.done) { GAME.ubPending = n; toast('Walk to the elevator. The fight will start at phase ' + n + '.', 'good'); return; }
+  GAME.ubPending = n; epGo(34); toast('Walk to the elevator. The fight will start at phase ' + n + '.', 'good'); }
+function ubSkipCredits() { closeAllOvl(); if (GAME.cut) { GAME.cut = null; $('#cutBars').hidden = true; } GAME.frozen = false; ubMusicStop(); if ($('#ubBar')) $('#ubBar').hidden = true; if (UB) { UB.on = false; UB.done = true; } ubCredits(true); cutFinal(); toast('Owner skip: credits', 'good'); }
+function ubOwnerSetup() { const g = $('#ownUB'); if (!g) return; [1, 2, 3, 4].forEach(n => { const b = document.createElement('button'); b.type = 'button'; b.className = 'lvSkip'; b.textContent = 'Boss phase ' + n; b.onclick = () => ubSkipPhase(n); g.appendChild(b); });
+  const c = document.createElement('button'); c.type = 'button'; c.className = 'lvSkip'; c.textContent = 'Skip to credits'; c.onclick = () => { if (!GAME.g || GAME.g.sc !== 'ep') { toast('Start an Endless Pain run first, then skip to the credits.'); closeAllOvl(); return; } ubSkipCredits(); }; g.appendChild(c); }
 
 /* ============ UI / menus ============ */
 const MENU = { mode: 'harvest', bots: 0 };
