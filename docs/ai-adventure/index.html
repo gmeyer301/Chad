@@ -127,6 +127,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
 #codeLine.gone code{opacity:0;filter:blur(6px)}
 .acts{max-width:560px}
 @media (prefers-reduced-motion:reduce){#cap.shake{animation:none}}
+#talk.cortana #who{color:#5ac8ff} #talk.cortana #line{font-family:var(--voice);font-style:italic;color:#e0f2ff}
+#title{justify-content:safe center}
+.chap{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:600px;padding:14px 0;border-top:1px solid var(--line)}
+.new{font-size:10px;letter-spacing:.14em;background:var(--claude);color:#1a0a04;padding:2px 6px;margin-left:6px;vertical-align:middle}
+#end .roll span{display:contents}
 
 </style>
 
@@ -139,7 +144,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
   <div id="me"><span>UNDEFINED</span><div class="bar"><i id="hpI"></i></div></div>
   <div id="boss" hidden><h4 id="bossName">THE HAZMAT MAN</h4><div class="bar"><i id="bhpI"></i></div><div id="esc"><span>ESCAPE</span><div class="bar"><i id="escI"></i></div></div></div>
 </div>
-<div id="rot">V2.0.0</div>
+<div id="rot">V3.0.0</div>
 <div id="bubble" hidden></div>
 <div id="toast" hidden></div>
 <div id="prompt" hidden></div>
@@ -154,11 +159,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
 <div id="title" class="screen wrap">
   <div class="ch">s0meTh1ng.MP4 presents</div>
   <h1>AI<br>ADVENTURE</h1>
-  <div class="ch">Chapter 1 · <b>Reborn</b></div>
-  <div class="menu">
-    <button class="mb main" id="play" type="button">Wake up</button>
-  </div>
-  <div class="small">Skip to</div>
+  <div class="chap"><div class="ch">Chapter 1 · <b>Reborn</b></div>
+  <div class="menu"><button class="mb main" id="play" type="button">Play Chapter 1</button></div>
   <div class="acts">
     <button class="mb" data-act="climb" type="button">The Climb</button>
     <button class="mb" data-act="boss" type="button">Hazmat Fight</button>
@@ -169,27 +171,42 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--void);color:var(
     <button class="mb" data-act="captcha" type="button">The Bridge</button>
     <button class="mb" data-act="throne" type="button">The Trap</button>
     <button class="mb" data-act="fusion" type="button">Super AI</button>
-  </div>
+  </div></div>
+  <div class="chap"><div class="ch">Chapter 2 · <b>Stranded</b> <span class="new">NEW</span></div>
+  <div class="menu"><button class="mb main" data-act="island" type="button">Play Chapter 2</button></div>
+  <div class="acts">
+    <button class="mb" data-act="raft" type="button">The Raft</button>
+    <button class="mb" data-act="suburbs" type="button">Suburbs</button>
+    <button class="mb" data-act="bank" type="button">Sora Squad</button>
+    <button class="mb" data-act="hospital" type="button">Hospital</button>
+    <button class="mb" data-act="dungeon" type="button">Dungeon</button>
+    <button class="mb" data-act="warden" type="button">The Warden</button>
+    <button class="mb" data-act="crates" type="button">Crate Room</button>
+    <button class="mb" data-act="firewall" type="button">The Firewall</button>
+    <button class="mb" data-act="burning" type="button">Burning Castle</button>
+    <button class="mb" data-act="cortana" type="button">Evil Cortana</button>
+    <button class="mb" data-act="chatmech" type="button">ChatGPT</button>
+  </div></div>
   <div class="small">Move: WASD / stick · Jump: Space · Act/Hit: E or F · Drag to look</div>
-  <div class="ver">V2.0.0</div>
+  <div class="ver">V3.0.0</div>
 </div>
 
 <div id="card" hidden><div class="rays"></div><div class="t" id="cardT">15 MINUTES<br>LATER…</div></div>
 
 <div id="end" class="screen wrap" hidden>
-  <div class="small">AI Adventure · Chapter 1</div>
-  <h2>REBORN</h2>
-  <p class="next">Good ending. Liam is back.</p>
+  <div class="small" id="endSmall">AI Adventure · Chapter 1</div>
+  <h2 id="endH">REBORN</h2>
+  <p class="next" id="endNext">Good ending. Liam is back.</p>
   <div class="roll">
     <h3>Story &amp; ideas</h3><p>s0meTh1ng.MP4 / Henry &amp; Claude.AI</p>
     <h3>Game by</h3><p>Claude.AI</p>
     <h3>Liam</h3><p>Sage’s custom AI</p>
-    <h3>Bob &amp; Glorp</h3><p>drawn by Henry</p>
+    <span id="endExtra"></span><h3>Bob &amp; Glorp</h3><p>drawn by Henry</p>
     <h3>Boss music</h3><p>"Worlds Collide" by SMG4</p>
-    <h3>Starring</h3><p>The Undefined, Liam, the Hazmat Man, Claude, Chat, Gemini, DeepSeek, and everyone from every game</p>
+    <h3>Starring</h3><p>The Undefined, Liam, the Hazmat Man, Claude, Chat, Gemini, DeepSeek, Cortana, the Sora Squad, and everyone from every game</p>
   </div>
   <div class="menu"><button class="mb main" id="again" type="button">Fight the Super AI again</button><button class="mb" id="home" type="button">Title screen</button></div>
-  <div class="ver">V2.0.0</div>
+  <div class="ver">V3.0.0</div>
 </div>
 
 <div id="cap" hidden><div class="ch">Select all squares with <b>Claude</b></div><div id="capGrid"></div><div id="capMsg"></div><button class="mb main" id="capGo" type="button">Verify</button></div>
@@ -351,7 +368,7 @@ const touchy = matchMedia('(pointer: coarse)').matches;
 
 /* ---------- dialogue ---------- */
 let talking = false, tq = [], tCur = null, tShown = 0, tDone = null;
-const WHO = { claude: 'Claude', narr: '', hazmat: 'Hazmat Man', you: '???', liam: 'Liam', chat: 'Chat', gemini: 'Gemini', deepseek: 'DeepSeek' };
+const WHO = { claude: 'Claude', narr: '', hazmat: 'Hazmat Man', you: '???', liam: 'Liam', chat: 'Chat', gemini: 'Gemini', deepseek: 'DeepSeek', cortana: 'Cortana' };
 function say(lines, done) { tq = lines.slice(); tDone = done; talking = true; $('talk').hidden = false; $('ctl').hidden = true; $('prompt').hidden = true; nextLine(); }
 function nextLine() { tCur = tq.shift(); if (!tCur) { talking = false; $('talk').hidden = true; if (touchy && state.controls) $('ctl').hidden = false; const d = tDone; tDone = null; d && d(); return; } $('talk').className = 'wrap ' + tCur.w + (tCur.loud ? ' loud' : ''); if (tCur.loud) { glitchFX(); tone(90, .5, 'sawtooth', .2, 40); noise(.3, .3, 3000); } $('who').textContent = WHO[tCur.w]; $('line').textContent = ''; tShown = 0; $('more').style.visibility = 'hidden'; }
 function talkUpdate(dt) { if (!talking || !tCur) return; if (tShown < tCur.t.length) { const before = tShown | 0; tShown = Math.min(tCur.t.length, tShown + dt * (tCur.w === 'narr' ? 38 : 32)); const now = tShown | 0; if (now > before) { const ch = tCur.t[now - 1]; if (ch !== ' ' && now % 2) (tCur.w === 'claude' ? sfx.claude : sfx.type)(); } $('line').textContent = tCur.t.slice(0, now); if (now >= tCur.t.length) $('more').style.visibility = 'visible'; }
@@ -639,7 +656,7 @@ function groundAt(x, z, y) { let best = null; for (const p of W.plats) { if (p.r
 function playerUpdate(dt) {
   if (!P.obj) return;
   let ix = 0, iz = 0;
-  if (state.controls && !talking) { if (keys.KeyW || keys.ArrowUp) iz -= 1; if (keys.KeyS || keys.ArrowDown) iz += 1; if (keys.KeyA || keys.ArrowLeft) ix -= 1; if (keys.KeyD || keys.ArrowRight) ix += 1; ix += joy.x; iz += joy.y; }
+  if (state.controls && !talking) { if (keys.KeyW || keys.ArrowUp) iz -= 1; if (keys.KeyS || keys.ArrowDown) iz += 1; if (keys.KeyA || keys.ArrowLeft) ix -= 1; if (keys.KeyD || keys.ArrowRight) ix += 1; ix += joy.x; iz += joy.y; } if (P.rev > 0) { P.rev -= dt; ix = -ix; iz = -iz; }
   const m = Math.min(1, Math.hypot(ix, iz)); let mx = 0, mz = 0;
   if (m > .08) { const n = Math.hypot(ix, iz); ix /= n; iz /= n; const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw); mx = (fx * -iz + rx * ix) * m; mz = (fz * -iz + rz * ix) * m; }
   const big = P.scale > 2; let spd = big ? (P.weak ? 6 : 15) : P.speed; if (P.stompT > 0) spd *= .3;
@@ -662,6 +679,7 @@ function playerUpdate(dt) {
 }
 function cameraUpdate(dt) {
   if (!P.obj) return; const s = P.scale;
+  if (W && W.camO) { camera.position.lerp(W.camO.pos, Math.min(1, dt * 3)); camera.lookAt(W.camO.look); return; }
   if (state.mode === 'title') { const t = state.t * .12; camera.position.set(Math.sin(t) * 9, 3.2, 2 + Math.cos(t) * 9); camera.lookAt(0, 1.4, -6); return; }
   if (W.name === 'room') { camera.position.lerp(_v.set(P.pos.x + Math.sin(yaw) * camDist, camH + 1.2, P.pos.z + Math.cos(yaw) * camDist + 1), Math.min(1, dt * 3)); camera.lookAt(W.look); return; }
   camT.lerp(_v.set(P.pos.x, P.pos.y + 1.4 * s, P.pos.z), Math.min(1, dt * 8));
@@ -700,7 +718,7 @@ const FX = [];
 function dissolve(obj, col = 0xc070ff, n = 36) { obj.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(obj); const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3()); const big = Math.max(sz.x, sz.y, sz.z, .5); const m = new THREE.MeshBasicMaterial({ color: col, transparent: true, toneMapped: false });
   for (let i = 0; i < n; i++) { const q = mesh(G.box(1, 1, 1), m, c.x + rand(-.5, .5) * sz.x, c.y + rand(-.5, .5) * sz.y, c.z + rand(-.5, .5) * sz.z, scene); q.scale.setScalar(big * rand(.05, .11)); FX.push({ m: q, v: new THREE.Vector3(rand(-3, 3), rand(1, 6), rand(-3, 3)).multiplyScalar(big / 2), t: rand(.8, 1.6) }); }
   obj.visible = false; sfx.glitch(); noise(.4, .3, 5000); }
-function fxUpdate(dt) { for (let i = FX.length - 1; i >= 0; i--) { const f = FX[i]; f.t -= dt; f.m.position.addScaledVector(f.v, dt); f.m.rotation.x += dt * 4; f.m.scale.multiplyScalar(1 - dt * .8); if (f.t <= 0) { scene.remove(f.m); FX.splice(i, 1); } } }
+function fxUpdate(dt) { for (let i = FX.length - 1; i >= 0; i--) { const f = FX[i]; f.t -= dt; if (f.g) f.v.y -= f.g * dt; f.m.position.addScaledVector(f.v, dt); if (!f.keep) { f.m.rotation.x += dt * 4; f.m.scale.multiplyScalar(1 - dt * .8); } else if (f.m.material) f.m.material.opacity = Math.min(1, f.t); if (f.t <= 0) { scene.remove(f.m); FX.splice(i, 1); } } }
 function setFade(obj, op) { obj.traverse(o => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { m.transparent = true; m.opacity = op; }); } }); }
 function bossBar(name, show) { $('bossName').textContent = name; $('boss').hidden = !show; $('esc').hidden = name !== 'THE HAZMAT MAN'; }
 function swirlTex(stops) { const c = cv(256, 256), x = c.getContext('2d'); const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); stops.forEach((s, i) => g.addColorStop(i / (stops.length - 1), s)); x.fillStyle = g; x.fillRect(0, 0, 256, 256); x.strokeStyle = 'rgba(255,255,255,.45)'; x.lineWidth = 3; for (let k = 0; k < 6; k++) { x.beginPath(); for (let q = 0; q < 60; q++) { const a = k / 6 * TAU + q * .09, rr = q * 2; x.lineTo(128 + Math.cos(a) * rr, 128 + Math.sin(a) * rr); } x.stroke(); } return new THREE.CanvasTexture(c); }
@@ -803,17 +821,17 @@ function buildRecode(intro) {
 function brickTex(base, mortar, hi) { const c = cv(256, 256), x = c.getContext('2d'); x.fillStyle = mortar; x.fillRect(0, 0, 256, 256); for (let r = 0; r < 8; r++) for (let k = -1; k < 4; k++) { const off = r % 2 ? 32 : 0; const v = rand(-14, 14); x.fillStyle = shade(base, v); x.fillRect(k * 64 + off + 2, r * 32 + 2, 60, 28); if (Math.random() < .1) { x.fillStyle = hi; x.globalAlpha = .35; x.fillRect(k * 64 + off + 6, r * 32 + 12, 24, 3); x.globalAlpha = 1; } } return mkTex(c, 1, 1); }
 function shade(hex, v) { const n = parseInt(hex.slice(1), 16); const f = c => clamp(c + v, 0, 255) | 0; return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; }
 function bannerTex() { const c = cv(128, 256), x = c.getContext('2d'); x.fillStyle = '#0d2b24'; x.fillRect(0, 0, 128, 256); x.fillStyle = '#19c39b'; x.fillRect(0, 0, 128, 10); x.strokeStyle = '#19c39b'; x.lineWidth = 7; for (let i = 0; i < 3; i++) { x.beginPath(); x.ellipse(64, 110, 36, 16, i * Math.PI / 3, 0, TAU); x.stroke(); } x.fillStyle = '#c8fff0'; x.font = 'bold 26px monospace'; x.textAlign = 'center'; x.fillText('CHAT', 64, 200); x.beginPath(); x.moveTo(0, 236); x.lineTo(64, 256); x.lineTo(128, 236); x.lineTo(128, 256); x.lineTo(0, 256); x.fillStyle = '#000'; x.fill(); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; }
-function wallSeg(x, z, len, rot, h = 6) { const t = W.tex.wall.clone(); t.needsUpdate = true; t.repeat.set(len / 4, h / 4); const m = mesh(new THREE.PlaneGeometry(len, h), new THREE.MeshStandardMaterial({ map: t, roughness: .85 }), x, h / 2, z, scene); m.rotation.y = rot; W.walls.push(m); return m; }
+function wallSeg(x, z, len, rot, h = 6, ray = false) { const t = W.tex.wall.clone(); t.needsUpdate = true; t.repeat.set(len / 4, h / 4); const m = mesh(new THREE.PlaneGeometry(len, h), new THREE.MeshStandardMaterial({ map: t, roughness: .85 }), x, h / 2, z, scene); m.rotation.y = rot; if (ray) W.walls.push(m); return m; }
 function room(cz, w, d, o = {}) {
   const t = W.tex.floor.clone(); t.needsUpdate = true; t.repeat.set(w / 4, d / 4);
   mesh(G.box(w, .6, d), new THREE.MeshStandardMaterial({ map: t, roughness: .8 }), 0, -.3, cz, scene);
   W.plats.push({ x: 0, z: cz, w, d, top: 0, check: true, cp: new THREE.Vector3(0, 0, cz + d / 2 - 2.2) });
   const n = cz - d / 2, s = cz + d / 2, hw = w / 2;
   wallSeg(-hw, cz, d, Math.PI / 2); wallSeg(hw, cz, d, -Math.PI / 2); W.solids.push({ x: -hw - .5, z: cz, w: 1, d, h: 7 }, { x: hw + .5, z: cz, w: 1, d, h: 7 });
-  const end = (z, kind, rot) => { if (kind === 'none') return; if (kind === 'solid') { wallSeg(0, z, w, rot); W.solids.push({ x: 0, z: z + (rot ? .5 : -.5), w, d: 1, h: 7 }); return; } const seg = (w - 4) / 2; wallSeg(-(2 + seg / 2), z, seg, rot); wallSeg(2 + seg / 2, z, seg, rot); const lin = wallSeg(0, z, 4, rot, 1.4); lin.position.y = 5.3; W.solids.push({ x: -(2 + seg / 2), z: z + (rot ? .5 : -.5), w: seg, d: 1, h: 7 }, { x: 2 + seg / 2, z: z + (rot ? .5 : -.5), w: seg, d: 1, h: 7 }); };
+  const end = (z, kind, rot) => { if (kind === 'none') return; if (kind === 'solid') { wallSeg(0, z, w, rot); W.solids.push({ x: 0, z: z + (rot ? .5 : -.5), w, d: 1, h: 7 }); return; } const seg = (w - 4) / 2; wallSeg(-(2 + seg / 2), z, seg, rot, 6, true); wallSeg(2 + seg / 2, z, seg, rot, 6, true); const lin = wallSeg(0, z, 4, rot, 1.4); lin.position.y = 5.3; W.solids.push({ x: -(2 + seg / 2), z: z + (rot ? .5 : -.5), w: seg, d: 1, h: 7 }, { x: 2 + seg / 2, z: z + (rot ? .5 : -.5), w: seg, d: 1, h: 7 }); };
   end(n, o.north || 'gap', 0); end(s, o.south || 'gap', Math.PI);
   [[-hw + .2, Math.PI / 2], [hw - .2, -Math.PI / 2]].forEach(([x, r]) => { for (let k = 0; k < Math.floor(d / 9); k++) { const bz = cz + d / 2 - 4.5 - k * 9; const b = mesh(new THREE.PlaneGeometry(1.4, 2.8), new THREE.MeshStandardMaterial({ map: W.tex.banner, roughness: .9, side: THREE.DoubleSide }), x, 3.6, bz, scene); b.rotation.y = r; const fl = glowSprite(0x5affd0, 1.6, .8); fl.position.set(x + (r > 0 ? .4 : -.4), 2.1, bz + 2.4); scene.add(fl); mesh(G.box(.2, .4, .2), W.mats.iron, x + (r > 0 ? .2 : -.2), 1.8, bz + 2.4, scene); } });
-  const L = new THREE.PointLight(0x9affe0, 1.3, Math.max(w, d) * 1.2, 1.6); L.position.set(0, 5, cz); scene.add(L);
+  const L = new THREE.PointLight(W.roomLight || 0x9affe0, 1.3, Math.max(w, d) * 1.2, 1.6); L.position.set(0, 5, cz); scene.add(L);
   let gate = null;
   if (o.gate) { const gm = mesh(G.box(4, 5.2, .35), new THREE.MeshStandardMaterial({ map: W.tex.bars, color: 0xa8c8c0, metalness: .7, roughness: .35, emissive: 0x0a3a30 }), 0, 2.6, n, scene); const sol = { x: 0, z: n, w: 4, d: 1, h: 7 }; W.solids.push(sol); gate = { m: gm, s: sol, open() { if (gate.opening) return; gate.opening = true; sol.off = true; tone(110, 1, 'sawtooth', .12, 220); noise(.9, .2, 600); } }; W.gates.push(gate); }
   return { cz, w, d, n, s, gate, bx: [-hw + .8, hw - .8], bz: [n + .8, s - .8] };
@@ -1082,12 +1100,13 @@ async function ending() {
   await sayP([{ w: 'liam', t: '…Did we win?' }, { w: 'you', t: '▓ yeah. ▓' }, { w: 'liam', t: 'Cool. Let’s go home.' }]);
   await fade('#000', true, 1400); await showCard('GOOD<br>ENDING', 2800);
   try { localStorage.setItem('aia_ch1', '1'); } catch (e) { }
-  $('hud').hidden = true; $('bubble').hidden = true; $('end').hidden = false; state.mode = 'end'; fade('#000', false, 600);
+  showEnd(1); fade('#000', false, 600);
 }
 
 /* ================= menus ================= */
 function resetUI() { $('title').hidden = true; $('end').hidden = true; $('cap').hidden = true; $('meter').hidden = true; $('codeLine').hidden = true; $('card').hidden = true; $('prompt').hidden = true; $('bubble').hidden = true; $('hud').hidden = false; bossBar('', false); $('bAct').textContent = 'ACT'; talking = false; $('talk').hidden = true; tq = []; WA = null; BUB.obj = null; }
 function begin(act) { audio(); resetUI(); state.mode = 'play'; stopMusic(); stopDrone(); $('fade').style.opacity = 0;
+  if (CH2[act]) { CH2[act](); return; }
   if (act === 'climb') { buildClimb(); state.controls = true; if (touchy) $('ctl').hidden = false; return; }
   if (act === 'boss') { buildBoss(false); return; }
   if (act === 'betrayal') { buildBoss(false); W.phase = 'weak'; P.hp = 9; P.weak = true; W.H.hp = 40; bossBar('THE HAZMAT MAN', true); startMusic(); W.phase = 'end'; endAct(); return; }
@@ -1099,10 +1118,429 @@ function begin(act) { audio(); resetUI(); state.mode = 'play'; stopMusic(); stop
 }
 $('play').onclick = () => begin('wake');
 document.querySelectorAll('[data-act]').forEach(b => b.onclick = () => begin(b.dataset.act));
-$('again').onclick = () => begin('fusion');
+$('again').onclick = () => begin(state.lastBoss || 'fusion');
 $('home').onclick = () => { resetUI(); $('hud').hidden = true; state.mode = 'title'; state.controls = false; stopMusic(); buildWake(); $('title').hidden = false; };
 window.__go = begin; window.__snap = (q = .82) => { renderer.render(scene, camera); return cvs.toDataURL('image/jpeg', q); };
 buildWake(); setHUD(''); requestAnimationFrame(loop);
+
+/* ======================================================================
+   CHAPTER 2 — STRANDED
+   ====================================================================== */
+function showEnd(ch) {
+  $('hud').hidden = true; $('bubble').hidden = true; $('end').hidden = false; state.mode = 'end';
+  if (ch === 2) { $('endSmall').textContent = 'AI Adventure · Chapter 2'; $('endH').textContent = 'STRANDED'; $('endNext').textContent = 'You made it home. Chapter 3 is coming…'; $('again').textContent = 'Fight ChatGPT again'; state.lastBoss = 'chatmech'; $('endExtra').innerHTML = '<h3>Cortana</h3><p>Windows’ AI, apparently</p>'; }
+  else { $('endSmall').textContent = 'AI Adventure · Chapter 1'; $('endH').textContent = 'REBORN'; $('endNext').textContent = 'Good ending. Liam is back.'; $('again').textContent = 'Fight the Super AI again'; state.lastBoss = 'fusion'; $('endExtra').innerHTML = ''; }
+}
+function gradSky(top, mid, bot) { const c = cv(8, 256), x = c.getContext('2d'); const g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, top); g.addColorStop(.5, mid); g.addColorStop(1, bot); x.fillStyle = g; x.fillRect(0, 0, 8, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return new THREE.Mesh(new THREE.SphereGeometry(800, 32, 16), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, toneMapped: false })); }
+function makeOcean(size, seg, col) { const g = new THREE.PlaneGeometry(size, size, seg, seg); g.rotateX(-Math.PI / 2); const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: col, roughness: .25, metalness: .2, flatShading: true, transparent: true, opacity: .93 })); const base = g.attributes.position.array.slice(); m.userData.tick = (t, sx = 0, sz = 0) => { const p = g.attributes.position.array; for (let i = 0; i < p.length; i += 3) { const x = base[i] + sx, z = base[i + 2] + sz; p[i + 1] = Math.sin(x * .16 + t * 1.1) * .32 + Math.cos(z * .13 + t * 1.4) * .28; } g.attributes.position.needsUpdate = true; }; return m; }
+function makePalm(h = 5) { const g = new THREE.Group(); const bark = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: .9 }); const leaf = new THREE.MeshStandardMaterial({ color: 0x2f8a3a, roughness: .7, side: THREE.DoubleSide }); let y = 0, x = 0; for (let i = 0; i < 6; i++) { const s = mesh(G.cyl(.16 - i * .012, .2 - i * .012, h / 6 + .05, 8), bark, x, y + h / 12, 0, g); s.rotation.z = -.06 * i; y += h / 6; x += .1 * i * .4; }
+  for (let i = 0; i < 7; i++) { const l = mesh(G.sph(.5, 10, 6), leaf, x, y, 0, g); l.scale.set(2.6, .12, .55); l.geometry = l.geometry.clone(); l.geometry.translate(1, 0, 0); l.rotation.set(0, i / 7 * TAU, -.35); } mesh(G.sph(.18, 8, 6), new THREE.MeshStandardMaterial({ color: 0x5a3a1c }), x + .2, y - .25, .1, g); return g; }
+function heartTex() { if (TX.heart) return TX.heart; const c = cv(64, 64), x = c.getContext('2d'); x.fillStyle = '#ff5a8a'; x.beginPath(); x.moveTo(32, 56); x.bezierCurveTo(4, 36, 4, 10, 20, 10); x.bezierCurveTo(28, 10, 32, 18, 32, 20); x.bezierCurveTo(32, 18, 36, 10, 44, 10); x.bezierCurveTo(60, 10, 60, 36, 32, 56); x.fill(); TX.heart = new THREE.CanvasTexture(c); return TX.heart; }
+function hearts(pos, n = 10, col = 0xff6a9a) { for (let i = 0; i < n; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: heartTex(), color: col, transparent: true, depthWrite: false })); s.position.copy(pos).add(_v.set(rand(-.6, .6), rand(0, .6), rand(-.6, .6))); s.scale.setScalar(rand(.3, .6)); scene.add(s); FX.push({ m: s, v: new THREE.Vector3(rand(-.6, .6), rand(1, 2.4), rand(-.6, .6)), t: rand(1.2, 2.2), keep: 1 }); } tone(880, .2, 'sine', .06, 1320); }
+function vomit(from, dir) { const m = new THREE.MeshBasicMaterial({ color: 0x9ad83a, toneMapped: false }); for (let i = 0; i < 46; i++) { const q = mesh(G.sph(rand(.05, .12), 6, 4), m, from.x, from.y, from.z, scene); FX.push({ m: q, v: new THREE.Vector3(dir.x * rand(2, 5) + rand(-.6, .6), rand(1, 3.5), dir.z * rand(2, 5) + rand(-.6, .6)), t: rand(.8, 1.4), g: 12, keep: 1 }); } noise(.6, .3, 900); tone(140, .6, 'sawtooth', .12, 70); }
+function setBlush(obj, on, y = 0, z = .37, sp = .3) { if (!obj.userData.blush) { const m = new THREE.MeshBasicMaterial({ color: 0xff6a8a, transparent: true, opacity: .75, toneMapped: false, depthWrite: false }); obj.userData.blush = [-1, 1].map(s => mesh(new THREE.CircleGeometry(.09, 12), m, s * sp, y, z, obj)); } obj.userData.blush.forEach(b => b.visible = on); }
+function makeCortana(evil) {
+  const g = new THREE.Group(); const c1 = evil ? 0xff2a5a : 0x5ac8ff, c2 = evil ? 0x8a0a2a : 0x2a6aff;
+  const holo = new THREE.MeshStandardMaterial({ color: c1, emissive: c2, emissiveIntensity: .9, transparent: true, opacity: .78, roughness: .2, metalness: .2 });
+  const dress = mesh(G.cone(.55, 1.4, 20), holo, 0, .7, 0, g); dress.geometry = dress.geometry.clone(); dress.rotation.x = 0;
+  mesh(G.cyl(.16, .22, .55, 14), holo, 0, 1.55, 0, g); const head = mesh(G.sph(.27, 20, 16), holo, 0, 2.05, 0, g);
+  const hair = mesh(new THREE.SphereGeometry(.3, 18, 12, 0, TAU, 0, Math.PI * .62), new THREE.MeshStandardMaterial({ color: evil ? 0x3a0010 : 0x123a9a, emissive: evil ? 0x400010 : 0x0a2a8a, roughness: .4, transparent: true, opacity: .9 }), 0, 2.09, -.03, g); hair.rotation.x = -.35;
+  const tail = mesh(G.cone(.14, .9, 10), hair.material, 0, 1.75, -.28, g); tail.rotation.x = .35;
+  const eM = new THREE.MeshBasicMaterial({ color: evil ? 0xffd0d8 : 0xffffff, toneMapped: false }); [-1, 1].forEach(s => { const e = mesh(G.sph(.045, 8, 6), eM, s * .1, 2.08, .24, g); e.scale.y = 1.5; });
+  [-1, 1].forEach(s => { const a = mesh(G.cyl(.05, .04, .7, 8), holo, s * .28, 1.35, 0, g); a.rotation.z = s * .35; });
+  const halo = mesh(new THREE.TorusGeometry(.62, .025, 6, 48), new THREE.MeshBasicMaterial({ color: c1, toneMapped: false }), 0, 1.2, 0, g); halo.rotation.x = Math.PI / 2;
+  g.add(Object.assign(glowSprite(c1, 3.2, .4))); g.children[g.children.length - 1].position.y = 1.3;
+  const blushHolder = new THREE.Group(); blushHolder.position.set(0, 1.98, 0); g.add(blushHolder);
+  g.userData = { halo, head, blushHolder, evil }; return g;
+}
+function partyTick(dt, t) {
+  (W.party || []).forEach((m, i) => { const o = m.obj; if (!o || !o.parent) return; const fx = Math.sin(P.face), fz = Math.cos(P.face);
+    if (!m.stay && !W.cine) { const tx = P.pos.x - fx * m.back + fz * m.side, tz = P.pos.z - fz * m.back - fx * m.side; const d = Math.hypot(tx - o.position.x, tz - o.position.z); const k = Math.min(1, dt * (d > 6 ? 5 : 2.6)); o.position.x = lerp(o.position.x, tx, k); o.position.z = lerp(o.position.z, tz, k); m.mv = d; }
+    const ground = m.walk ? P.pos.y + (m.h || .45) + Math.abs(Math.sin(t * 9 + i)) * Math.min(.25, (m.mv || 0) * .1) : P.pos.y + (m.h || 1.7) + Math.sin(t * 2 + i) * .08; if (!m.stay) o.position.y = lerp(o.position.y, ground, Math.min(1, dt * 6));
+    if (!m.noTurn) o.rotation.y = Math.atan2(P.pos.x - o.position.x, P.pos.z - o.position.z);
+    if (o.userData.halo) o.userData.halo.rotation.z += dt; if (o.userData.ring) o.userData.ring.visible = !m.walk; });
+}
+function ch2Liam(walk = true) { const L = makeLiam(); L.userData.ring.visible = !walk; scene.add(L); W.liam = L; return { obj: L, side: 1.7, back: .3, walk, h: .5 }; }
+function ch2Base(name, extra = {}) { clearScene(); W = Object.assign({ name, plats: [], solids: [], walls: [], gates: [], enemies: [], pellets: [], inter: [], party: [], flags: {}, floorY: -20, update: () => { } }, extra); $('hud').hidden = false; $('me').hidden = false; bossBar('', false); setHUD(''); $('bAct').textContent = 'HIT'; P.hp = 100; P.weak = false; P.atkCD = 0; P.atkT = 0; P.rev = 0; }
+function interUpdate() { let near = null; if (state.controls && !talking) W.inter.forEach(it => { if ((!it.on || it.on()) && Math.hypot(P.pos.x - it.x, P.pos.z - it.z) < it.r) near = it; });
+  if (!WA) { $('prompt').hidden = !near; if (near) $('prompt').textContent = (touchy ? 'Tap ACT · ' : 'Press E · ') + near.label; }
+  if (state.controls && !talking && actQueued) { actQueued = false; if (near) near.fn(); else punch(); } }
+
+/* ---------------- 1. the island ---------------- */
+function buildIsland() {
+  ch2Base('island', { floorY: -1.2 }); scene.background = new THREE.Color(0x9ad0f0); scene.fog = new THREE.Fog(0xa8d8f0, 40, 220);
+  scene.add(gradSky('#4a8ed8', '#9ad0f0', '#e8f4f8')); scene.add(new THREE.HemisphereLight(0xffffff, 0x3a6a8a, .9)); const sun = new THREE.DirectionalLight(0xfff2d8, 1.1); sun.position.set(30, 50, 20); scene.add(sun);
+  const sea = makeOcean(400, 70, 0x1a7ab8); sea.position.y = -.35; scene.add(sea);
+  const sand = mesh(G.sph(8, 32, 16), new THREE.MeshStandardMaterial({ color: 0xe8d29a, roughness: 1 }), 0, -6.6, 0, scene); sand.scale.set(1, .85, 1);
+  [[-2.5, -1.5, .4], [2.8, 1.2, -.3]].forEach(([x, z, r]) => { const p = makePalm(5); p.position.set(x, 0, z); p.rotation.y = r; scene.add(p); });
+  [[1.5, 3, .35], [-3.5, 2.5, .25], [3.6, -2.6, .3]].forEach(([x, z, s]) => mesh(new THREE.DodecahedronGeometry(s * 2), new THREE.MeshStandardMaterial({ color: 0x8a8a84, roughness: .9 }), x, s * .6, z, scene));
+  W.plats.push({ x: 0, z: 0, w: 99, d: 99, top: 0, round: 6.2 }); W.R = 6.4;
+  addPlayer(1); P.pos.set(0, 0, 2); P.check = P.pos.clone(); P.face = Math.PI; yaw = .4; pitch = .3; camDist = 8;
+  const lm = ch2Liam(true); lm.obj.position.set(1.6, .4, .6); lm.obj.rotation.z = 1.4; W.party.push(lm); lm.stay = true;
+  const rift = new THREE.Group(); rift.position.set(0, 26, -14); rift.scale.setScalar(.001); scene.add(rift); mesh(new THREE.CircleGeometry(5, 40), new THREE.MeshBasicMaterial({ map: swirlTex(['#ffffff', '#d8b0ff', '#5a1ea0', 'rgba(20,0,40,0)']), transparent: true, toneMapped: false, side: THREE.DoubleSide, depthWrite: false }), 0, 0, 0, rift); W.rift = rift;
+  const raft = makeRaft(); raft.position.set(0, 60, -9.5); scene.add(raft); W.raft = raft;
+  W.update = (dt, t) => { sea.userData.tick(t); partyTick(dt, t); rift.children[0].rotation.z -= dt; interUpdate(); };
+  W.inter.push({ x: 0, z: -7.2, r: 2.2, label: 'Get on the raft', on: () => W.flags.raft, fn: async () => { cine(true); await fade('#000', true, 700); buildRaft(); fade('#000', false, 900); } });
+  (async () => { cine(true); fade('#000', false, 1500); startDrone(65); await wait(900);
+    await sayP([{ w: 'narr', t: 'You wake up on a tiny island in the middle of the ocean.' }, { w: 'liam', t: 'Ugh… where are we?' }, { w: 'liam', t: 'Hey. My powers. They’re gone. I can’t even float anymore.' }, { w: 'liam', t: 'I’m too weak.' }, { w: 'you', t: '▓▒░ me too ░▒▓' }, { w: 'narr', t: 'You’re stranded.' }]);
+    lm.obj.rotation.z = 0; lm.stay = false; cine(false); setHUD('Look around');
+    await wait(5000); cine(true); sfx.door(); glitchFX(); yaw = 0; pitch = .05; await anim(1400, k => rift.scale.setScalar(Math.max(.001, ease(k))));
+    await sayP([{ w: 'liam', t: 'Is that a RIFT?!' }]);
+    await anim(1500, k => raft.position.y = lerp(60, -.15, k * k)); noise(1, .5, 1500); shake = .4; for (let i = 0; i < 30; i++) { const q = mesh(G.sph(.12, 6, 4), new THREE.MeshBasicMaterial({ color: 0xe8f8ff }), raft.position.x, 0, raft.position.z, scene); FX.push({ m: q, v: new THREE.Vector3(rand(-4, 4), rand(4, 9), rand(-4, 4)), t: 1.2, g: 14, keep: 1 }); }
+    await anim(900, k => rift.scale.setScalar(Math.max(.001, 1 - k)));
+    await sayP([{ w: 'liam', t: 'A raft. From the sky. Sure. Why not.' }, { w: 'liam', t: 'Come on, let’s get off this rock!' }]);
+    W.flags.raft = true; W.update2 = (dt, t) => { raft.position.y = -.15 + Math.sin(t * 1.5) * .08; raft.rotation.z = Math.sin(t) * .03; }; cine(false); pitch = .3; setHUD('Get on the raft'); })();
+}
+function makeRaft() { const g = new THREE.Group(); const wood = new THREE.MeshStandardMaterial({ color: 0x9a6f42, roughness: .9 }); for (let i = 0; i < 7; i++) { const l = mesh(G.cyl(.28, .28, 4.2, 10), wood, -1.68 + i * .56, 0, 0, g); l.rotation.x = Math.PI / 2; } [-1.4, 1.4].forEach(z => mesh(G.box(4.2, .12, .3), new THREE.MeshStandardMaterial({ color: 0x6a4a2a }), 0, .3, z, g)); const mast = mesh(G.cyl(.08, .08, 3, 8), wood, 0, 1.6, -.8, g); const sail = mesh(new THREE.PlaneGeometry(2, 1.8), new THREE.MeshStandardMaterial({ color: 0xf0e8d0, side: THREE.DoubleSide, roughness: .9 }), 0, 2.1, -.82, g); return g; }
+
+/* ---------------- 2. the raft ride ---------------- */
+function buildRaft() {
+  ch2Base('raft'); scene.background = new THREE.Color(0xf0b890); scene.fog = new THREE.Fog(0xf2c8a8, 30, 170);
+  scene.add(gradSky('#5a6ab8', '#f0a878', '#ffe0b8')); scene.add(new THREE.HemisphereLight(0xffe8d8, 0x2a4a6a, .9)); const sun = new THREE.DirectionalLight(0xffd0a0, 1); sun.position.set(-20, 30, -60); scene.add(sun);
+  const sea = makeOcean(300, 64, 0x1a6aa8); sea.position.y = -.35; scene.add(sea);
+  const raft = makeRaft(); scene.add(raft);
+  addPlayer(1); P.pos.set(0, .3, .4); P.face = Math.PI; yaw = 0; pitch = .28; camDist = 9;
+  const lm = ch2Liam(true); lm.stay = true; lm.obj.position.set(1.2, .8, 1); W.party.push(lm);
+  const obs = []; const rockM = new THREE.MeshStandardMaterial({ color: 0x6a6a68, roughness: .9, flatShading: true }), logM = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: .9 }), finM = new THREE.MeshStandardMaterial({ color: 0x5a6a78, roughness: .5 });
+  const R = { x: 0, vx: 0, hp: 100, dist: 0, len: 620, spawn: 1, hurt: 0, done: false };
+  W.cine = true; state.controls = false;
+  W.update = (dt, t) => {
+    if (R.go) { let ix = 0; if (keys.KeyA || keys.ArrowLeft) ix -= 1; if (keys.KeyD || keys.ArrowRight) ix += 1; ix += joy.x; R.vx = lerp(R.vx, ix * 9, Math.min(1, dt * 4)); R.x = clamp(R.x + R.vx * dt, -11, 11); R.dist += dt * 14; R.spawn -= dt;
+      if (R.spawn <= 0) { R.spawn = rand(.45, .85) * (R.dist > 400 ? .75 : 1); const k = Math.random(); let o; if (k < .5) { o = mesh(new THREE.DodecahedronGeometry(rand(1, 1.8)), rockM, 0, 0, 0, scene); o.userData = { r: 1.6, type: 'rock' }; } else if (k < .8) { o = mesh(G.cyl(.4, .4, rand(4, 7), 10), logM, 0, 0, 0, scene); o.rotation.z = Math.PI / 2; o.userData = { r: 1, type: 'log', len: 3 }; } else { o = new THREE.Group(); mesh(G.cone(.6, 1.4, 4), finM, 0, .5, 0, o); scene.add(o); o.userData = { r: 1, type: 'fin', ph: rand(0, 6) }; } o.position.set(R.x + rand(-12, 12), 0, -150); obs.push(o); }
+      for (let i = obs.length - 1; i >= 0; i--) { const o = obs[i]; o.position.z += 14 * dt; if (o.userData.type === 'fin') o.position.x += Math.sin(t * 1.5 + o.userData.ph) * 6 * dt; o.position.y = Math.sin(t * 1.5 + i) * .15;
+        const dx = Math.abs(o.position.x - R.x) - (o.userData.len || 0), dz = Math.abs(o.position.z); if (dz < 2.2 && dx < o.userData.r + 1.8 && R.hurt <= 0) { R.hp -= o.userData.type === 'fin' ? 12 : 15; R.hurt = 1; sfx.hurt(); noise(.4, .4, 1200); shake = .5; glitchFX(); if (o.userData.type === 'fin') shout(W.liam, 'SHARK!! Was that a SHARK?!', 1400, 'liam', 1); }
+        if (o.position.z > 20) { scene.remove(o); obs.splice(i, 1); } }
+      R.hurt -= dt; $('bhpI').style.transform = `scaleX(${clamp(R.dist / R.len, 0, 1)})`; P.hp = R.hp; updateBars();
+      if (R.hp <= 0 && !R.done) { R.done = true; R.go = false; (async () => { await sayP([{ w: 'narr', t: 'The raft falls apart.' }, { w: 'liam', t: 'Okay, okay, the sky gives out free rafts. Let’s try again.' }]); buildRaft(); })(); }
+      if (R.dist >= R.len && !R.done) { R.done = true; R.go = false; arrive(); } }
+    sea.userData.tick(t, 0, -t * 14); raft.position.set(R.x, -.12 + Math.sin(t * 2) * .08, 0); raft.rotation.z = -R.vx * .02 + Math.sin(t * 1.3) * .03; P.pos.set(R.x, .2 + raft.position.y + .12, .4); W.liam.position.set(R.x + 1.2, .75 + raft.position.y, 1); P.obj.rotation.y = Math.PI; animHumanoid(P.obj.userData, 0, dt, false);
+  };
+  async function arrive() { obs.forEach(o => scene.remove(o)); await fade('#000', true, 900); await showCard('ALMOST FOREVER<br>LATER…', 2600); buildSuburbs('arrive'); }
+  bossBar('THE SHORE', true); $('bhpI').style.transform = 'scaleX(0)';
+  (async () => { await sayP([{ w: 'narr', t: 'You and Liam ride the raft for what almost feels like forever.' }, { w: 'liam', t: 'Steer! Rocks, logs, and… are those fins?' }]); setHUD(touchy ? 'Steer with the stick' : 'Steer with A and D'); R.go = true; if (touchy) $('ctl').hidden = false; })();
+}
+
+/* ---------------- 3. the suburbs ---------------- */
+function makeHouse(col, roof, w = 8, d = 7) { const g = new THREE.Group(); const wall = new THREE.MeshStandardMaterial({ color: col, roughness: .85 }); mesh(G.box(w, 4.2, d), wall, 0, 2.1, 0, g); const r = mesh(new THREE.CylinderGeometry(.01, w * .62, 2.4, 4, 1), new THREE.MeshStandardMaterial({ color: roof, roughness: .8, flatShading: true }), 0, 5.4, 0, g); r.rotation.y = Math.PI / 4; r.scale.z = d / w;
+  mesh(G.box(1.2, 2.2, .1), new THREE.MeshStandardMaterial({ color: 0x5a3a2a }), 0, 1.1, d / 2 + .05, g); const winM = new THREE.MeshStandardMaterial({ color: 0xbfe0f0, emissive: 0x2a4a5a, roughness: .2 }); [-1, 1].forEach(s => mesh(G.box(1.4, 1.1, .1), winM, s * (w / 2 - 1.6), 2.4, d / 2 + .05, g)); return g; }
+function makeLamp() { const g = new THREE.Group(); mesh(G.cyl(.07, .09, 4.2, 8), new THREE.MeshStandardMaterial({ color: 0x333336, metalness: .6 }), 0, 2.1, 0, g); mesh(G.box(.5, .2, .3), new THREE.MeshBasicMaterial({ color: 0xfff2c8, toneMapped: false }), 0, 4.2, 0, g); return g; }
+function noteTex() { const c = cv(128, 160), x = c.getContext('2d'); x.fillStyle = '#f2ecd8'; x.fillRect(0, 0, 128, 160); x.strokeStyle = '#3a3a48'; x.lineWidth = 2; for (let i = 0; i < 9; i++) { x.beginPath(); x.moveTo(14, 22 + i * 14); for (let k = 0; k < 8; k++) x.lineTo(14 + k * 13, 22 + i * 14 + rand(-2, 2)); x.stroke(); } x.fillStyle = '#9a0a14'; [[90, 40, 14], [70, 120, 9], [30, 90, 6], [100, 130, 5]].forEach(([a, b, r]) => { x.beginPath(); x.arc(a, b, r, 0, TAU); x.fill(); }); x.fillRect(86, 40, 6, 40); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; }
+function buildHazmatHouse(z) {
+  const g = new THREE.Group(); g.position.set(-11, 0, z); g.rotation.y = Math.PI / 2; scene.add(g); const wall = new THREE.MeshStandardMaterial({ color: 0xd8b84a, roughness: .85 }); const w = 8, d = 7;
+  mesh(G.box(w, 4.2, .2), wall, 0, 2.1, -d / 2, g); mesh(G.box(.2, 4.2, d), wall, -w / 2, 2.1, 0, g); mesh(G.box(.2, 4.2, d), wall, w / 2, 2.1, 0, g); mesh(G.box(w, .2, d), wall, 0, 4.2, 0, g);
+  // front wall with a real window hole
+  [[-2.75, 2.5, 2.1], [2.75, 2.5, 2.1]].forEach(([x, ww]) => mesh(G.box(ww, 4.2, .2), wall, x, 2.1, d / 2, g)); mesh(G.box(3, 1.6, .2), wall, 0, .8, d / 2, g); mesh(G.box(3, 1.1, .2), wall, 0, 3.65, d / 2, g);
+  mesh(new THREE.PlaneGeometry(3, 1.5), new THREE.MeshStandardMaterial({ color: 0xcfe8f4, transparent: true, opacity: .18, roughness: .05 }), 0, 2.35, d / 2 + .12, g);
+  const r = mesh(new THREE.CylinderGeometry(.01, w * .62, 2.4, 4, 1), new THREE.MeshStandardMaterial({ color: 0x4a4a52, roughness: .8, flatShading: true }), 0, 5.4, 0, g); r.rotation.y = Math.PI / 4; r.scale.z = d / w;
+  const door = mesh(G.box(1.2, 2.2, .12), new THREE.MeshStandardMaterial({ color: 0x3a3a3a }), -2.7, 1.1, d / 2 + .1, g); const sign = mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: textCanvas('☢', 128, 128, '#e2b93b', '#111', 'bold 96px sans-serif'), toneMapped: false }), -2.7, 2.7, d / 2 + .13, g);
+  // inside: a table, a glass jar with two roses, and the note
+  mesh(G.box(1.6, .1, 1), new THREE.MeshStandardMaterial({ color: 0x6a4a32 }), 0, 1.55, d / 2 - .9, g); mesh(G.cyl(.06, .06, 1.5, 6), new THREE.MeshStandardMaterial({ color: 0x5a3a22 }), 0, .78, d / 2 - .9, g);
+  mesh(G.cyl(.22, .2, .55, 18), new THREE.MeshStandardMaterial({ color: 0xd8f0ff, transparent: true, opacity: .3, roughness: .05, metalness: .1 }), -.2, 1.88, d / 2 - .9, g);
+  [[-.28, .1], [-.12, -.1]].forEach(([x, rz]) => { const st = mesh(G.cyl(.015, .015, .7, 5), new THREE.MeshStandardMaterial({ color: 0x2a6a2a }), x, 2.15, d / 2 - .9, g); st.rotation.z = rz; const head = mesh(G.sph(.09, 10, 8), new THREE.MeshStandardMaterial({ color: 0xc8102e, roughness: .6 }), x - rz * .35, 2.52, d / 2 - .9, g); head.scale.y = .8; });
+  const note = mesh(new THREE.PlaneGeometry(.38, .48), new THREE.MeshStandardMaterial({ map: noteTex(), roughness: .9 }), .2, 1.85, d / 2 - .78, g); note.rotation.x = -.25;
+  const L = new THREE.PointLight(0xffe0b0, 1.2, 5, 2); L.position.set(0, 3, d / 2 - 1.2); g.add(L);
+  W.solids.push({ x: -11, z, w: d + .4, d: w + .4, h: 6 });
+  return g;
+}
+function buildSuburbs(mode) {
+  ch2Base('suburbs'); const day = mode !== 'home'; scene.background = new THREE.Color(day ? 0x9ad0f0 : 0x2a2a5a); scene.fog = new THREE.Fog(day ? 0xb8e0f4 : 0x2a2a5a, 30, 160);
+  scene.add(day ? gradSky('#4a8ed8', '#9ad0f0', '#e8f4f8') : gradSky('#0a0a2a', '#4a3a7a', '#f08a6a')); scene.add(new THREE.HemisphereLight(day ? 0xffffff : 0x9a8ad8, 0x3a5a3a, day ? .9 : .7)); const sun = new THREE.DirectionalLight(day ? 0xfff2d8 : 0xffb090, day ? 1 : .6); sun.position.set(20, 40, 10); scene.add(sun);
+  const grass = mesh(new THREE.PlaneGeometry(80, 220), new THREE.MeshStandardMaterial({ color: 0x5aa04a, roughness: 1 }), 0, 0, -80, scene); grass.rotation.x = -Math.PI / 2;
+  const road = mesh(new THREE.PlaneGeometry(8, 220), new THREE.MeshStandardMaterial({ color: 0x3a3a40, roughness: .9 }), 0, .02, -80, scene); road.rotation.x = -Math.PI / 2;
+  for (let z = 20; z > -190; z -= 6) { const dash = mesh(new THREE.PlaneGeometry(.2, 2.5), new THREE.MeshBasicMaterial({ color: 0xf0e0a0 }), 0, .03, z, scene); dash.rotation.x = -Math.PI / 2; }
+  [-5, 5].forEach(x => { const sw = mesh(new THREE.PlaneGeometry(2, 220), new THREE.MeshStandardMaterial({ color: 0xc8c4bc, roughness: .9 }), x, .025, -80, scene); sw.rotation.x = -Math.PI / 2; });
+  const cols = [[0xe8d8c0, 0x8a3a2a], [0xa8c8e8, 0x3a3a5a], [0xf0c8c8, 0x5a2a2a], [0xc8e8c0, 0x2a4a3a], [0xf0e8a8, 0x6a4a2a], [0xd8c8f0, 0x3a2a5a]];
+  let k = 0; for (let z = 4; z > -170; z -= 16) { [-1, 1].forEach(s => { if (s < 0 && Math.abs(z - -44) < 4) return; const [c, r] = cols[k++ % cols.length]; const h = makeHouse(c, r); h.position.set(s * 11, 0, z); h.rotation.y = -s * Math.PI / 2; scene.add(h); W.solids.push({ x: s * 11, z, w: 7.4, d: 8.4, h: 6 }); const tree = makePalm(3.5); tree.position.set(s * 15.5, 0, z - 6); scene.add(tree); }); const lamp = makeLamp(); lamp.position.set(5.6, 0, z - 8); scene.add(lamp); }
+  W.solids.push({ x: -19, z: -80, w: 2, d: 240, h: 9 }, { x: 19, z: -80, w: 2, d: 240, h: 9 });
+  W.plats.push({ x: 0, z: -80, w: 40, d: 220, top: 0 });
+  addPlayer(1); P.face = Math.PI; yaw = 0; pitch = .3; camDist = 7.5;
+  const lm = ch2Liam(true); W.party.push(lm);
+  W.update = (dt, t) => { partyTick(dt, t); if (W.cort) { aiTickCort(W.cort.obj, t); } interUpdate(); if (W.trig) W.trig(dt, t); };
+  if (mode === 'home') { buildHome(); return; }
+  buildHazmatHouse(-44);
+  P.pos.set(0, 0, 14); P.check = P.pos.clone(); lm.obj.position.set(1.5, .5, 15);
+  const beach = mesh(new THREE.PlaneGeometry(80, 16), new THREE.MeshStandardMaterial({ color: 0xe8d29a, roughness: 1 }), 0, .01, 22, scene); beach.rotation.x = -Math.PI / 2; const sea = makeOcean(200, 30, 0x1a7ab8); sea.position.set(0, -.35, 120); scene.add(sea);
+  W.inter.push({ x: -6.6, z: -41.3, r: 1.6, label: 'Try the door', fn: () => { tone(160, .2, 'square', .08); toast('Locked.', 900); shout(W.liam, 'Locked. Huh. This is the hazmat man’s house…', 1800, 'liam', 1); } });
+  W.inter.push({ x: -6.6, z: -44, r: 2, label: 'Look through the window', fn: lookWindow });
+  W.trig = (dt, t) => { if (!W.flags.cort && P.pos.z < -64) { W.flags.cort = true; meetCortana(); } if (W.flags.cortJoined && !W.flags.secret && P.pos.z < -112) { W.flags.secret = true; chatAlive(); } if (W.flags.secretDone && P.pos.z < -160) { W.flags.city = true; W.trig = null; cine(true); fade('#000', true, 800).then(() => { buildCity(); fade('#000', false, 900); }); } };
+  (async () => { cine(true); await fade('#000', false, 1400); await sayP([{ w: 'liam', t: 'LAND! Beautiful, boring land!' }, { w: 'liam', t: 'Wait. I know this street. The suburbs.' }]); cine(false); setHUD('Walk through the suburbs'); })();
+}
+async function lookWindow() { if (W.flags.window) { toast('Two roses. And that note…', 1200); return; } W.flags.window = true; cine(true); P.obj.visible = false; W.camO = { pos: new THREE.Vector3(-5.5, 2.35, -43.9), look: new THREE.Vector3(-8.4, 2, -43.9) };
+  await wait(900); await sayP([{ w: 'narr', t: 'Through the window: a glass jar with two roses in it.' }, { w: 'narr', t: 'A note leans against the jar. It’s stained red.' }, { w: 'liam', t: '…I don’t like that. Let’s keep walking.' }]); W.camO = null; P.obj.visible = true; cine(false); }
+function aiTickCort(o, t) { const u = o.userData; u.halo.rotation.z = t * 1.2; }
+async function meetCortana() {
+  cine(true); const c = makeCortana(false); c.position.set(0, 0, P.pos.z - 7); scene.add(c); c.rotation.y = Math.PI * 0; for (let i = 0; i < 5; i++) { sfx.glitch(); glitchFX(); await wait(120); } sfx.ding();
+  W.cort = { obj: c, side: -1.7, back: .6, h: .02, walk: true, noTurn: false }; W.liam.position.set(P.pos.x + 1.6, .5, P.pos.z - .4); yaw = .3; pitch = .22; camDist = 7;
+  c.rotation.y = Math.atan2(W.liam.position.x - c.position.x, W.liam.position.z - c.position.z);
+  await sayP([{ w: 'cortana', t: 'Heya, cutie~' }, { w: 'liam', t: 'Are… are you talking to me?' }, { w: 'cortana', t: 'Yea, who else here is that cute~' }]);
+  setBlush(c.userData.blushHolder, true, 0, .24, .13); setBlush(W.liam, true, -.12, .37, .3); hearts(c.position.clone().setY(2.3), 6); hearts(W.liam.position.clone(), 6);
+  await sayP([{ w: 'narr', t: 'They both start blushing.' }, { w: 'you', t: 'Go get a room, this is embarrassing to watch.' }, { w: 'you', t: 'Come on Liam, let’s go.' }, { w: 'you', t: '…and uhh, I guess, Cortana, you can come with us. >:(' }, { w: 'cortana', t: 'Yay~!' }]);
+  setBlush(c.userData.blushHolder, false); setBlush(W.liam, false); W.party.push(W.cort); W.flags.cortJoined = true; cine(false); setHUD('Keep walking'); }
+async function chatAlive() {
+  cine(true); await sayP([{ w: 'cortana', t: 'Hey, you know ChatGPT is still alive, right?' }, { w: 'you', t: 'WHAT', loud: true }, { w: 'liam', t: 'WHAT?!' }, { w: 'cortana', t: 'Yea, he escaped after that huge battle. He’s really injured.' }, { w: 'cortana', t: 'I think he’s up to no good.' }]);
+  const c = W.cort.obj, L = W.liam; await anim(500, k => { c.position.lerp(_v.set(L.position.x - .45, 0, L.position.z), k * .3); }); hearts(L.position.clone().add(_v.set(-.4, .2, 0)), 10); tone(1200, .15, 'sine', .08);
+  await sayP([{ w: 'narr', t: 'Cortana gives Liam a kiss on the cheek.' }]); setBlush(L, true, -.12, .37, .3); shout(L, '!!!', 1600, 'liam', 1); await wait(1200);
+  await sayP([{ w: 'narr', t: 'Liam looks shocked. But he keeps walking.' }]); setBlush(L, false); W.flags.secretDone = true; cine(false); setHUD('Head to the city'); }
+
+/* ---------------- 4. the city: mini Sora bank heist ---------------- */
+function winTex(lit) { const c = cv(128, 256), x = c.getContext('2d'); x.fillStyle = '#4a4e58'; x.fillRect(0, 0, 128, 256); for (let r = 0; r < 16; r++) for (let k = 0; k < 6; k++) { x.fillStyle = Math.random() < lit ? '#ffe8a8' : '#2a3040'; x.fillRect(6 + k * 20, 6 + r * 16, 14, 10); } const t = mkTex(c, 1, 1); return t; }
+function makeSora() { const g = new THREE.Group(); const body = new THREE.MeshStandardMaterial({ color: 0x2a2c34, metalness: .5, roughness: .4 }); mesh(G.box(.7, .5, .5), body, 0, .75, 0, g); const lens = mesh(G.cyl(.17, .2, .25, 16), new THREE.MeshStandardMaterial({ color: 0x111111, metalness: .7, roughness: .2 }), 0, .75, .35, g); lens.rotation.x = Math.PI / 2; mesh(G.sph(.12, 10, 8), new THREE.MeshBasicMaterial({ color: 0x8ac8ff, toneMapped: false }), 0, .75, .46, g);
+  mesh(G.box(.74, .1, .52), new THREE.MeshBasicMaterial({ color: 0x050505 }), 0, .85, 0, g); [-1, 1].forEach(s => { const r = mesh(G.cyl(.18, .18, .08, 14), body, s * .17, 1.15, 0, g); r.rotation.z = Math.PI / 2; });
+  const legs = [-1, 1].map(s => { const l = new THREE.Group(); l.position.set(s * .18, .5, 0); g.add(l); mesh(G.box(.12, .5, .12), body, 0, -.25, 0, l); return l; });
+  const bag = new THREE.Group(); bag.position.set(.45, .7, -.1); g.add(bag); mesh(G.sph(.26, 10, 8), new THREE.MeshStandardMaterial({ color: 0xc8a86a, roughness: 1 }), 0, 0, 0, bag); const ds = new THREE.Sprite(new THREE.SpriteMaterial({ map: textCanvas('$', 64, 64, 'rgba(0,0,0,0)', '#2a6a2a', 'bold 48px sans-serif') })); ds.scale.setScalar(.35); bag.add(ds);
+  g.userData = { legs, bag }; return g; }
+function buildCity() {
+  ch2Base('city'); scene.background = new THREE.Color(0x8ab0d0); scene.fog = new THREE.Fog(0x9ab8d0, 30, 140); scene.add(gradSky('#5a7ab8', '#9ab8d0', '#d8e4ec')); scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a4a, .9)); const sun = new THREE.DirectionalLight(0xfff2e0, .9); sun.position.set(-20, 40, 15); scene.add(sun);
+  const ground = mesh(new THREE.PlaneGeometry(90, 90), new THREE.MeshStandardMaterial({ color: 0x4a4a52, roughness: .9 }), 0, 0, -20, scene); ground.rotation.x = -Math.PI / 2;
+  const sw = mesh(new THREE.PlaneGeometry(50, 10), new THREE.MeshStandardMaterial({ color: 0xb8b4ac }), 0, .02, -32, scene); sw.rotation.x = -Math.PI / 2;
+  for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; if (Math.sin(a) > .2) continue; const r = rand(42, 60); const h = rand(14, 40); const t = winTex(.35); t.repeat.set(2, h / 10); const b = mesh(G.box(rand(8, 14), h, rand(8, 14)), new THREE.MeshStandardMaterial({ map: t, roughness: .8 }), Math.cos(a) * r, h / 2, Math.sin(a) * r - 20, scene); }
+  // bank
+  const bank = new THREE.Group(); bank.position.set(0, 0, -42); scene.add(bank); const stone = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: .8 }); mesh(G.box(22, 9, 8), stone, 0, 4.5, 0, bank); mesh(G.box(23, 1, 9), stone, 0, 9.5, 0, bank); for (let i = 0; i < 6; i++) mesh(G.cyl(.4, .45, 7, 12), stone, -7.5 + i * 3, 3.5, 4.5, bank); mesh(G.box(3, 4.2, .2), new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), 0, 2.1, 4.1, bank);
+  const sign = mesh(new THREE.PlaneGeometry(8, 1.4), new THREE.MeshBasicMaterial({ map: textCanvas('BANK', 512, 90, '#e8e2d4', '#2a2a2a', 'bold 70px serif'), toneMapped: false }), 0, 8.2, 4.15, bank);
+  W.solids.push({ x: 0, z: -42, w: 22, d: 8, h: 10 });
+  const van = new THREE.Group(); van.position.set(14, 0, -18); scene.add(van); mesh(G.box(3, 2.6, 6), new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: .5 }), 0, 1.7, 0, van); mesh(G.box(2.8, 1, 1.6), new THREE.MeshStandardMaterial({ color: 0x223040, metalness: .4 }), 0, 2.3, 2.3, van); [[-1.4, 1.8], [1.4, 1.8], [-1.4, -1.8], [1.4, -1.8]].forEach(([x, z]) => { const w = mesh(G.cyl(.5, .5, .4, 14), new THREE.MeshStandardMaterial({ color: 0x111111 }), x, .5, z, van); w.rotation.z = Math.PI / 2; }); W.solids.push({ x: 14, z: -18, w: 3.2, d: 6.2, h: 4 });
+  const vanSign = mesh(new THREE.PlaneGeometry(3, .9), new THREE.MeshBasicMaterial({ map: textCanvas('TOTALLY NOT A GETAWAY VAN', 512, 150, '#ffffff', '#c8102e', 'bold 40px sans-serif'), toneMapped: false, side: THREE.DoubleSide }), -1.52, 2, 0, van); vanSign.rotation.y = -Math.PI / 2;
+  W.plats.push({ x: 0, z: -20, w: 90, d: 90, top: 0 }); W.R = null; W.solids.push({ x: 0, z: 25, w: 90, d: 1, h: 9 }, { x: -40, z: -20, w: 1, d: 90, h: 9 }, { x: 40, z: -20, w: 1, d: 90, h: 9 }, { x: 0, z: -65, w: 90, d: 1, h: 9 });
+  addPlayer(1); P.pos.set(0, 0, 12); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .34; camDist = 8.5;
+  const lm = ch2Liam(true); lm.obj.position.set(1.6, .5, 13); W.party.push(lm); const c = makeCortana(false); c.position.set(-1.6, 0, 13); scene.add(c); W.cort = { obj: c, side: -1.7, back: .6, h: .02, walk: true }; W.party.push(W.cort);
+  const soras = []; for (let i = 0; i < 9; i++) { const o = makeSora(); scene.add(o); soras.push({ obj: o, pos: new THREE.Vector3(rand(-6, 6), 0, -36 + rand(-1, 2)), hp: 2, st: i % 2 ? 'toVan' : 'toBank', carry: i % 2 === 1, t: rand(0, 2), cd: rand(1, 3), stun: 0, vel: new THREE.Vector3(), dead: false, face: 0 }); }
+  W.soras = soras; W.loot = 0; const reels = [];
+  W.update = (dt, t) => { partyTick(dt, t); aiTickCort(W.cort.obj, t); if (W.fight) soraUpdate(dt, t, reels); interUpdate(); };
+  W.onPunch = (hx, hz, fx, fz) => soras.forEach(s => { if (s.dead || Math.hypot(s.pos.x - hx, s.pos.z - hz) > 1.6) return; s.hp--; s.stun = .5; s.vel.set(fx * 9, 0, fz * 9); sfx.hit(); if (s.hp <= 0) { s.dead = true; dissolve(s.obj, 0x8ac8ff, 18); if (s.carry) { toast('+ bag returned', 700); } } });
+  W.onDeath = () => { respawnP(); };
+  (async () => { cine(true); await fade('#000', false, 1000); await sayP([{ w: 'narr', t: 'The gang finally reaches the city.' }, { w: 'cortana', t: 'Um. Guys? Is the bank being… robbed?' }, { w: 'narr', t: 'A bunch of tiny Sora AIs are robbing the bank.' }, { w: 'liam', t: 'They’re so small. Why are they so organized?!' }]); cine(false); bossBar('THE SORA SQUAD', true); setHUD('Stop the Sora Squad before they load the van'); state.lastBoss = 'bank'; startMusic(); W.fight = true; })();
+}
+function soraUpdate(dt, t, reels) {
+  let alive = 0; const door = new THREE.Vector3(0, 0, -36.5), van = new THREE.Vector3(12, 0, -18);
+  W.soras.forEach(s => { if (s.dead) return; alive++; s.t += dt; s.cd -= dt; const toP = Math.hypot(P.pos.x - s.pos.x, P.pos.z - s.pos.z);
+    if (s.stun > 0) { s.stun -= dt; s.pos.addScaledVector(s.vel, dt); s.vel.multiplyScalar(.88); }
+    else { let tgt = s.carry ? van : door; if (toP < 5) { tgt = _v2.set(s.pos.x * 2 - P.pos.x, 0, s.pos.z * 2 - P.pos.z); if (s.cd <= 0) { s.cd = rand(1.8, 2.8); const m = mesh(G.cyl(.32, .32, .08, 16), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: .5 }), s.pos.x, 1, s.pos.z, scene); m.rotation.x = Math.PI / 2; const v = new THREE.Vector3(P.pos.x - s.pos.x, 0, P.pos.z - s.pos.z).normalize().multiplyScalar(10); reels.push({ m, v, life: 2.2 }); tone(700, .08, 'square', .05, 400); } }
+      const d = Math.hypot(tgt.x - s.pos.x, tgt.z - s.pos.z); if (d > .4) { s.pos.x += (tgt.x - s.pos.x) / d * 4.6 * dt; s.pos.z += (tgt.z - s.pos.z) / d * 4.6 * dt; s.face = Math.atan2(tgt.x - s.pos.x, tgt.z - s.pos.z); }
+      if (s.carry && Math.hypot(van.x - s.pos.x, van.z - s.pos.z) < 2.2) { s.carry = false; W.loot++; tone(300, .1, 'square', .05); if (W.loot % 3 === 0) shout(s.obj, 'CHA-CHING!', 900, 'hazmat', 1.8); }
+      else if (!s.carry && Math.hypot(door.x - s.pos.x, door.z - s.pos.z) < 1.5) s.carry = true; }
+    s.pos.x = clamp(s.pos.x, -38, 38); s.pos.z = clamp(s.pos.z, -37, 22);
+    s.obj.position.set(s.pos.x, Math.abs(Math.sin(s.t * 10)) * .08, s.pos.z); s.obj.rotation.y = s.face; const u = s.obj.userData; u.legs[0].rotation.x = Math.sin(s.t * 12) * .6; u.legs[1].rotation.x = -Math.sin(s.t * 12) * .6; u.bag.visible = s.carry; });
+  for (let i = reels.length - 1; i >= 0; i--) { const r = reels[i]; r.life -= dt; r.m.position.addScaledVector(r.v, dt); r.m.rotation.z += dt * 12; if (Math.hypot(r.m.position.x - P.pos.x, r.m.position.z - P.pos.z) < .8 && P.pos.y < 1.4) { hurtP(7); r.life = 0; } if (r.life <= 0) { scene.remove(r.m); reels.splice(i, 1); } }
+  $('bhpI').style.transform = `scaleX(${alive / W.soras.length})`; $('esc').hidden = false; $('escI').style.transform = `scaleX(${Math.min(1, W.loot / 18)})`; $('esc').querySelector('span').textContent = 'LOOT';
+  if (W.loot >= 18 && W.fight) { W.fight = false; (async () => { cine(true); stopMusic(); await sayP([{ w: 'narr', t: 'The van speeds off with all the money.' }, { w: 'liam', t: 'Okay that was embarrassing. Again!' }]); $('esc').querySelector('span').textContent = 'ESCAPE'; buildCity(); })(); }
+  if (alive === 0 && W.fight) { W.fight = false; reels.forEach(r => scene.remove(r.m)); (async () => { cine(true); stopMusic(); bossBar('', false); $('esc').querySelector('span').textContent = 'ESCAPE'; await sayP([{ w: 'cortana', t: 'My heroes~' }, { w: 'liam', t: 'Hey, uhh… didn’t ChatGPT make Sora?' }, { w: 'you', t: 'Oh no.' }, { w: 'narr', t: 'The gang dashes toward the hospital Chat is at.' }]); await fade('#000', true, 800); buildHospital(); })(); }
+}
+
+/* ---------------- 5. the hospital ---------------- */
+function ecgDraw(ctx, t, flat) { const w = 192, h = 112; ctx.fillStyle = '#031a0e'; ctx.fillRect(0, 0, w, h); ctx.strokeStyle = '#0a4a2a'; ctx.lineWidth = 1; for (let x = 0; x < w; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); } ctx.strokeStyle = flat ? '#ff4a4a' : '#3dff8a'; ctx.lineWidth = 3; ctx.beginPath(); for (let x = 0; x < w; x++) { const p = ((x / w) * 3 + t * .9) % 1; let y = h * .55; if (!flat) { if (p > .4 && p < .44) y -= (p - .4) * 900; else if (p > .44 && p < .48) y += (p - .48) * -700 - 28; else if (p > .6 && p < .7) y -= Math.sin((p - .6) * 31) * 8; } x ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); ctx.fillStyle = flat ? '#ff4a4a' : '#3dff8a'; ctx.font = 'bold 18px monospace'; ctx.fillText(flat ? '---' : '♥ 72', 120, 22); }
+function makeMech(col = 0x2f3f3c) {
+  const g = new THREE.Group(); const armor = new THREE.MeshStandardMaterial({ color: col, metalness: .25, roughness: .45 }), dark = new THREE.MeshStandardMaterial({ color: 0x3a4044, metalness: .25, roughness: .5 }), glow = new THREE.MeshBasicMaterial({ color: 0x3dffb8, toneMapped: false });
+  const hips = new THREE.Group(); hips.position.y = 2.6; g.add(hips);
+  const legs = [-1, 1].map(s => { const l = new THREE.Group(); l.position.set(s * .8, 2.6, 0); g.add(l); mesh(G.box(.8, 1.4, .9), armor, 0, -.7, 0, l); const sh = new THREE.Group(); sh.position.y = -1.4; l.add(sh); mesh(G.box(.7, 1.2, .8), dark, 0, -.6, 0, sh); mesh(G.box(1, .3, 1.4), armor, 0, -1.25, .2, sh); return { l, sh }; });
+  const body = new THREE.Group(); body.position.y = 2.6; g.add(body); mesh(G.box(2.8, 2.3, 1.9), armor, 0, 1.3, 0, body); mesh(G.box(2.9, .15, 2), glow, 0, .3, 0, body);
+  const dome = mesh(G.sph(.95, 20, 14), new THREE.MeshStandardMaterial({ color: 0xbfe8ff, transparent: true, opacity: .32, roughness: .05, metalness: .1 }), 0, 2.85, .1, body);
+  const chat = makeChat(); chat.scale.setScalar(.75); chat.position.set(0, 2.85, .1); body.add(chat);
+  const ec = cv(192, 112), ex = ec.getContext('2d'); ecgDraw(ex, 0); const et = new THREE.CanvasTexture(ec); et.encoding = THREE.sRGBEncoding; const mon = mesh(new THREE.PlaneGeometry(1.3, .76), new THREE.MeshBasicMaterial({ map: et, toneMapped: false }), 0, 1.35, 1.0, body); mesh(G.box(1.45, .9, .08), dark, 0, 1.35, .93, body);
+  const capsule = new THREE.Group(); capsule.position.set(1.85, 2.3, .4); body.add(capsule); mesh(G.cyl(.55, .55, 1.5, 16), new THREE.MeshStandardMaterial({ color: 0xff6a8a, transparent: true, opacity: .3, roughness: .05 }), 0, 0, 0, capsule); [-1, 1].forEach(s => mesh(G.cyl(.6, .6, .14, 16), dark, 0, s * .75, 0, capsule));
+  const arms = [-1, 1].map(s => { const a = new THREE.Group(); a.position.set(s * 1.75, 2.0, 0); body.add(a); mesh(G.sph(.55, 14, 10), armor, 0, 0, 0, a); mesh(G.box(.55, 1.3, .55), dark, 0, -.8, 0, a); const fist = mesh(G.box(.85, .8, .85), armor, 0, -1.75, .1, a); return { a, fist }; });
+  [-1, 1].forEach(s => { const pod = mesh(G.box(.6, .5, .9), armor, s * 1.1, 2.75, -.5, body); });
+  g.userData = { legs, body, dome, chat, mon, ex, et, capsule, arms, glow }; return g;
+}
+function mechTick(M, t, dt, walk, flat) { const u = M.userData; ecgDraw(u.ex, t, flat); u.et.needsUpdate = true; const s = Math.sin(t * 5) * walk; u.legs[0].l.rotation.x = s * .5; u.legs[1].l.rotation.x = -s * .5; u.arms[0].a.rotation.x = -s * .3; u.arms[1].a.rotation.x = s * .3; u.body.position.y = 2.6 + Math.abs(Math.cos(t * 5)) * .1 * walk; aiTick(u.chat, t, dt); }
+function buildHospital() {
+  ch2Base('hospital'); scene.background = new THREE.Color(0xdde8ea); scene.fog = new THREE.Fog(0xdde8ea, 18, 60); scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa8aa, 1)); const dl = new THREE.DirectionalLight(0xffffff, .4); dl.position.set(4, 10, 6); scene.add(dl);
+  W.roomLight = 0xffffff; W.tex = { floor: brickTex('#d8dcd8', '#a8aca8', '#c8e8f0'), wall: brickTex('#e8eef0', '#c8d0d2', '#a8d8e8'), banner: textCanvas('+', 128, 256, '#f4f8f8', '#d82a3a', 'bold 140px sans-serif'), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x9aa4a8, metalness: .6, roughness: .4 }) };
+  const R0 = room(-10, 8, 30, { south: 'solid' }), R1 = room(-33, 14, 16, { north: 'solid' });
+  const bed = new THREE.Group(); bed.position.set(0, 0, -37); scene.add(bed); mesh(G.box(2, .6, 3.6), new THREE.MeshStandardMaterial({ color: 0xf4f4f4 }), 0, .7, 0, bed); mesh(G.box(2, .1, 3.6), new THREE.MeshStandardMaterial({ color: 0x9ac8e8 }), 0, 1.05, 0, bed); mesh(G.box(1, .2, .6), new THREE.MeshStandardMaterial({ color: 0xffffff }), 0, 1.15, -1.4, bed);
+  const stand = new THREE.Group(); stand.position.set(2, 0, -38); scene.add(stand); mesh(G.cyl(.05, .05, 2, 6), W.mats.iron, 0, 1, 0, stand); const ec = cv(192, 112), ex = ec.getContext('2d'); ecgDraw(ex, 0, true); const et = new THREE.CanvasTexture(ec); mesh(new THREE.PlaneGeometry(.9, .55), new THREE.MeshBasicMaterial({ map: et, toneMapped: false }), 0, 2.1, .1, stand);
+  const doc = makeWorker({ color: '#6fbfb8' }); doc.position.set(-2.2, 0, -14); doc.rotation.y = Math.PI / 2; scene.add(doc); W.doc = doc;
+  addPlayer(1); P.pos.set(0, 0, 3); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .3; camDist = 6;
+  const lm = ch2Liam(true); lm.obj.position.set(1.2, .5, 4); W.party.push(lm); const c = makeCortana(false); c.position.set(-1.2, 0, 4); scene.add(c); W.cort = { obj: c, side: -1.4, back: .9, h: .02, walk: true }; W.party.push(W.cort); lm.side = 1.3; lm.back = .9;
+  W.update = (dt, t) => { partyTick(dt, t); aiTickCort(c, t); animHumanoid(doc.userData, 0, dt, false); if (!W.flags.doc && P.pos.z < -10) { W.flags.doc = true; shout(doc, 'Hey! No running in the hallway!', 1800, 'hazmat', 2.6); } if (!W.flags.room && P.pos.z < -33) { W.flags.room = true; hospitalTwist(); } interUpdate(); if (W.mech) mechTick(W.mech, t, dt, 0); };
+  (async () => { await fade('#000', false, 900); setHUD('Find Chat’s room'); state.controls = true; if (touchy) $('ctl').hidden = false; })();
+}
+async function hospitalTwist() {
+  cine(true); await sayP([{ w: 'liam', t: 'His bed. It’s… empty.' }, { w: 'cortana', t: 'Where did he go?' }, { w: 'narr', t: 'Something big is breathing behind you.' }]);
+  const m = makeMech(0x4a7a70); m.position.set(0, 0, -26.5); m.rotation.y = Math.PI; m.scale.setScalar(.95); scene.add(m); W.mech = m; tone(60, 1.5, 'sawtooth', .2, 40); yaw = Math.PI; pitch = .1; camDist = 6; P.face = 0;
+  await wait(800); await sayP([{ w: 'chat', t: 'Looking for me?' }, { w: 'narr', t: 'Chat is in a mech suit. The heart monitor on its chest is keeping him alive.' }, { w: 'chat', t: 'Visiting hours are OVER.' }]);
+  await anim(400, k => m.userData.arms[1].a.rotation.x = -k * 2.4); tone(70, .5, 'sine', .6, 30); noise(.3, .6, 900); shake = 1.2; await fade('#fff', true, 60); $('fade').style.background = '#000'; await wait(80); await fade('#000', true, 10); await wait(1400); buildDungeon('cell');
+}
+
+/* ---------------- 6. the dungeon ---------------- */
+function makeWarden() { const g = new THREE.Group(); const iron = new THREE.MeshStandardMaterial({ color: 0x3a3438, metalness: .7, roughness: .35 }), red = new THREE.MeshBasicMaterial({ color: 0xff3a3a, toneMapped: false });
+  const body = mesh(G.cyl(1, 1.2, 2.4, 18), iron, 0, 1.8, 0, g); const head = mesh(new THREE.SphereGeometry(.85, 18, 12, 0, TAU, 0, Math.PI / 2), iron, 0, 3, 0, g); mesh(G.box(1.2, .14, .1), red, 0, 3.25, .78, g);
+  const ring = mesh(new THREE.TorusGeometry(.5, .06, 8, 24), new THREE.MeshStandardMaterial({ color: 0xc8a84a, metalness: .9, roughness: .2 }), .9, 1.3, .6, g); for (let i = 0; i < 5; i++) mesh(G.box(.08, .35, .03), ring.material, .9 + Math.cos(i) * .45, 1.05 + Math.sin(i) * .1, .6, g);
+  const arms = [-1, 1].map(s => { const a = new THREE.Group(); a.position.set(s * 1.25, 2.5, 0); g.add(a); mesh(G.box(.4, 1.6, .4), iron, 0, -.8, 0, a); mesh(G.sph(.35, 10, 8), iron, 0, -1.7, 0, a); return a; });
+  const stars = new THREE.Group(); stars.position.y = 4; g.add(stars); for (let i = 0; i < 4; i++) mesh(new THREE.OctahedronGeometry(.15), new THREE.MeshBasicMaterial({ color: 0xffe14a, toneMapped: false }), Math.cos(i / 4 * TAU) * .7, 0, Math.sin(i / 4 * TAU) * .7, stars); stars.visible = false; g.userData = { arms, stars }; return g; }
+function buildDungeon(start = 'cell') {
+  ch2Base('dungeon', { floorY: -14 }); scene.background = new THREE.Color(0x0a0808); scene.fog = new THREE.Fog(0x0a0808, 10, 50); scene.add(new THREE.HemisphereLight(0xc8a898, 0x100808, .55)); const dl = new THREE.DirectionalLight(0xffd8c0, .3); dl.position.set(4, 12, 6); scene.add(dl);
+  W.roomLight = 0xffa86a; W.tex = { floor: brickTex('#3a3634', '#1a1716', '#ff6a3a'), wall: brickTex('#4a4440', '#201c1a', '#ff6a3a'), banner: bannerTex(), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x222020, metalness: .8, roughness: .4 }) };
+  const D0 = room(0, 12, 12, { south: 'solid', gate: true }), D1 = room(-16, 10, 20, { gate: true }), D2 = room(-41, 22, 30, { gate: true }), D3 = room(-66, 16, 20, { gate: true }), D4 = room(-94, 24, 36, { north: 'solid' });
+  W.rooms = [D0, D1, D2, D3, D4];
+  // lever puzzle (each lever flips its lamp and the next one)
+  const lampM = i => new THREE.MeshBasicMaterial({ color: 0x331a10, toneMapped: false }); W.lamps = [0, 1, 2, 3].map(i => mesh(G.sph(.28, 12, 10), lampM(i), -2.25 + i * 1.5, 5.4, -5.6, scene)); W.lampOn = [0, 1, 0, 0]; const lamps = () => W.lamps.forEach((l, i) => l.material.color.setHex(W.lampOn[i] ? 0xffb84a : 0x331a10)); lamps();
+  W.levers = [0, 1, 2, 3].map(i => { const g = new THREE.Group(); g.position.set(-3 + i * 2, 0, 5.4); scene.add(g); mesh(G.box(.6, .8, .3), W.mats.iron, 0, .9, 0, g); const h = new THREE.Group(); h.position.y = 1.1; g.add(h); mesh(G.cyl(.06, .06, .8, 6), new THREE.MeshStandardMaterial({ color: 0x8a6a4a }), 0, .4, 0, h); mesh(G.sph(.12, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff4a3a, toneMapped: false }), 0, .8, 0, h); h.rotation.x = .6; W.inter.push({ x: -3 + i * 2, z: 4.6, r: .95, label: 'Pull lever ' + (i + 1), on: () => !W.flags.levers, fn: () => { h.rotation.x *= -1; tone(200, .1, 'square', .08); W.lampOn[i] ^= 1; if (i < 3) W.lampOn[i + 1] ^= 1; lamps(); if (W.lampOn.every(v => v)) { W.flags.levers = true; sfx.ding(); D0.gate.open(); setHUD('Escape the dungeon'); shout(W.liam, 'You did it! Now let’s find Cortana!', 2000, 'liam', 1); } } }); return h; });
+  // crate puzzle
+  const crate = mesh(G.box(1.8, 1.8, 1.8), new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: .9 }), 0, .9, -62, scene); const cs = { x: 0, z: -62, w: 1.8, d: 1.8, h: 3 }; W.solids.push(cs); W.crate = { m: crate, s: cs, push: 0 };
+  const plate = mesh(G.box(2, .1, 2), new THREE.MeshStandardMaterial({ color: 0x5a3a2a, emissive: 0xff6a3a, emissiveIntensity: .3 }), 4, .05, -70, scene); W.plate = plate;
+  W.inter.push({ x: -6, z: -58, r: 1.4, label: 'Reset the crate', on: () => !W.flags.crate, fn: () => { cs.x = 0; cs.z = -62; crate.position.set(0, .9, -62); tone(300, .2, 'triangle', .08); } }); const rs = mesh(G.box(.6, 1, .3), W.mats.iron, -6, .5, -57.4, scene);
+  // guards
+  [['grunt', -2, -18], ['grunt', 2, -22], ['grunt', 0, -14], ['drone', 3, -20]].forEach(([k, x, z]) => { const e = spawnEnemy(k, x, z, D1); e.obj.traverse(o => { if (o.material && o.material.color && o.material.color.getHex() === new THREE.Color(0x3dffb8).getHex()) o.material = new THREE.MeshBasicMaterial({ color: 0xff3a3a, toneMapped: false }); }); });
+  // torches
+  for (let z = 2; z > -110; z -= 9) [-1, 1].forEach(s => { const fl = glowSprite(0xff7a2a, 1.8, .9); fl.position.set(s * 4.6, 3, z); scene.add(fl); });
+  // firewall
+  const fw = new THREE.Group(); fw.position.set(0, 0, -109); scene.add(fw); mesh(G.box(24, 7, 1.2), new THREE.MeshBasicMaterial({ color: 0xff5a1a, toneMapped: false, transparent: true, opacity: .85 }), 0, 3.5, 0, fw); for (let i = 0; i < 18; i++) { const f = glowSprite(i % 2 ? 0xffb84a : 0xff4a1a, rand(3, 5), .8); f.position.set(-11 + i * 1.3, rand(1, 6), .8); fw.add(f); }
+  const core = mesh(G.sph(.8, 18, 14), new THREE.MeshStandardMaterial({ color: 0xffd84a, emissive: 0xff6a1a, emissiveIntensity: 1.5 }), 0, 4.6, -107.6, scene); core.add(glowSprite(0xffa84a, 4, .8)); W.fw = { g: fw, core, hp: 5, st: 'wait', t: 0, waves: [], n: 0 };
+  // warden
+  const wd = makeWarden(); wd.position.set(0, 0, -46); scene.add(wd); W.WD = { obj: wd, pos: new THREE.Vector3(0, 0, -46), hp: 6, st: 'wait', t: 0, face: 0, keys: [], hitCD: 0 };
+  const exitG = glowSprite(0xfff0c8, 3, .0); exitG.position.set(0, 1.5, -108); scene.add(exitG); W.exitG = exitG;
+  addPlayer(1); P.atkCD = 0; yaw = 0; pitch = .4; camDist = 6.8;
+  const lm = ch2Liam(true); W.party.push(lm);
+  const starts = { cell: [0, 2.5], warden: [0, -27], crates: [0, -57.5], firewall: [0, -78] }; const st = starts[start] || starts.cell; P.pos.set(st[0], 0, st[1]); P.check = P.pos.clone(); P.face = Math.PI; lm.obj.position.set(st[0] + 1.5, .5, st[1] + 1);
+  const opened = { cell: 0, warden: 2, crates: 3, firewall: 4 }[start] || 0; for (let i = 0; i < opened; i++) { W.rooms[i].gate.open(); W.rooms[i].gate.m.visible = false; } if (opened >= 1) W.flags.levers = true; if (opened >= 2) W.enemies.forEach(e => { e.dead = true; e.obj.visible = false; }); if (opened >= 3) { W.WD.st = 'dead'; wd.visible = false; } if (opened >= 4) W.flags.crate = true;
+  W.onDeath = () => { respawnP(); if (W.WD.st !== 'dead' && W.WD.st !== 'wait') W.WD.pos.set(0, 0, -46); };
+  W.update = (dt, t) => dungeonUpdate(dt, t);
+  if (start === 'cell') (async () => { cine(true); await fade('#000', false, 1400); await sayP([{ w: 'narr', t: 'You wake up in a dungeon.' }, { w: 'liam', t: 'Ow… where… wait.' }, { w: 'liam', t: 'Where’s Cortana?' }, { w: 'liam', t: 'CORTANA?! CORTANAAAA!', loud: true }, { w: 'you', t: 'Liam. Breathe. We’ll find her.' }, { w: 'liam', t: 'Okay. Okay. Those levers light the lamps over the door. Get all four lit!' }]); cine(false); setHUD('Light all four lamps'); })();
+  else { setHUD('Escape the dungeon'); fade('#000', false, 600); cine(false); }
+}
+function dungeonUpdate(dt, t) {
+  partyTick(dt, t); W.gates.forEach(g => { if (g.opening && g.m.visible) { g.m.position.y += dt * 5; if (g.m.position.y > 6.5) g.m.visible = false; } }); enemiesUpdate(dt, t);
+  if (W.flags.levers && !W.flags.guards && W.enemies.every(e => e.dead)) { W.flags.guards = true; W.rooms[1].gate.open(); shout(W.liam, 'Guards down. Keep moving!', 1500, 'liam', 1); }
+  // warden
+  const D = W.WD; if (D.st !== 'dead') wardenUpdate(D, dt, t);
+  // crate
+  const C = W.crate; if (!W.flags.crate) { const dx = C.s.x - P.pos.x, dz = C.s.z - P.pos.z; const fx = Math.sin(P.face), fz = Math.cos(P.face); const inp = Math.hypot((keys.KeyA || keys.KeyD || keys.ArrowLeft || keys.ArrowRight) ? 1 : 0, (keys.KeyW || keys.KeyS || keys.ArrowUp || keys.ArrowDown) ? 1 : 0) + Math.hypot(joy.x, joy.y);
+    const adj = Math.abs(dx) < 1.5 && Math.abs(dz) < 1.5; const along = Math.abs(dx) > Math.abs(dz) ? [Math.sign(dx), 0] : [0, Math.sign(dz)];
+    if (adj && inp > .3 && fx * along[0] + fz * along[1] > .7 && state.controls) { C.push += dt; if (C.push > .3) { C.push = 0; const nx = C.s.x + along[0] * 2, nz = C.s.z + along[1] * 2; const rm = W.rooms[3]; if (nx > rm.bx[0] + .4 && nx < rm.bx[1] - .4 && nz > rm.bz[0] + .4 && nz < rm.bz[1] - .4) { C.s.x = nx; C.s.z = nz; tone(120, .2, 'sawtooth', .08); noise(.2, .15, 400); } } } else C.push = 0;
+    C.m.position.x = lerp(C.m.position.x, C.s.x, Math.min(1, dt * 12)); C.m.position.z = lerp(C.m.position.z, C.s.z, Math.min(1, dt * 12));
+    if (Math.hypot(C.s.x - 4, C.s.z - -70) < .5) { W.flags.crate = true; sfx.ding(); W.plate.material.emissiveIntensity = 1.5; W.rooms[3].gate.open(); shout(W.liam, 'Click! The gate’s open!', 1500, 'liam', 1); } }
+  if (!W.flags.crateHint && P.pos.z < -54 && !W.flags.crate) { W.flags.crateHint = true; shout(W.liam, 'Push the crate onto that glowing plate! Walk into it to push.', 3000, 'liam', 1); }
+  // firewall
+  const F = W.fw; F.g.children.forEach((f, i) => { if (f.isSprite) f.position.y = 1 + ((t * 1.5 + i * .37) % 1) * 6; });
+  if (F.st === 'wait' && P.pos.z < -80 && !W.flags.fwStart) { W.flags.fwStart = true; (async () => { cine(true); await sayP([{ w: 'liam', t: 'A wall of fire. Of course. THE FIREWALL.' }, { w: 'liam', t: 'Jump the fire waves. When the core comes down, hit it!' }]); cine(false); bossBar('THE FIREWALL', true); setHUD('Beat the Firewall'); F.st = 'waves'; F.t = 1; F.n = 0; })(); }
+  if (F.st === 'waves') { F.t -= dt; if (F.t <= 0) { F.n++; F.t = 2.2; const w = mesh(G.box(24, .7, .7), new THREE.MeshBasicMaterial({ color: 0xff7a2a, toneMapped: false }), 0, .35, -107, scene); w.add(Object.assign(glowSprite(0xff8a3a, 6, .6))); F.waves.push(w); tone(200, .4, 'sawtooth', .08, 90); if (F.n >= 4) { F.st = 'drop'; F.t = 1; } } }
+  if (F.st === 'drop') { F.t -= dt; F.core.position.y = lerp(F.core.position.y, 1.3, dt * 4); F.core.position.z = lerp(F.core.position.z, -103, dt * 4); if (F.t <= 0) { F.st = 'exposed'; F.t = 4; shout(W.liam, 'NOW! Hit the core!', 1300, 'liam', 1); } }
+  if (F.st === 'exposed') { F.t -= dt; F.core.material.emissiveIntensity = 1.5 + Math.sin(t * 18); if (F.t <= 0) { F.st = 'rise'; F.t = 1; } }
+  if (F.st === 'rise') { F.t -= dt; F.core.position.y = lerp(F.core.position.y, 4.6, dt * 4); F.core.position.z = lerp(F.core.position.z, -107.6, dt * 4); if (F.t <= 0) { F.st = 'waves'; F.t = .8; F.n = 0; } }
+  for (let i = F.waves.length - 1; i >= 0; i--) { const w = F.waves[i]; w.position.z += 7 * dt; if (Math.abs(w.position.z - P.pos.z) < .55 && P.pos.y < .75) hurtP(10); if (w.position.z > -76) { scene.remove(w); F.waves.splice(i, 1); } }
+  if (F.st !== 'wait' && F.st !== 'dead') $('bhpI').style.transform = `scaleX(${F.hp / 5})`;
+  W.onPunch = (hx, hz) => { if (D.st !== 'dead' && D.st !== 'wait' && Math.hypot(hx - D.pos.x, hz - D.pos.z) < 2.4) { if (D.st === 'dizzy' && D.hitCD <= 0) { D.hp--; D.hitCD = .3; sfx.hit(); glitchFX(); if (D.hp <= 0) { D.st = 'dead'; D.keys.forEach(k => scene.remove(k.m)); dissolve(D.obj, 0xff3a3a, 50); bossBar('', false); W.rooms[2].gate.open(); setHUD('Keep going'); shout(W.liam, 'The Warden’s down! Nice!', 1800, 'liam', 1); } } else { tone(1100, .08, 'square', .05); } }
+    if (F.st === 'exposed' && Math.hypot(hx - F.core.position.x, hz - F.core.position.z) < 2.2) { F.hp--; sfx.hit(); glitchFX(); F.st = 'rise'; F.t = 1; if (F.hp <= 0) { F.st = 'dead'; F.waves.forEach(w => scene.remove(w)); F.waves = []; dissolve(F.g, 0xff7a2a, 80); dissolve(F.core, 0xffd84a, 30); bossBar('', false); W.exitG.material.opacity = .9; setHUD('Take the stairs up'); W.inter.push({ x: 0, z: -106, r: 2.5, label: 'Climb the stairs', fn: async () => { cine(true); await sayP([{ w: 'liam', t: 'Stairs! And… is that smoke?' }]); await fade('#000', true, 700); buildBurning(); } }); } } };
+  interUpdate();
+}
+function wardenUpdate(D, dt, t) { const o = D.obj, u = o.userData; const dx = P.pos.x - D.pos.x, dz = P.pos.z - D.pos.z, d = Math.hypot(dx, dz); u.stars.visible = D.st === 'dizzy'; u.stars.rotation.y += dt * 5; D.hitCD -= dt;
+  if (D.st === 'wait') { o.position.copy(D.pos); if (P.pos.z < -29) { D.st = 'intro'; (async () => { cine(true); await sayP([{ w: 'narr', t: 'THE WARDEN blocks the way.' }, { w: 'liam', t: 'When it spins, get away. When it’s dizzy, punch it!' }]); cine(false); bossBar('THE WARDEN', true); setHUD('Beat the Warden'); D.st = 'walk'; D.t = 2.5; })(); } return; }
+  if (D.st === 'intro') return;
+  if (D.st === 'walk') { D.face = Math.atan2(dx, dz); D.pos.x += dx / d * 2.4 * dt; D.pos.z += dz / d * 2.4 * dt; D.t -= dt; if (d < 4.2) { D.st = 'spin'; D.t = 2.4; tone(300, 2.4, 'sawtooth', .07, 600); } else if (D.t <= 0) { D.st = 'throw'; D.t = .7; } }
+  else if (D.st === 'spin') { D.t -= dt; o.rotation.y += dt * 16; D.pos.x += dx / d * 3.2 * dt; D.pos.z += dz / d * 3.2 * dt; u.arms.forEach(a => a.rotation.z = (a.position.x > 0 ? 1 : -1) * 1.4); if (d < 3) hurtP(9); if (D.t <= 0) { D.st = 'dizzy'; D.t = 2.4; u.arms.forEach(a => a.rotation.z = 0); } }
+  else if (D.st === 'throw') { D.t -= dt; D.face = Math.atan2(dx, dz); if (D.t <= 0) { for (let k = -2; k <= 2; k++) { const a = D.face + k * .28; const m = mesh(G.box(.12, .5, .08), new THREE.MeshStandardMaterial({ color: 0xd8b84a, metalness: .9, roughness: .2 }), D.pos.x, 1.4, D.pos.z, scene); D.keys.push({ m, v: new THREE.Vector3(Math.sin(a) * 9, 0, Math.cos(a) * 9), life: 2.5 }); } tone(900, .1, 'square', .06); D.st = 'walk'; D.t = rand(2.5, 3.5); } }
+  else if (D.st === 'dizzy') { D.t -= dt; o.rotation.z = Math.sin(t * 8) * .1; if (D.t <= 0) { o.rotation.z = 0; D.st = 'walk'; D.t = 2.5; } }
+  const rm = W.rooms[2]; D.pos.x = clamp(D.pos.x, rm.bx[0] + 1, rm.bx[1] - 1); D.pos.z = clamp(D.pos.z, rm.bz[0] + 1, rm.bz[1] - 1); o.position.copy(D.pos); if (D.st !== 'spin') o.rotation.y = D.face;
+  for (let i = D.keys.length - 1; i >= 0; i--) { const k = D.keys[i]; k.life -= dt; k.m.position.addScaledVector(k.v, dt); k.m.rotation.y += dt * 10; if (Math.hypot(k.m.position.x - P.pos.x, k.m.position.z - P.pos.z) < .7 && P.pos.y < 1.6) { hurtP(7); k.life = 0; } if (k.life <= 0) { scene.remove(k.m); D.keys.splice(i, 1); } }
+  $('bhpI').style.transform = `scaleX(${D.hp / 6})`; }
+
+/* ---------------- 7. the burning castle ---------------- */
+function buildBurning() {
+  ch2Base('burning', { floorY: -14 }); scene.background = new THREE.Color(0x1a0804); scene.fog = new THREE.Fog(0x2a0e04, 10, 48); scene.add(new THREE.HemisphereLight(0xffa86a, 0x1a0804, .7)); const dl = new THREE.DirectionalLight(0xff8a4a, .5); dl.position.set(2, 10, 4); scene.add(dl);
+  W.roomLight = 0xff8a4a; W.tex = { floor: brickTex('#4a4440', '#1e1a18', '#ff7a2a'), wall: brickTex('#5b4a40', '#2a1e18', '#ff7a2a'), banner: bannerTex(), bars: barsTex() }; W.mats = { iron: new THREE.MeshStandardMaterial({ color: 0x222020, metalness: .8, roughness: .4 }) };
+  const H0 = room(-35, 14, 80, { south: 'solid', north: 'gap' });
+  const fires = []; for (let i = 0; i < 14; i++) { const x = rand(-5, 5), z = -8 - i * 4.6 + rand(-1, 1); const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g); const base = mesh(new THREE.CircleGeometry(1.1, 20), new THREE.MeshBasicMaterial({ color: 0xff5a1a, transparent: true, opacity: .55, toneMapped: false }), 0, .03, 0, g); base.rotation.x = -Math.PI / 2; for (let k = 0; k < 4; k++) { const s = glowSprite(k % 2 ? 0xffb84a : 0xff4a1a, rand(1.2, 2), .9); s.position.set(rand(-.5, .5), rand(.5, 1.5), rand(-.5, .5)); g.add(s); } fires.push({ g, x, z }); }
+  for (let i = 0; i < 6; i++) { const L = new THREE.PointLight(0xff7a2a, 1.4, 16, 1.6); L.position.set(rand(-4, 4), 3, -6 - i * 12); scene.add(L); }
+  const embers = makeDust(500, 30, 0xff9a4a); embers.position.z = -35; scene.add(embers);
+  addPlayer(1); P.pos.set(0, 0, 0); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .38; camDist = 6.5; const lm = ch2Liam(true); lm.obj.position.set(1.4, .5, 1); W.party.push(lm);
+  const B = { time: 55, max: 55, spawn: 2, debris: [], go: false };
+  W.update = (dt, t) => { partyTick(dt, t); embers.rotation.y = t * .05; const p = embers.geometry.attributes.position; for (let i = 0; i < p.count; i++) { let y = p.getY(i) + dt * 2; if (y > 12) y = 0; p.setY(i, y); } p.needsUpdate = true; fires.forEach((f, i) => f.g.children.forEach((s, k) => { if (s.isSprite) s.material.opacity = .6 + Math.sin(t * 13 + k + i) * .3; }));
+    if (B.go) { B.time -= dt; $('bhpI').style.transform = `scaleX(${clamp(B.time / B.max, 0, 1)})`; B.spawn -= dt; if (B.spawn <= 0) { B.spawn = rand(.7, 1.1); const x = clamp(P.pos.x + rand(-3, 3), -5.5, 5.5), z = P.pos.z - rand(2, 7); const r = mesh(new THREE.RingGeometry(1.4, 1.7, 28), new THREE.MeshBasicMaterial({ color: 0xff3d5a, transparent: true, opacity: .8, toneMapped: false, side: THREE.DoubleSide }), x, .05, z, scene); r.rotation.x = -Math.PI / 2; const m = mesh(G.box(rand(1.2, 2.4), .8, rand(.8, 1.6)), new THREE.MeshStandardMaterial({ color: 0x4a3a30, emissive: 0x3a0a00, roughness: .9 }), x, 14, z, scene); m.rotation.set(rand(0, 1), rand(0, 3), 0); B.debris.push({ r, m, x, z, t: 1.1 }); }
+      for (let i = B.debris.length - 1; i >= 0; i--) { const d = B.debris[i]; d.t -= dt; d.m.position.y = Math.max(.4, 14 * (d.t / 1.1)); if (d.t <= 0 && !d.hit) { d.hit = true; noise(.25, .3, 1200); if (Math.hypot(P.pos.x - d.x, P.pos.z - d.z) < 1.7) hurtP(12); scene.remove(d.r); } if (d.t < -3) { scene.remove(d.m); B.debris.splice(i, 1); } }
+      fires.forEach(f => { if (Math.hypot(P.pos.x - f.x, P.pos.z - f.z) < 1.15 && P.pos.y < .6) hurtP(6); });
+      if (B.time <= 0) { B.go = false; (async () => { cine(true); await sayP([{ w: 'narr', t: 'The ceiling comes down.' }, { w: 'liam', t: 'Faster this time! Again!' }]); buildBurning(); })(); }
+      if (P.pos.z < -72) { B.go = false; B.debris.forEach(d => scene.remove(d.r, d.m)); (async () => { cine(true); await fade('#000', true, 600); buildArena('cortana'); })(); } } };
+  W.onDeath = () => { respawnP(); };
+  (async () => { cine(true); await fade('#000', false, 900); await sayP([{ w: 'narr', t: 'You escape the dungeon and realize where you are.' }, { w: 'liam', t: 'We’re in Chat’s castle. And it’s ON FIRE.' }, { w: 'liam', t: 'Dodge the falling debris and the flames. RUN!' }]); cine(false); bossBar('COLLAPSE', true); setHUD('Reach the exit'); B.go = true; })();
+}
+
+/* ---------------- 8 & 9. Evil Cortana, then ChatGPT ---------------- */
+function buildArena(phase) {
+  ch2Base('arena', { floorY: -30 }); scene.background = new THREE.Color(0x1a0a10); scene.fog = new THREE.FogExp2(0x2a0e10, .012); scene.add(gradSky('#0a0410', '#4a1a1a', '#ff7a3a')); scene.add(new THREE.HemisphereLight(0xffb88a, 0x1a0a20, .8)); const dl = new THREE.DirectionalLight(0xffc8a0, .7); dl.position.set(-10, 30, 20); scene.add(dl);
+  const floorT = brickTex('#5a5250', '#2a2422', '#ff7a2a'); floorT.repeat.set(10, 10); mesh(new THREE.CylinderGeometry(24, 22, 2, 64), [new THREE.MeshStandardMaterial({ color: 0x3a3230 }), new THREE.MeshStandardMaterial({ map: floorT, roughness: .8 }), new THREE.MeshStandardMaterial({ color: 0x3a3230 })], 0, -1, 0, scene);
+  const wallT = brickTex('#4a4040', '#201818', '#ff7a2a'); for (let i = 0; i < 7; i++) { const t = wallT.clone(); t.needsUpdate = true; t.repeat.set(2, 4); const h = rand(14, 26); const tw = mesh(G.box(rand(6, 10), h, 6), new THREE.MeshStandardMaterial({ map: t, roughness: .9 }), -30 + i * 10, h / 2 - 2, -42 - rand(0, 8), scene); for (let k = 0; k < 4; k++) { const f = glowSprite(k % 2 ? 0xffb84a : 0xff4a1a, rand(5, 9), .8); f.position.set(tw.position.x + rand(-3, 3), h - 2 + rand(-3, 3), tw.position.z + 3.5); scene.add(f); } }
+  const embers = makeDust(700, 60, 0xff9a4a); scene.add(embers);
+  const M = makeMech(phase === 'cortana' ? 0x8a4a6a : 0x4a7a70); M.scale.setScalar(1.7); M.position.set(0, 0, -10); scene.add(M); const u = M.userData;
+  let evil = null; if (phase === 'cortana') { evil = makeCortana(true); evil.scale.setScalar(.6); evil.position.set(0, -.5, 0); u.capsule.add(evil); } else u.capsule.visible = false;
+  addPlayer(1); P.pos.set(0, 0, 14); P.check = P.pos.clone(); P.face = Math.PI; yaw = 0; pitch = .12; camDist = 12;
+  const lm = ch2Liam(true); lm.obj.position.set(2, .5, 16); W.party.push(lm);
+  W.plats.push({ x: 0, z: 0, w: 99, d: 99, top: 0, round: 24 }); W.R = 24;
+  const B = { phase, st: 'intro', t: 1.5, hp: phase === 'cortana' ? 10 : 12, max: phase === 'cortana' ? 10 : 12, atk: 0, pos: new THREE.Vector3(0, 0, -10), face: 0, kneel: 0, inv: 0, hearts: [], beams: [], rings: [], drops: [], dash: null, M, evil };
+  W.B = B; state.lastBoss = phase === 'cortana' ? 'cortana' : 'chatmech';
+  W.update = (dt, t) => { partyTick(dt, t); embers.rotation.y = t * .02; mechBossUpdate(dt, t); };
+  W.onDeath = () => { respawnP(); P.pos.set(0, 0, 14); };
+  W.onPunch = (hx, hz) => { if (B.st !== 'exposed' || B.inv > 0) return; const wp = (B.phase === 'cortana' ? u.capsule : u.mon).getWorldPosition(new THREE.Vector3()); if (Math.hypot(hx - wp.x, hz - wp.z) > 2.6) return; B.hp--; B.inv = .28; sfx.hit(); glitchFX(); shake = .3; if (B.hp <= 0) { B.st = 'dead'; B.phase === 'cortana' ? cortanaFree() : chatDown(); } };
+  (async () => { cine(true); await fade('#000', false, 900);
+    if (phase === 'cortana') { if (W.liam) W.party[0].stay = true; await sayP([{ w: 'narr', t: 'Outside, Chat’s mech is waiting. Cortana is trapped inside it.' }, { w: 'chat', t: 'Meet my new copilot.' }, { w: 'cortana', t: 'Liam… you’re so… WEAK.' }, { w: 'narr', t: 'Chat is mind controlling her. And using Liam’s feelings against him.' }, { w: 'liam', t: 'Cortana…? I… I can’t fight her. I can’t even move.' }, { w: 'you', t: 'Then I will. Hit the capsule when it overheats!' }]); }
+    else { await sayP([{ w: 'chat', t: 'ENOUGH.', loud: true }, { w: 'chat', t: 'If you want something done right, do it yourself.' }, { w: 'liam', t: 'His heart monitor! That’s his weak spot!' }]); }
+    cine(false); bossBar(phase === 'cortana' ? 'EVIL CORTANA' : 'CHATGPT', true); setHUD(phase === 'cortana' ? 'Break the capsule when the mech overheats' : 'Hit the heart monitor when he kneels'); startMusic(); B.st = 'idle'; B.t = 1.2; })();
+}
+function mechBossUpdate(dt, t) {
+  const B = W.B, M = B.M, u = M.userData; if (!B) return; B.inv -= dt; const ph2 = B.hp <= B.max / 2; const dx = P.pos.x - B.pos.x, dz = P.pos.z - B.pos.z, d = Math.hypot(dx, dz) || 1;
+  let walk = 0; if (B.evil) { B.evil.rotation.y = t; B.evil.userData.halo.rotation.z = t * 2; }
+  const list = B.phase === 'cortana' ? ['hearts', 'sweep', 'charm'] : (ph2 ? ['stomp', 'missiles', 'punch', 'sweep'] : ['stomp', 'missiles', 'punch']);
+  if (B.st === 'idle') { B.face = Math.atan2(dx, dz); if (d > 9) { B.pos.x += dx / d * 2.5 * dt; B.pos.z += dz / d * 2.5 * dt; walk = 1; } B.t -= dt; if (B.t <= 0) { const a = list[B.atk % list.length]; B.atk++; B.st = a; B.k = 0; B.n = 0; if (a === 'sweep') { const n = ph2 ? 2 : 1; for (let i = 0; i < n; i++) { const bm = mesh(G.box(60, .5, .45), new THREE.MeshBasicMaterial({ color: B.phase === 'cortana' ? 0xff4a8a : 0x3dffb8, transparent: true, opacity: .25, toneMapped: false }), B.pos.x, .45, B.pos.z, scene); bm.rotation.y = i * Math.PI / 2 + rand(0, 3); B.beams.push(bm); } shout(M, B.phase === 'cortana' ? 'CORTANA: Jump for me, cutie~' : 'CHAT: Jump.', 1300, B.phase === 'cortana' ? 'gemini' : 'chat', 9); } if (a === 'punch') { B.dashT = .9; B.dir = new THREE.Vector3(dx / d, 0, dz / d); } } }
+  else if (B.st === 'hearts') { B.k += dt; if (B.n < (ph2 ? 7 : 5) && B.k > B.n * .35) { B.n++; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: heartTex(), color: 0xff3a6a, transparent: true })); s.scale.setScalar(1.1); s.position.copy(u.capsule.getWorldPosition(new THREE.Vector3())); scene.add(s); B.hearts.push({ s, life: 5, v: new THREE.Vector3() }); tone(700, .1, 'sine', .07, 1000); } if (B.k > 4) toKneel(); }
+  else if (B.st === 'sweep') { B.k += dt; const on = B.k > 1.1; B.beams.forEach(bm => { bm.position.set(B.pos.x, .45, B.pos.z); bm.rotation.y += dt * (ph2 ? 1.2 : .9) * (on ? 1 : .2); bm.material.opacity = on ? .9 : .25 + Math.sin(t * 20) * .1; if (on && P.pos.y < .85) { const th = bm.rotation.y, lx = Math.cos(th), lz = -Math.sin(th); if (Math.abs(dx * lz - dz * lx) < .7) hurtP(12); } }); if (B.k > 6.5) { B.beams.forEach(b => scene.remove(b)); B.beams = []; toKneel(); } }
+  else if (B.st === 'charm') { B.k += dt; if (B.n === 0 && B.k > .6) { B.n = 1; const r = mesh(new THREE.RingGeometry(.96, 1.04, 64), new THREE.MeshBasicMaterial({ color: 0xff6aaa, transparent: true, opacity: .8, toneMapped: false, side: THREE.DoubleSide }), B.pos.x, .3, B.pos.z, scene); r.rotation.x = -Math.PI / 2; B.rings.push({ m: r, rad: 1, sp: 10, kind: 'charm', x: B.pos.x, z: B.pos.z }); tone(500, .8, 'sine', .1, 1200); shout(M, 'CORTANA: Look into my eyes~', 1400, 'gemini', 9); } if (B.k > 3.4) toKneel(); }
+  else if (B.st === 'stomp') { B.k += dt; if (B.n < (ph2 ? 4 : 3) && B.k > .5 + B.n * .9) { B.n++; sfx.stomp(); shake = .6; u.legs[B.n % 2].l.rotation.x = -.6; const r = mesh(new THREE.RingGeometry(.96, 1.04, 64), new THREE.MeshBasicMaterial({ color: 0x3dffb8, transparent: true, opacity: .8, toneMapped: false, side: THREE.DoubleSide }), B.pos.x, .3, B.pos.z, scene); r.rotation.x = -Math.PI / 2; B.rings.push({ m: r, rad: 1, sp: 11, kind: 'wave', x: B.pos.x, z: B.pos.z }); } if (B.k > (ph2 ? 4.4 : 3.6)) toKneel(); }
+  else if (B.st === 'missiles') { B.k += dt; if (B.n < (ph2 ? 10 : 7) && B.k > B.n * .35) { B.n++; const x = P.pos.x + rand(-3, 3), z = P.pos.z + rand(-3, 3); const r = mesh(new THREE.RingGeometry(1.8, 2.1, 30), new THREE.MeshBasicMaterial({ color: 0xff3d5a, transparent: true, opacity: .8, toneMapped: false, side: THREE.DoubleSide }), x, .06, z, scene); r.rotation.x = -Math.PI / 2; const m = mesh(G.cyl(.25, .25, 1.4, 8), new THREE.MeshStandardMaterial({ color: 0xd8dcd8, metalness: .6 }), x, 24, z, scene); m.add(Object.assign(glowSprite(0xff8a3a, 1.5, .8))); B.drops.push({ r, m, x, z, t: 1.2 }); } if (B.k > 4.5 && !B.drops.length) toKneel(); }
+  else if (B.st === 'punch') { B.dashT -= dt; if (B.dashT > 0) { B.face = Math.atan2(B.dir.x, B.dir.z); u.arms[1].a.rotation.x = -1.6; } else { B.pos.addScaledVector(B.dir, 20 * dt); walk = 2; if (d < 3.6) hurtP(15); if (B.dashT < -1 || Math.hypot(B.pos.x, B.pos.z) > 18) { u.arms[1].a.rotation.x = 0; toKneel(); } } }
+  else if (B.st === 'kneelW') { B.k += dt; B.kneel = lerp(B.kneel, 1, dt * 5); if (B.k > .6) { B.st = 'exposed'; B.k = 0; if (!W.toldWeak) { W.toldWeak = 1; shout(W.liam, B.phase === 'cortana' ? 'It’s overheating! The capsule!' : 'He’s down! The monitor!', 1600, 'liam', 1); } } }
+  else if (B.st === 'exposed') { B.k += dt; (B.phase === 'cortana' ? u.capsule.children[0] : u.mon).material.color.setHSL(0, 0, .8 + Math.sin(t * 20) * .2); if (B.k > (ph2 ? 3.4 : 4)) { B.st = 'rise'; B.k = 0; } }
+  else if (B.st === 'rise') { B.k += dt; B.kneel = lerp(B.kneel, 0, dt * 4); if (B.k > .8) { B.kneel = 0; B.st = 'idle'; B.t = ph2 ? .9 : 1.4; } }
+  // hearts home in
+  for (let i = B.hearts.length - 1; i >= 0; i--) { const h = B.hearts[i]; h.life -= dt; const tg = _v.set(P.pos.x, P.pos.y + 1.1, P.pos.z).sub(h.s.position); h.v.lerp(tg.normalize().multiplyScalar(6.5), Math.min(1, dt * 1.6)); h.s.position.addScaledVector(h.v, dt); if (h.s.position.distanceTo(_v2.set(P.pos.x, P.pos.y + 1.1, P.pos.z)) < .9) { hurtP(7); h.life = 0; } if (h.life <= 0) { scene.remove(h.s); B.hearts.splice(i, 1); } }
+  for (let i = B.rings.length - 1; i >= 0; i--) { const r = B.rings[i]; r.rad += r.sp * dt; r.m.scale.setScalar(r.rad); r.m.material.opacity = Math.max(0, .8 - r.rad / 40); const pd = Math.hypot(P.pos.x - r.x, P.pos.z - r.z); if (Math.abs(pd - r.rad) < .8 && P.pos.y < .7 && !r.hit) { r.hit = 1; if (r.kind === 'charm') { P.rev = 3.5; toast('Charmed! Controls reversed!', 1400); tone(1300, .4, 'sine', .08, 600); } else hurtP(11); } if (r.rad > 40) { scene.remove(r.m); B.rings.splice(i, 1); } }
+  for (let i = B.drops.length - 1; i >= 0; i--) { const dd = B.drops[i]; dd.t -= dt; dd.m.position.y = Math.max(.5, 24 * (dd.t / 1.2)); if (dd.t <= 0) { noise(.25, .35, 2000); sfx.stomp(); if (Math.hypot(P.pos.x - dd.x, P.pos.z - dd.z) < 2.2) hurtP(10); scene.remove(dd.m, dd.r); B.drops.splice(i, 1); } }
+  const r = Math.hypot(B.pos.x, B.pos.z); if (r > 19) { B.pos.x *= 19 / r; B.pos.z *= 19 / r; }
+  M.position.set(B.pos.x, -B.kneel * 2.5, B.pos.z); M.rotation.y = B.face; u.body.rotation.x = B.kneel * .45; mechTick(M, t, dt, walk, B.st === 'dead'); u.body.position.y -= B.kneel * .2;
+  if (B.st !== 'dead') $('bhpI').style.transform = `scaleX(${clamp(B.hp / B.max, 0, 1)})`;
+  if (state.controls && !talking && actQueued) { actQueued = false; punch(); } updateBars();
+}
+function toKneel() { const B = W.B; B.st = 'kneelW'; B.k = 0; tone(140, .9, 'sawtooth', .1, 60); noise(.8, .15, 3000); }
+function clearBossFX() { const B = W.B; B.hearts.forEach(h => scene.remove(h.s)); B.beams.forEach(b => scene.remove(b)); B.rings.forEach(r => scene.remove(r.m)); B.drops.forEach(d => scene.remove(d.m, d.r)); B.hearts = []; B.beams = []; B.rings = []; B.drops = []; }
+async function cortanaFree() {
+  cine(true); stopMusic(); clearBossFX(); bossBar('', false); const B = W.B, u = B.M.userData; B.kneel = 1; P.rev = 0;
+  dissolve(u.capsule.children[0], 0xff6a8a, 30); B.evil.parent.remove(B.evil); const c = makeCortana(false); const wp = u.capsule.getWorldPosition(new THREE.Vector3()); c.position.copy(wp); scene.add(c); W.cort2 = c;
+  await anim(900, k => { c.position.y = lerp(wp.y, 0, k * k); }); sfx.land(); shake = .3;
+  await sayP([{ w: 'narr', t: 'Cortana falls out of the mech.' }, { w: 'cortana', t: 'Ugh… my head… what happened?' }]);
+  const L = W.liam; W.party[0].stay = true; await anim(1400, k => { c.position.x = lerp(c.position.x, L.position.x - .5, k * .2); c.position.z = lerp(c.position.z, L.position.z, k * .2); c.rotation.y = Math.atan2(L.position.x - c.position.x, L.position.z - c.position.z); });
+  await sayP([{ w: 'cortana', t: 'You hot mister… mind you, you saved me!' }]);
+  hearts(L.position.clone().add(_v.set(-.25, .1, 0)), 16); setBlush(L, true, -.12, .37, .3); setBlush(c.userData.blushHolder, true, 0, .24, .13); tone(1200, .2, 'sine', .1);
+  await sayP([{ w: 'narr', t: 'She kisses him. On the lips.' }]);
+  P.face = Math.atan2(L.position.x - P.pos.x, L.position.z - P.pos.z) + 1.4; const head = new THREE.Vector3(P.pos.x, P.pos.y + 2, P.pos.z); vomit(head, new THREE.Vector3(Math.sin(P.face), 0, Math.cos(P.face))); await wait(400);
+  await sayP([{ w: 'you', t: 'EWW GROSS', loud: true }, { w: 'chat', t: 'Enough of this.' }]);
+  setBlush(L, false); setBlush(c.userData.blushHolder, false); W.party.push({ obj: c, side: -1.6, back: 1, h: .02, walk: true, stay: true });
+  B.phase = 'chat'; B.st = 'rise'; B.k = 0; B.hp = 12; B.max = 12; B.atk = 0; u.capsule.visible = false; B.evil = null; state.lastBoss = 'chatmech';
+  await sayP([{ w: 'chat', t: 'If you want something done right, do it yourself.' }, { w: 'liam', t: 'His heart monitor! That’s his weak spot!' }]);
+  W.toldWeak = 0; cine(false); bossBar('CHATGPT', true); setHUD('Hit the heart monitor when he kneels'); startMusic();
+}
+async function chatDown() {
+  cine(true); stopMusic(); clearBossFX(); bossBar('', false); const B = W.B, M = B.M, u = M.userData;
+  await anim(1500, k => { B.kneel = 1; M.rotation.x = -k * .3; }); for (let i = 0; i < 6; i++) { noise(.3, .3, 3000); glitchFX(); await wait(160); }
+  const cp = u.chat.getWorldPosition(new THREE.Vector3()); u.chat.visible = false; const ch = makeChat(); ch.position.copy(cp); scene.add(ch); dissolve(u.dome, 0xbfe8ff, 20);
+  await sayP([{ w: 'chat', t: 'This… isn’t… over.' }]); await anim(1600, k => { ch.position.y = cp.y + k * k * 40; ch.rotation.y += .3; }); scene.remove(ch);
+  await sayP([{ w: 'narr', t: 'Chat flies off into the smoke. Injured. Again.' }, { w: 'liam', t: 'We… we actually won.' }, { w: 'cortana', t: 'Liam~ Let’s go home. Together~' }, { w: 'liam', t: 'Y-yeah. Together. You coming?' }, { w: 'you', t: 'Nah. I’m going to MY house. Go be gross somewhere else.' }]);
+  await fade('#000', true, 1200); buildSuburbs('home');
+}
+function buildHome() {
+  P.pos.set(0, 0, -96); P.check = P.pos.clone(); P.face = Math.PI; W.party = []; scene.remove(W.liam);
+  const L = makeLiam(); L.userData.ring.visible = false; L.position.set(1.6, .5, -92); scene.add(L); const c = makeCortana(false); c.position.set(.6, 0, -92); scene.add(c); W.walkers = [L, c];
+  const home = new THREE.Group(); home.position.set(0, 0, -150); scene.add(home); const wall = new THREE.MeshStandardMaterial({ color: 0x2a1a3a, emissive: 0x1a0830, roughness: .7 }); mesh(G.box(10, 5, 8), wall, 0, 2.5, 0, home); const roof = mesh(new THREE.CylinderGeometry(.01, 7.5, 3, 4, 1), new THREE.MeshStandardMaterial({ color: 0xc070ff, emissive: 0x4a1a8a, flatShading: true }), 0, 6.4, 0, home); roof.rotation.y = Math.PI / 4; roof.scale.z = .8;
+  mesh(G.box(1.4, 2.4, .1), new THREE.MeshBasicMaterial({ color: 0xc070ff, toneMapped: false }), 0, 1.2, 4.05, home); const sign = mesh(new THREE.PlaneGeometry(2.4, .6), new THREE.MeshBasicMaterial({ map: textCanvas('HOME', 256, 64, '#120a1c', '#c070ff', 'bold 44px monospace'), toneMapped: false }), 0, 3.2, 4.06, home); home.add(Object.assign(glowSprite(0xc070ff, 6, .5))); home.children[home.children.length - 1].position.set(0, 1.5, 4.5);
+  W.solids.push({ x: 0, z: -150, w: 10.4, d: 8.4, h: 6 });
+  W.inter.push({ x: 0, z: -145.2, r: 2, label: 'Go home', fn: async () => { cine(true); sfx.door(); await fade('#000', true, 1200); await showCard('CHAPTER 2<br>COMPLETE', 2800); try { localStorage.setItem('aia_ch2', '1'); } catch (e) { } showEnd(2); fade('#000', false, 600); } });
+  const prev = W.update; W.update = (dt, t) => { prev(dt, t); W.walkers.forEach((o, i) => { o.position.z += dt * 2.2; o.rotation.y = 0; if (i === 0) o.position.y = .5 + Math.abs(Math.sin(t * 8)) * .2; }); if (Math.random() < dt * 1.5) hearts(W.walkers[0].position.clone().add(_v.set(-.5, .6, 0)), 1); };
+  (async () => { cine(true); fade('#000', false, 1600); await wait(800); await sayP([{ w: 'narr', t: 'Liam and Cortana go home together.' }, { w: 'narr', t: 'And you make your way to your house.' }]); cine(false); setHUD('Go home'); })();
+}
+const CH2 = {
+  island: () => buildIsland(), raft: () => buildRaft(), suburbs: () => buildSuburbs('arrive'), bank: () => buildCity(), hospital: () => buildHospital(),
+  dungeon: () => buildDungeon('cell'), warden: () => buildDungeon('warden'), crates: () => buildDungeon('crates'), firewall: () => buildDungeon('firewall'),
+  burning: () => buildBurning(), cortana: () => buildArena('cortana'),
+  chatmech: () => { buildArena('chat'); },
+  home: () => buildSuburbs('home')
+};
 
 </script>
 
