@@ -2904,7 +2904,7 @@ const STAGES = [
   { name: 'LEVEL 37.8', sub: 'The pools go on', build(sd) { epMaze('ep378', sd); const c = farCell(); const [x, z] = W.cellCenter(c[0], c[1]); const a = makeAmbassador(); a.position.set(x, 0, z); a.scale.setScalar(1.4); W.group.add(dyn(a)); W.statue = a; setGoal(x, z, 1.1, 31, { noclip: 'You walked straight through it...' }); },
     obj: () => 'Something tall stands perfectly still at the end. Walk into it.', tick() { if (W.statue) W.statue.userData.anim(GT); } },
   { name: 'LEVEL 0.2', sub: 'Remodeled Mess', ents: { smiler: 2, howler: 1, hound: 1, cuddles: 1 }, build(sd) { epMaze('ep02', sd); const c = farCell(); const [x, z] = exitDoorAt(c); setGoal(x, z, 1.2, 32); }, obj: () => 'Level 0, but wrong. Find the exit door.' },
-  { name: 'LEVEL -1000', sub: 'The Limits of Humanity', ents: { hound: 3, skinstealer: 2 }, build(sd) { epMaze('epm1000', sd); buildGate(); }, obj: () => W.keys.filter(k => k.taken).length < 2 ? `Find both keys (${W.keys.filter(k => k.taken).length}/2) to unlock the gate.` : 'Unlock the gate.' },
+  { name: 'LEVEL -1000', sub: 'Every door is full of chairs', ents: { hound: 3, skinstealer: 2 }, build(sd) { buildChairHall(sd); }, obj: () => W.keys.filter(k => k.taken).length < 2 ? `Find both keys (${W.keys.filter(k => k.taken).length}/2) to unlock the gate.` : 'Unlock the gate.' },
   { name: 'LEVEL FUN =)', sub: 'Destroyed', ents: { partygoer: 3, partyhost: 1 }, build(sd) { epMaze('epfunwreck', sd); const c = farCell(); const [x, z] = W.cellCenter(c[0], c[1]); const mc = makeMeatCake(); mc.position.set(x, 0, z); W.group.add(mc); setGoal(x, z, 1.4, null, { act: () => { ach('ep_cake'); cutNoclip('You noclipped through the meat cake...', () => cutFinal()); } }); }, obj: () => 'Level Fun is in ruins. Something on the table smells like meat.' },
 ];
 function noEscape(k) { ach('ep_noesc'); P.epNo = P.epNo || {}; P.epNo[k] = 1; save(); if (P.epNo.s && P.epNo.p) ach('ep_noesc2'); toast('There was no exit. There never was.', 'bad'); epGo(16); }
@@ -3009,6 +3009,74 @@ function buildCubes43() { const code = String(1000 + ((W.rng() * 8999) | 0)); W.
 function buildGate() { W.keys = []; const used = []; for (let i = 0; i < 2; i++) { const c = farCell(.55, used); used.push(c); const [x, z] = cellPos(c, 2); const k = makeKey(); k.position.set(x, 1, z); W.group.add(k); const K = { m: k, taken: false }; W.keys.push(K); inter({ x, y: 1, z, r: 2.2, label: 'Take the key', off: () => K.taken, act: () => { K.taken = true; k.visible = false; SFX.pickup(); toast('Key ' + (W.keys.filter(q => q.taken).length) + '/2'); } }); }
   const c = farCell(.9, used); const [x, z] = W.cellCenter(c[0], c[1]); const g = makeGate(); g.position.set(x, 0, z); W.group.add(g); const gb = addBox(x - 2, z - .2, x + 2, z + .2, 'gate');
   inter({ x, y: 1.4, z: z + .6, r: 2.6, label: 'Unlock the gate', act: () => { if (W.keys.filter(q => q.taken).length < 2) { SFX.hurt(); toast('Two locks. You need both keys.'); return; } SFX.door(); ach('ep_gate'); g.userData.bars.position.y = 3.6; gb.off = true; cutNoclip('LEVEL -1001. The second you step in, the floor gives way...', () => epGo(33)); } }); }
+
+
+/* ---------- Level -1000: the hallway of doors filled with chairs ---------- */
+function chairGeo() { const parts = [[.46, .05, .44, 0, .46, 0], [.04, .46, .04, -.2, .23, -.19], [.04, .46, .04, .2, .23, -.19], [.04, .46, .04, -.2, .23, .19], [.04, .46, .04, .2, .23, .19], [.46, .46, .04, 0, .72, -.2], [.04, .5, .04, -.2, .7, -.2], [.04, .5, .04, .2, .7, -.2]];
+  const pos = [], nor = []; parts.forEach(([w, h, d, x, y, z]) => { const g = new THREE.BoxGeometry(w, h, d).toNonIndexed(); g.translate(x, y - .5, z); pos.push(...g.attributes.position.array); nor.push(...g.attributes.normal.array); });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); return g; }
+function hallWallTex() { const c = cv(256, 256), x = c.getContext('2d'); x.fillStyle = '#9aa58a'; x.fillRect(0, 0, 256, 256); x.fillStyle = '#5e6a52'; x.fillRect(0, 170, 256, 86); x.fillStyle = '#3a4234'; x.fillRect(0, 166, 256, 6); speck(x, 256, 256, 1600, ['#8a957a', '#a8b298', '#6e7a60'], .5, 2);
+  for (let i = 0; i < 6; i++) { x.strokeStyle = 'rgba(60,50,30,.25)'; x.lineWidth = 1 + Math.random() * 2; x.beginPath(); let px = Math.random() * 256, py = Math.random() * 120; x.moveTo(px, py); for (let k = 0; k < 6; k++) { px += (Math.random() - .5) * 30; py += Math.random() * 30; x.lineTo(px, py); } x.stroke(); }
+  for (let i = 0; i < 4; i++) { x.fillStyle = 'rgba(70,55,30,.25)'; x.beginPath(); x.ellipse(Math.random() * 256, 230, 30 + Math.random() * 40, 20, 0, 0, TAU); x.fill(); }
+  return mkTex(c, 1, 1); }
+function buildChairHall(sd) {
+  newWorld('m1000'); W.N = 0; W.CS = 5; W.heightAt = () => 0; W.seed = sd; W.free = null; const rng = mulberry(sd);
+  const th = { fog: 0x0e100c, fogN: 2, fogF: 30, hemi: [0xd8e0c8, 0x14160f, .55], light: 0xf0f4d8, lightI: 1.6, hum: .07, san: .45 }; W.th = th; setAtmos(th); scene.background = new THREE.Color(0x0e100c);
+  const LEN = 150, Wd = 3.4, H = 3.1, T0 = .6, z0 = 6, z1 = -LEN, len = z0 - z1, zc = (z0 + z1) / 2;
+  const ft = T('concrete').clone(); ft.needsUpdate = true; ft.repeat.set(2, len / 2); mesh(new THREE.PlaneGeometry(Wd + 2 * T0, len), mat(0x8a8478, { map: ft, r: .9, nocache: true }), 0, 0, zc, W.group).rotation.x = -Math.PI / 2;
+  const ct = T('ceilTile').clone(); ct.needsUpdate = true; ct.repeat.set(2, len / 1.2); mesh(new THREE.PlaneGeometry(Wd + 2 * T0, len), mat(0xb8b49a, { map: ct, r: .95, nocache: true }), 0, H, zc, W.group).rotation.x = Math.PI / 2;
+  const wt = hallWallTex(); wt.wrapS = wt.wrapT = THREE.RepeatWrapping; const wallMat = (L) => { const t = wt.clone(); t.needsUpdate = true; t.repeat.set(L / 2.4, 1); return mat(0xffffff, { map: t, r: .9, nocache: true }); };
+  const frameM = mat(0x4a3420, { r: .7 }), dark = basic(0x050505);
+  // doorways, both sides, staggered
+  const doors = []; for (let z = -4; z > z1 + 12; z -= 4.6) { doors.push({ s: -1, z: z + (rng() - .5) * .6 }); doors.push({ s: 1, z: z - 2.3 + (rng() - .5) * .6 }); }
+  const pick = (side, zz) => { let b = null, bd = 1e9; doors.forEach(d => { if (d.s === side && Math.abs(d.z - zz) < bd) { bd = Math.abs(d.z - zz); b = d; } }); b.open = true; return b; };
+  const keyDoors = [pick(-1, -48), pick(1, -104)]; const DW = 1.1, DH = 2.25;
+  // walls: segments between doorways (thick, so each doorway is a deep recess)
+  [-1, 1].forEach(s => { const ds = doors.filter(d => d.s === s).sort((a, b) => b.z - a.z); let top = z0; const xm = s * (Wd / 2 + T0 / 2);
+    const seg = (za, zb) => { const L = za - zb; if (L < .02) return; const m = mesh(G.box(T0, H, L), wallMat(L), xm, H / 2, (za + zb) / 2, W.group); };
+    ds.forEach(d => { seg(top, d.z + DW / 2); mesh(G.box(T0, H - DH, DW), wallMat(DW), xm, DH + (H - DH) / 2, d.z, W.group); top = d.z - DW / 2;
+      [d.z + DW / 2 + .04, d.z - DW / 2 - .04].forEach(fz => mesh(G.box(.1, DH + .08, .08), frameM, s * (Wd / 2 + .02), DH / 2, fz, W.group)); mesh(G.box(.1, .08, DW + .16), frameM, s * (Wd / 2 + .02), DH + .04, d.z, W.group);
+      if (!d.open) { const bk = mesh(new THREE.PlaneGeometry(DW, DH), dark, s * (Wd / 2 + T0 - .01), DH / 2, d.z, W.group); bk.rotation.y = -s * Math.PI / 2; } });
+    seg(top, z1);
+    // collision: solid line except the two open doorways
+    let zTop = z0; ds.filter(d => d.open).forEach(d => { addBox(s < 0 ? -Wd / 2 - T0 : Wd / 2, d.z + DW / 2, s < 0 ? -Wd / 2 : Wd / 2 + T0, zTop, 'wall'); zTop = d.z - DW / 2; }); addBox(s < 0 ? -Wd / 2 - T0 : Wd / 2, z1, s < 0 ? -Wd / 2 : Wd / 2 + T0, zTop, 'wall'); });
+  mesh(G.box(Wd + 2 * T0, H, .3), wallMat(Wd), 0, H / 2, z0 + .15, W.group); addBox(-Wd / 2, z0, Wd / 2, z0 + .3, 'wall'); mesh(G.box(Wd + 2 * T0, H, .3), wallMat(Wd), 0, H / 2, z1 - .15, W.group); addBox(-Wd / 2, z1 - .3, Wd / 2, z1, 'wall');
+  // chairs: one instanced mesh for every chair in the level
+  const chairs = []; const cols = [0x7a4a24, 0x5a3a1e, 0x8a8a8a, 0x3a3a3a, 0xc06a2a, 0x2a5a8a, 0x4a7a3a, 0x9a2a2a, 0xd8d0b8];
+  const addChair = (x, y, z, rx, ry, rz) => chairs.push([x, y, z, rx, ry, rz, cols[(rng() * cols.length) | 0]]);
+  doors.forEach(d => { if (d.open) return; const s = d.s, n = 9 + ((rng() * 5) | 0); for (let i = 0; i < n; i++) { const layer = Math.min(3, Math.floor(i / 3.5)); const depth = rng(); const x = s * (Wd / 2 + T0 - .28 - depth * .5), y = .5 + layer * .5 + rng() * .15, z = d.z + (rng() - .5) * (DW - .4);
+      addChair(x, Math.min(y, DH - .3), z, (rng() - .5) * (layer ? 3.2 : .6), rng() * TAU, (rng() - .5) * (layer ? 3 : .5)); }
+    if (rng() < .55) { addChair(s * (Wd / 2 - .22), .5, d.z + (rng() - .5) * .5, (rng() - .5) * .5, rng() * TAU, (rng() < .5 ? 1.4 : 0)); addBox(s < 0 ? -Wd / 2 : Wd / 2 - .45, d.z - .35, s < 0 ? -Wd / 2 + .45 : Wd / 2, d.z + .35, 'chair'); } });
+  // a few loose chairs knocked over in the hallway
+  for (let z = -10; z > z1 + 15; z -= 9 + rng() * 8) { const x = (rng() - .5) * (Wd - 1.2); addChair(x, .26, z, Math.PI / 2 * (rng() < .5 ? 1 : -1), rng() * TAU, 0); addBox(x - .35, z - .35, x + .35, z + .35, 'chair'); }
+  // key rooms behind the two open doorways
+  W.keys = []; keyDoors.forEach((d, ki) => { const s = d.s, xa = s * (Wd / 2 + T0), xb = s * (Wd / 2 + T0 + 5), RW = 5, rz0 = d.z - RW / 2, rz1 = d.z + RW / 2, xc = (xa + xb) / 2;
+    mesh(new THREE.PlaneGeometry(5, RW), mat(0x8a8478, { map: T('concrete'), r: .9 }), xc, 0, d.z, W.group).rotation.x = -Math.PI / 2; mesh(new THREE.PlaneGeometry(5, RW), mat(0xb8b49a, { map: T('ceilTile'), r: .95 }), xc, H, d.z, W.group).rotation.x = Math.PI / 2;
+    mesh(G.box(.3, H, RW), wallMat(RW), xb + s * .15, H / 2, d.z, W.group); [rz0, rz1].forEach(zz => mesh(G.box(5, H, .3), wallMat(5), xc, H / 2, zz + (zz < d.z ? -.15 : .15), W.group));
+    addBox(Math.min(xb, xb + s * .3), rz0, Math.max(xb, xb + s * .3), rz1, 'wall'); addBox(Math.min(xa, xb), rz0 - .3, Math.max(xa, xb), rz0, 'wall'); addBox(Math.min(xa, xb), rz1, Math.max(xa, xb), rz1 + .3, 'wall');
+    for (let i = 0; i < 26; i++) { const cz = rng() < .5 ? rz0 + .5 : rz1 - .5, cx = xa + s * (.6 + rng() * 3.8); addChair(cx, .5 + Math.floor(i / 9) * .5, cz + (rng() - .5) * .6, (rng() - .5) * 2, rng() * TAU, (rng() - .5) * 2); }
+    addBox(Math.min(xa, xb), rz0, Math.max(xa, xb), rz0 + .9, 'pile'); addBox(Math.min(xa, xb), rz1 - .9, Math.max(xa, xb), rz1, 'pile');
+    const kx = xa + s * 3.2; mesh(G.box(.9, .75, .6), mat(0x5a3a22, { r: .7 }), kx, .375, d.z, W.group); addBox(kx - .45, d.z - .3, kx + .45, d.z + .3, 'table');
+    mesh(new THREE.PlaneGeometry(.9, .45), basic(0xfff0c8, { map: T('panel') }), xc, H - .01, d.z, W.group).rotation.x = Math.PI / 2; W.fixtures.push({ x: xc, y: H - .2, z: d.z, fl: -1 });
+    const k = makeKey(); k.position.set(kx, 1.05, d.z); W.group.add(dyn(k)); k.add(glowSprite(0xffcf3a, 1.6, .55)); const K = { m: k, taken: false }; W.keys.push(K);
+    inter({ x: kx, y: 1, z: d.z, r: 2.2, label: 'Take the key', off: () => K.taken, act: () => { K.taken = true; k.visible = false; SFX.pickup(); toast('Key ' + W.keys.filter(q => q.taken).length + '/2'); } }); });
+  const cg = chairGeo(); const im = new THREE.InstancedMesh(cg, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .75, metalness: .1 }), chairs.length); const o = new THREE.Object3D(), c = new THREE.Color();
+  chairs.forEach((ch, i) => { o.position.set(ch[0], ch[1], ch[2]); o.rotation.set(ch[3], ch[4], ch[5]); o.updateMatrix(); im.setMatrixAt(i, o.matrix); c.setHex(ch[6]); c.offsetHSL(0, 0, (rng() - .5) * .08); im.setColorAt(i, c); });
+  im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; W.group.add(im);
+  // flickery tube lights
+  for (let z = z0 - 3; z > z1 + 2; z -= 6) { mesh(new THREE.PlaneGeometry(.4, 1.3), basic(0xf4f8e0, { map: T('panel') }), 0, H - .01, z, W.group).rotation.x = Math.PI / 2; W.fixtures.push({ x: 0, y: H - .2, z, fl: rng() < .35 ? rng() * 10 : -1 }); }
+  // the gate at the end
+  const gz = z1 + 5; const g = makeGate(); g.scale.set(.85, .78, 1); g.position.set(0, 0, gz); W.group.add(g); const gb = addBox(-Wd / 2, gz - .2, Wd / 2, gz + .2, 'gate'); const glow = glowSprite(0xffffff, 6, .5); glow.position.set(0, 1.4, z1 + 1); W.group.add(glow);
+  const sg = signMesh('-1000', 1.2, .35, { bg: '#1a1a14', fg: '#d8e0c8', fs: 70 }); sg.position.set(0, 2.85, gz + .3); W.group.add(sg);
+  inter({ x: 0, y: 1.4, z: gz + .7, r: 2.6, label: 'Unlock the gate', act: () => { if (W.keys.filter(q => q.taken).length < 2) { SFX.hurt(); toast('Two locks. You need both keys. Check the doorways that aren\'t blocked.'); return; } SFX.door(); ach('ep_gate'); g.userData.bars.position.y = 3.6; gb.off = true; cutNoclip('LEVEL -1001. The second you step in, the floor gives way...', () => epGo(33)); } });
+  // things wait inside the chair piles
+  const blocked = doors.filter(d => !d.open && d.z < -22 && d.z > gz + 8); W.hall1000 = { ents: [] }; const types = ['hound', 'skinstealer', 'hound', 'skinstealer', 'hound', 'hound', 'skinstealer'];
+  types.forEach((t, i) => { const d = blocked[Math.floor((i + .5) / types.length * blocked.length)]; if (d) W.hall1000.ents.push({ type: t, x: d.s * (Wd / 2 - .35), z: d.z }); });
+  W.start = [0, 2.5, 0]; freezeWorld(); return W;
+}
+function simHall1000(dt) { const pl = hostPlayers().filter(p => p.alive); HS.ents.forEach(e => { if (!pl.length) { e.st = 0; e.sp = 0; return; } let best = null, bd = 1e9; pl.forEach(p => { const d = Math.hypot(p.x - e.x, p.z - e.z); if (d < bd) { bd = d; best = p; } });
+    if (e.dorm) { if (bd < 7.5) { e.dorm = false; spatial(SFX.scream, e.x, e.z, 20); } else { e.st = 0; e.sp = 0; return; } }
+    e.st = 1; moveEnt(e, best.x, best.z, e.type === 'hound' ? 5.3 : 4.7, dt); }); }
 
 /* ---------- per-frame local logic ---------- */
 let hum = null;
@@ -3152,9 +3220,10 @@ function epLoad(g) {
 function epObjective(g) { const st = STAGES[g.lv]; try { return st.obj ? st.obj() : ''; } catch (e) { return ''; } }
 function epHostTick(dt) {
   const st = STAGES[HS.lv]; HS.lvT += dt; if (!HS.entsDone) { HS.entsDone = true; HS.lvT = 12; if (W.chaseEnts || W.combo) chaseWarn(); if (W.chaseEnts) W.chaseEnts.forEach(c => HS.ents.push({ id: ++HS.eid, type: c.type, def: ENT_DEF[c.type], x: c.x, z: c.z, rot: Math.PI, st: 0, dorm: !!c.dorm, sp: 0 }));
+    else if (W.hall1000) W.hall1000.ents.forEach(c => HS.ents.push({ id: ++HS.eid, type: c.type, def: ENT_DEF[c.type], x: c.x, z: c.z, rot: 0, st: 0, dorm: true, sp: 0 }));
     else if (W.combo) COMBO_ENTS.forEach((t, i) => HS.ents.push({ id: ++HS.eid, type: t, def: ENT_DEF[t], x: (Math.random() - .5) * 5, z: W.start[1] + 2.6 + i * .45, rot: Math.PI, st: 0, sp: 0 }));
     else if (st.ents && W.free && W.N) spawnEnts({ ents: st.ents }); }
-  if (W.combo) simCombo(dt); else if (W.chase) simChase(dt); else if (W.N && HS.ents.length) simEnts(dt);
+  if (W.combo) simCombo(dt); else if (W.hall1000) simHall1000(dt); else if (W.chase) simChase(dt); else if (W.N && HS.ents.length) simEnts(dt);
 }
 function epApply(g) { if (g.sc !== 'ep') return; if (g.lv === 0 && g.epq && g.epq.tv && !GAME.split && !GAME.epTvSeen && W && W.ep === 0) { GAME.epTvSeen = true; if (g.epq.skip) epSplit(g.epq.start || 1); else cutTV(() => epSplit(1)); } }
 function displayName() { const n = P.name; if (!(P.ach && P.ach.p300) || P.glitchName === false) return n; if (!displayName.c || displayName.src !== n) { const marks = ['̶', '̷', '̴', '̵', '̸', '҉', '͒', '͓']; displayName.src = n; displayName.c = n.split('').map(ch => ch + (Math.random() < .5 ? marks[(Math.random() * marks.length) | 0] : '')).join(''); } return displayName.c; }
