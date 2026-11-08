@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Elevator Beans</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="description" content="A 3D friend-slop party game: up to 5 beans ride an elevator to random floors, climb, survive and win hats.">
+<meta name="theme-color" content="#1c1a20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@600;800;900&family=Share+Tech+Mono&display=swap">
+<style>
+/* Elevator signage: brushed-steel panels, brass trim, glowing LED floor numbers, round call buttons */
+:root{
+  --steel:#2a2830; --steel-2:#3a3741; --ink:#f5efe3; --muted:#b9b0a2; --brass:#d8a650; --brass-2:#a87a32;
+  --led:#ff6a3d; --call:#f2c14e; --bad:#ff5d5d; --good:#7be08f; --air:#5cc8ff; --bg:#1c1a20;
+  --f-disp:'Bungee', Impact, 'Arial Black', sans-serif; --f-body:'Nunito', system-ui, sans-serif; --f-led:'Share Tech Mono', ui-monospace, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--f-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--call);outline-offset:2px}
+[hidden]{display:none!important}
+.panel{background:linear-gradient(160deg,var(--steel-2),var(--steel));border:2px solid var(--brass-2);box-shadow:0 0 0 4px #15131a,0 18px 40px rgba(0,0,0,.5);border-radius:14px}
+.btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:999px;border:2px solid var(--brass-2);background:#25232b;font-weight:900;font-size:16px;letter-spacing:.02em;text-align:left;transition:transform .08s, background .15s}
+.btn::before{content:"";flex:0 0 18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6d0,var(--call) 45%,#9b6c12);box-shadow:0 0 0 3px #15131a,0 0 10px rgba(242,193,78,.35)}
+.btn:hover{background:#302d37}.btn:active{transform:scale(.98)}
+.btn.main{background:var(--brass);color:#1a1408;border-color:#f0c878}.btn.main::before{background:radial-gradient(circle at 35% 35%,#fff,#ff8c5a 45%,#9e2b0e)}
+.btn.small{padding:8px 14px;font-size:14px;width:auto}
+.lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800}
+input[type=text],textarea,select{background:#141218;border:2px solid #4a4652;color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-weight:800;width:100%}
+textarea{font-family:var(--f-led);font-weight:400;font-size:12px;height:70px;resize:none;user-select:text;-webkit-user-select:text}
+
+/* title */
+#title{position:fixed;inset:0;display:flex;align-items:center;padding-block:24px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:none;background:linear-gradient(90deg,rgba(18,16,22,.92) 0,rgba(18,16,22,.6) 40%,transparent 62%)}
+#title .card{pointer-events:auto;width:min(380px,100%);display:flex;flex-direction:column;gap:10px;padding:22px;max-height:100%;overflow:auto}
+.logo{font-family:var(--f-disp);font-size:44px;line-height:.92;margin:0;color:var(--call);text-shadow:0 3px 0 #7a4a10,0 0 24px rgba(242,193,78,.25)}
+.logo span{display:block;color:var(--ink);font-size:30px;text-shadow:0 3px 0 #000}
+.ledrow{display:flex;align-items:center;gap:10px;font-family:var(--f-led);color:var(--led);text-shadow:0 0 8px rgba(255,106,61,.6);font-size:14px}
+.ledrow b{background:#120b08;border:1px solid #3a1a10;padding:2px 8px;border-radius:4px}
+.joinrow{display:flex;gap:8px}.joinrow input{text-transform:uppercase;letter-spacing:.3em;font-family:var(--f-led);font-size:18px;width:120px;flex:0 0 120px}
+.joinrow .btn{flex:1}
+.credit{font-size:12px;color:var(--muted)}
+.err{color:var(--bad);font-weight:800;font-size:14px;min-height:0;user-select:text}
+.row2{display:flex;gap:8px}.row2 .btn{flex:1;font-size:14px;padding:10px 12px}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none}
+#flPanel{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;align-items:stretch;gap:0;max-width:calc(100% - 32px);min-width:min(460px,calc(100% - 32px))}
+#led{font-family:var(--f-led);font-size:40px;line-height:1;color:var(--led);text-shadow:0 0 12px rgba(255,106,61,.8);background:#120b08;border-radius:10px 0 0 10px;padding:8px 14px;display:flex;align-items:center;min-width:64px;justify-content:center;border:2px solid var(--brass-2);border-right:0}
+.flInfo{flex:1;min-width:0;background:linear-gradient(160deg,var(--steel-2),var(--steel));border:2px solid var(--brass-2);border-radius:0 10px 10px 0;padding:6px 14px;display:flex;flex-direction:column;justify-content:center}
+#flName{font-family:var(--f-disp);font-size:18px;color:var(--call);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#flGoal{font-weight:800;font-size:14px;line-height:1.2}
+#flTime{font-family:var(--f-led);font-size:26px;color:var(--ink);background:#120b08;border:2px solid var(--brass-2);border-left:0;padding:0 12px;display:flex;align-items:center;margin-left:-2px;border-radius:0 10px 10px 0}
+#flTime:empty{display:none}#flTime.urgent{color:var(--bad);animation:blink .5s steps(2) infinite}
+.flInfo:has(+#flTime:not(:empty)){border-radius:0}
+@keyframes blink{50%{opacity:.35}}
+#hearts{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));font-size:26px;letter-spacing:4px;color:var(--bad);text-shadow:0 2px 0 #000}
+#hearts .off{color:#3a3741}
+#codeTag{position:absolute;top:calc(52px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));pointer-events:auto;font-weight:800;font-size:13px;padding:6px 12px;border-radius:999px;background:#120b08;border:2px solid var(--brass-2);color:var(--muted)}
+#codeTxt{font-family:var(--f-led);font-size:18px;letter-spacing:.2em;color:var(--led);margin-left:6px}
+#plist{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));list-style:none;margin:0;padding:8px 10px;display:flex;flex-direction:column;gap:4px;background:rgba(20,18,24,.72);border-radius:10px;min-width:150px}
+#plist li{display:grid;grid-template-columns:12px 1fr;column-gap:8px;align-items:center;font-size:13px}
+#plist li i{width:12px;height:12px;border-radius:50%;grid-row:span 2;box-shadow:0 0 0 2px #000}
+#plist li b{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+#plist li small{color:var(--muted);font-size:11px}
+#plist li.dead{opacity:.5}
+#bars{position:absolute;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(440px,calc(100% - 32px));display:flex;flex-direction:column;gap:6px}
+.bar{position:relative;height:20px;border-radius:999px;background:#141218;border:2px solid #000;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#ffe27a,#f2b62e);transition:width .08s linear}
+.bar .inj{position:absolute;right:0;top:0;bottom:0;background:repeating-linear-gradient(135deg,#c62828 0 6px,#a31d1d 6px 12px)}
+.bar label{position:absolute;inset:0;display:flex;align-items:center;padding-left:10px;font-weight:900;font-size:11px;letter-spacing:.14em;color:#1a1408;mix-blend-mode:normal;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+#stam.low .fill{background:linear-gradient(#ffb36b,#e9712a)}
+#stam.exh .fill{background:linear-gradient(#ff8a65,#d84315);animation:blink .35s steps(2) infinite}
+#airBar .fill{background:linear-gradient(#a6e4ff,var(--air))}#waterBar .fill{background:linear-gradient(#8fd3ff,#2f8fe0)}
+.bar.thin{height:14px}.bar.thin label{font-size:9px}
+#ghostTag{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);font-family:var(--f-disp);font-size:16px;color:#cfc6ff;background:rgba(20,18,30,.8);padding:8px 16px;border-radius:999px;text-align:center;max-width:calc(100% - 32px)}
+#prompt{position:absolute;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(20,18,24,.85);border:2px solid var(--brass-2);padding:7px 14px;border-radius:999px;font-weight:900;font-size:14px;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+#toasts{position:absolute;left:50%;top:calc(96px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:min(520px,calc(100% - 32px))}
+.toast{background:rgba(20,18,24,.9);border-left:4px solid var(--call);padding:8px 14px;border-radius:8px;font-weight:800;font-size:14px;animation:tin .25s ease-out;transition:opacity .4s, transform .4s;text-align:center}
+.toast.bad{border-left-color:var(--bad)}.toast.out{opacity:0;transform:translateY(-8px)}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}}
+#hurt{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(220,30,30,.55));opacity:0}
+#hurt.go{animation:hurt .6s ease-out}@keyframes hurt{from{opacity:1}to{opacity:0}}
+#intro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,calc(100% - 32px));padding:20px 22px;text-align:center;display:flex;flex-direction:column;gap:6px;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.8);opacity:0}}
+#inNum{font-family:var(--f-led);color:var(--led);font-size:18px;letter-spacing:.2em}
+#inName{font-family:var(--f-disp);font-size:30px;color:var(--call);line-height:1.05;text-wrap:balance}
+#inBlurb{font-weight:800;font-size:15px;line-height:1.35}
+#inHat{font-size:13px;color:var(--muted);font-weight:800}
+
+/* menus */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:rgba(10,9,12,.55);z-index:20}
+.modal .panel{width:min(560px,100%);max-height:100%;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+#ward{justify-content:flex-start;background:linear-gradient(90deg,rgba(10,9,12,.85) 0,rgba(10,9,12,.5) 55%,transparent 70%)}
+#ward .panel{width:min(480px,100%)}
+.modal h2{font-family:var(--f-disp);font-weight:400;margin:0;font-size:24px;color:var(--call)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid #000;box-shadow:0 0 0 2px #4a4652}
+.sw.on{box-shadow:0 0 0 3px var(--call)}
+#hatGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.hat{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px;border-radius:10px;background:#1d1b22;border:2px solid #4a4652;min-width:0}
+.hat b{font-size:14px}.hat small{font-size:11px;color:var(--muted);font-weight:800}
+.hat.on{border-color:var(--call);background:#2d2817}.hat.locked{opacity:.55}.hat.locked b{letter-spacing:.2em}
+#stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+#stats div{background:#141218;border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+#stats b{font-family:var(--f-led);font-size:22px;color:var(--led);font-variant-numeric:tabular-nums}#stats small{font-size:11px;color:var(--muted);font-weight:800}
+.set{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center;font-weight:800}
+.set input[type=range]{width:100%;accent-color:var(--call)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-weight:800;font-size:14px;align-items:center}
+.keys kbd{font-family:var(--f-led);background:#141218;border:2px solid #4a4652;border-bottom-width:4px;border-radius:6px;padding:2px 8px;font-size:13px;white-space:nowrap;justify-self:start}
+.helpnote{font-size:14px;line-height:1.45;margin:0;color:var(--ink)}
+.helpnote b{color:var(--call)}
+#over{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,0,0,.5);z-index:15;pointer-events:none}
+#over .panel{padding:24px;text-align:center;display:flex;flex-direction:column;gap:6px;width:min(420px,100%)}
+#over h2{font-family:var(--f-disp);font-weight:400;margin:0;color:var(--bad);font-size:30px}
+.big{font-family:var(--f-led);font-size:56px;color:var(--led);text-shadow:0 0 14px rgba(255,106,61,.7);line-height:1}
+#hatCard{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));padding:16px;display:flex;flex-direction:column;gap:8px;width:min(280px,calc(100% - 32px));z-index:16;animation:pop2 .4s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop2{from{transform:scale(.7);opacity:0}}
+#hatCard .lbl{color:var(--call)}#hcName{font-family:var(--f-disp);font-size:22px;line-height:1.05}
+#busy{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,9,12,.7);z-index:30;padding:16px;text-align:center;font-family:var(--f-disp);font-size:20px;color:var(--call)}
+
+/* touch */
+.tc{display:none}
+.touch .tc{display:flex}
+#tBtns{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));flex-wrap:wrap-reverse;gap:10px;width:170px;justify-content:flex-end;pointer-events:auto}
+#tBtns button{width:74px;height:74px;border-radius:50%;border:3px solid var(--brass-2);background:rgba(37,35,43,.8);font-weight:900;font-size:13px;touch-action:none}
+#tBtns button.on{background:var(--brass);color:#1a1408}
+#tJump{background:rgba(242,193,78,.85)!important;color:#1a1408}
+#tPause{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(90px + env(safe-area-inset-top,0px));pointer-events:auto;width:46px;height:46px;border-radius:50%;border:2px solid var(--brass-2);background:rgba(37,35,43,.8);font-weight:900}
+.touch #bars{left:max(16px,env(safe-area-inset-left,0px));transform:none;width:min(300px,calc(100% - 210px))}
+.touch #prompt{bottom:calc(180px + env(safe-area-inset-bottom,0px))}
+#stick{position:fixed;width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);pointer-events:none;z-index:5}
+#stickK{position:absolute;left:30px;top:30px;width:40px;height:40px;border-radius:50%;background:rgba(242,193,78,.8)}
+@media (max-width:640px){
+  .logo{font-size:36px}.logo span{font-size:24px}
+  #title{align-items:flex-end;background:linear-gradient(0deg,rgba(18,16,22,.95) 0,rgba(18,16,22,.7) 60%,transparent 85%)}
+  #plist{top:calc(84px + env(safe-area-inset-top,0px));min-width:0;padding:6px 8px}#plist li small{display:none}
+  #flPanel{min-width:0;width:calc(100% - 32px)}#led{font-size:30px;min-width:48px;padding:6px 10px}#flName{font-size:15px}#flGoal{font-size:12px}
+  #hearts{top:calc(84px + env(safe-area-inset-top,0px));font-size:20px}#codeTag{top:calc(116px + env(safe-area-inset-top,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0" aria-label="Elevator Beans game view"></canvas>
+<div id="hurt"></div>
+
+<div id="hud" hidden>
+  <div id="flPanel"><div id="led">L</div><div class="flInfo"><div id="flName">Lobby</div><div id="flGoal"></div></div><div id="flTime"></div></div>
+  <div id="hearts" aria-label="Elevator hearts"></div>
+  <button id="codeTag" hidden title="Copy lobby code">LOBBY<span id="codeTxt"></span></button>
+  <ul id="plist" aria-label="Players"></ul>
+  <div id="toasts" aria-live="polite"></div>
+  <div id="prompt" hidden></div>
+  <div id="intro" class="panel" hidden><div id="inNum"></div><div id="inName"></div><div id="inBlurb"></div><div id="inHat"></div></div>
+  <div id="bars">
+    <div class="bar thin" id="airBar" hidden><div class="fill" id="airFill"></div><label>AIR</label></div>
+    <div class="bar thin" id="waterBar" hidden><div class="fill" id="waterFill"></div><label>WATER</label></div>
+    <div class="bar" id="stam"><div class="fill" id="stamFill"></div><div class="inj" id="stamInj"></div><label>STAMINA</label></div>
+  </div>
+  <div id="ghostTag" hidden>👻 You're a ghost! You'll come back when the elevator leaves.</div>
+  <button id="tPause" class="tc" aria-label="Pause">II</button>
+  <div id="tBtns" class="tc"><button id="tSpray" hidden>SPRAY</button><button id="tRun">RUN</button><button id="tGrab">GRAB</button><button id="tJump">JUMP</button></div>
+</div>
+<div id="stick" hidden><div id="stickK"></div></div>
+
+<div id="title">
+  <div class="card panel">
+    <h1 class="logo">ELEVATOR<span>BEANS</span></h1>
+    <div class="ledrow"><b id="ver">V1.0.0</b><span>▲ UP TO 5 BEANS</span></div>
+    <p class="credit" id="titleBest">Survive floors, collect hats.</p>
+    <button class="btn main" id="bCont" hidden>Continue run</button>
+    <button class="btn main" id="bSolo">Play solo</button>
+    <button class="btn" id="bHost">Host a lobby</button>
+    <div class="joinrow"><input type="text" id="joinIn" maxlength="4" placeholder="CODE" aria-label="Lobby code" autocomplete="off" spellcheck="false"><button class="btn" id="bJoin">Join</button></div>
+    <div class="err" id="titleErr" aria-live="polite"></div>
+    <div class="row2"><button class="btn" id="bWard">Hats</button><button class="btn" id="bSet">Settings</button><button class="btn" id="bHelp">How to play</button></div>
+    <p class="credit">Idea by s0meTh1ng.MP4 / Henry &amp; Claude.AI</p>
+  </div>
+</div>
+
+<div id="ward" class="modal" hidden>
+  <div class="panel">
+    <h2>Your bean</h2>
+    <div><div class="lbl">Name</div><input type="text" id="nameIn" maxlength="16" autocomplete="off" spellcheck="false"></div>
+    <div><div class="lbl">Outfit color</div><div class="swatches" id="swatches"></div></div>
+    <div><div class="lbl">Skin color</div><div class="swatches" id="skins"></div></div>
+    <div><div class="lbl">Hats · survive a floor to earn its hat</div><div id="hatGrid"></div></div>
+    <div><div class="lbl">Stats</div><div id="stats"></div></div>
+    <button class="btn main" data-close>Done</button>
+  </div>
+</div>
+
+<div id="settings" class="modal" hidden>
+  <div class="panel">
+    <h2>Settings</h2>
+    <div class="set"><label for="sens">Look speed</label><input type="range" id="sens" min="0.3" max="2.5" step="0.05"></div>
+    <div class="set"><label for="vol">Volume</label><input type="range" id="vol" min="0" max="1" step="0.05"></div>
+    <div class="set"><label for="inv">Invert look</label><input type="checkbox" id="inv"></div>
+    <div class="set"><label for="gfx">Graphics</label><select id="gfx"><option value="0">Fast (no shadows)</option><option value="1">Normal</option><option value="2">Pretty</option></select></div>
+    <div><div class="lbl">Save code · move your hats to another device</div><textarea id="saveOut" placeholder="Press Copy save code, or paste a code here and press Load" spellcheck="false"></textarea></div>
+    <div class="row2"><button class="btn" id="bExport">Copy save code</button><button class="btn" id="bImport">Load</button><button class="btn" id="bReset">Erase save</button></div>
+    <div class="err" id="saveMsg" style="color:var(--muted)" aria-live="polite"></div>
+    <button class="btn main" data-close>Done</button>
+  </div>
+</div>
+
+<div id="pause" class="modal" hidden>
+  <div class="panel">
+    <h2>Paused</h2>
+    <p class="helpnote" style="color:var(--muted)">In a lobby, the game keeps going while you're paused.</p>
+    <button class="btn main" id="pResume">Resume</button>
+    <button class="btn" id="pWard">Hats &amp; bean</button>
+    <button class="btn" id="pSet">Settings</button>
+    <button class="btn" id="pHelp">How to play</button>
+    <button class="btn" id="pLeave">Leave to title</button>
+  </div>
+</div>
+
+<div id="help" class="modal" hidden>
+  <div class="panel">
+    <h2>How to play</h2>
+    <p class="helpnote">Ride the elevator with up to 4 friends. Every stop is a random floor with a job to do. Finish it, then <b>get back in the elevator before the doors close</b>. Everyone who makes it back earns that floor's <b>hat</b>. Fail a floor and the elevator loses a heart. Lose all 3 and the run is over.</p>
+    <p class="helpnote">Your <b>stamina bar</b> drains when you sprint, jump, climb or carry heavy things. It refills when you rest on the ground. Getting hurt eats into it in <b style="color:var(--bad)">red</b>, and the elevator heals you. If the red fills up, you're knocked out and become a ghost until the next floor.</p>
+    <div class="keys">
+      <kbd>W A S D</kbd><span>Move (arrow keys work too)</span>
+      <kbd>Mouse</kbd><span>Look around (click the game to lock the mouse)</span>
+      <kbd>Shift</kbd><span>Sprint</span>
+      <kbd>Space</kbd><span>Jump. Facing a climbable wall: grab it. Underwater: swim up</span>
+      <kbd>W / S</kbd><span>While climbing: climb up or down. Space leaps off</span>
+      <kbd>E</kbd><span>Pick up or drop things, press the elevator button</span>
+      <kbd>Click / F</kbd><span>Spray the hose (fire floor)</span>
+      <kbd>Esc / P</kbd><span>Pause</span>
+    </div>
+    <button class="btn main" data-close>Got it</button>
+  </div>
+</div>
+
+<div id="over" hidden><div class="panel"><h2>Out of order</h2><div class="lbl">Floors survived</div><div class="big" id="ovFloor">0</div><p class="helpnote" id="ovWhy"></p><p class="credit">Your best: floor <span id="ovBest">0</span>. Back to the lobby...</p></div></div>
+<div id="hatCard" class="panel" hidden><div class="lbl">New hat unlocked!</div><div id="hcName"></div><button class="btn main small" id="hcWear">Wear it</button></div>
+<div id="busy" hidden><span id="busyTxt">Loading...</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/net.js"></script>
+<script src="js/world.js"></script>
+<script src="js/floors.js"></script>
+<script src="js/game.js"></script>
+</body></html>
