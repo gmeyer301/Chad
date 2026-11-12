@@ -156,7 +156,7 @@ UI.openMenu = function () {
     '<button id="mReset" class="big red">🗑️ Reset my save</button>' +
     '<p class="sub">GARDEN TIME ' + VER + '<br>Idea: s0meTh1ng.MP4 / Henry & Claude.AI</p></div>', 'shop');
   $('mHelp').onclick = UI.openHelp; $('mMute').onclick = () => { UI.muted = !UI.muted; UI.openMenu(); }; $('mSave').onclick = () => { save(); toast('💾 Saved!'); };
-  $('mReset').onclick = () => { if (confirm('Delete ALL your Garden Time progress?')) { localStorage.removeItem(SAVE_KEY); S = null; location.reload(); } };
+  $('mReset').onclick = () => { openModal('🗑️ RESET SAVE?', '<p class="sub">This deletes ALL your Garden Time progress on this device. You cannot undo it.</p><button id="rYes" class="big red">Yes, delete everything</button><button id="rNo" class="big">No, keep my garden</button>', 'shop'); $('rYes').onclick = () => { G.mode = 'reset'; localStorage.removeItem(SAVE_KEY); S = null; location.reload(); }; $('rNo').onclick = closeModal; };
   if ($('mAdmin')) $('mAdmin').onclick = UI.openAdmin; if ($('mLogin')) $('mLogin').onclick = adminLogin;
 };
 UI.openHelp = function () {
@@ -246,10 +246,14 @@ function utf8(s) { return unescape(encodeURIComponent(s)); }
 function checkTokSync(tok) { return typeof tok === 'string' && sha256(tok) === ADMIN_TOK_HASH; }
 function isAdmin() { return S && checkTokSync(S.adminTok); }
 function adminLogin() {
-  const pw = prompt('👑 Admin password:'); if (!pw) return;
-  const tok = sha256(utf8('gt-tok:' + pw));
-  if (checkTokSync(tok)) { S.adminTok = tok; save0(); $('bAdmin').style.display = ''; toast('👑 Welcome back, Admin!'); sfx('fanfare'); UI.openAdmin(); }
-  else { toast('❌ Wrong password'); sfx('no'); }
+  openModal('🔑 ADMIN LOGIN', '<div class="admin"><p class="sub">Only the game owner knows this.</p><div class="line"><input id="aPw" type="password" placeholder="Admin password" style="flex:1"><button class="buy" id="aPwB">Enter</button></div></div>', 'shop admin');
+  const tryPw = () => {
+    const pw = $('aPw').value; if (!pw) return;
+    const tok = sha256(utf8('gt-tok:' + pw));
+    if (checkTokSync(tok)) { S.adminTok = tok; save0(); $('bAdmin').style.display = ''; toast('👑 Welcome back, Admin!'); sfx('fanfare'); UI.openAdmin(); }
+    else { toast('❌ Wrong password'); sfx('no'); $('aPw').value = ''; }
+  };
+  $('aPwB').onclick = tryPw; $('aPw').onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') tryPw(); }; setTimeout(() => { const el = $('aPw'); if (el) el.focus(); }, 50);
 }
 function adminTargets() {
   const t = [['me', 'Me (' + S.name + ')'], ['allp', 'Everyone (players)'], ['allb', 'All bots']];

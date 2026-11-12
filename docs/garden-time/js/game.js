@@ -20,7 +20,7 @@ function loadSave() {
   S = defaultSave();
 }
 function save() {
-  if (!S || !G.myGarden) return;
+  if (!S || !G.myGarden || G.mode === 'reset') return;
   S.plants = G.myGarden.plants.map(p => ({ u: p.u, id: p.id, x: +p.x.toFixed(2), z: +p.z.toFixed(2), gp: +p.gp.toFixed(1), f: p.f.map(f => ({ fp: +f.fp.toFixed(1), w: +f.w.toFixed(2), m: f.m })) }));
   S.last = Date.now();
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { }
@@ -562,7 +562,7 @@ function startGame() {
   UI.enterGame();
   setInterval(() => sendGarden(false), 2000);
 }
-window.addEventListener('beforeunload', save);
+window.addEventListener('beforeunload', () => save());
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 
 /* ---------- sound (tiny synth) ---------- */

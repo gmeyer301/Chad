@@ -8,6 +8,7 @@ const PEER_OPTS = { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302
 function myId() { return NET.solo || !NET.peer ? 'me' : NET.peer.id; }
 function loadPeerJS() {
   if (window.Peer) return Promise.resolve();
+  if (!window.RTCPeerConnection) return Promise.reject(new Error('Online play is blocked here. Play online at ' + GH_URL));
   return new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'; s.onload = res; s.onerror = () => rej(new Error("Couldn't load multiplayer. Check your internet and try again.")); document.head.appendChild(s); });
 }
 function openPeer(id) {
