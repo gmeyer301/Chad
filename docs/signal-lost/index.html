@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>SIGNAL LOST</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--teal:#2fe3c5;--red:#ff2a4a;--ink:#e6fff8;--panel:rgba(6,14,13,.94)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#000;color:var(--ink);font:15px/1.35 "Courier New",Courier,monospace;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+#game{position:fixed;inset:0}#game canvas{width:100%;height:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{background:rgba(0,30,25,.85);border:2px solid var(--teal);color:var(--ink);padding:10px 16px;border-radius:6px;font-weight:bold;font-size:16px;min-height:44px}
+.btn:hover,.btn:focus-visible{background:var(--teal);color:#001a14;outline:none}
+.btn.red{border-color:var(--red)}.btn.red:hover{background:var(--red);color:#fff}
+.btn.sm{padding:6px 10px;font-size:14px;min-height:36px}
+input[type=text]{font:inherit;font-size:16px;background:#001410;color:var(--ink);border:2px solid #2a6a5c;border-radius:6px;padding:8px 10px;min-height:42px;user-select:text;-webkit-user-select:text}
+input[type=text]:focus{border-color:var(--teal);outline:none}
+.hide{display:none!important}
+/* overlays */
+#sig{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 4px),radial-gradient(ellipse at center,transparent 50%,rgba(0,20,15,.75) 100%)}
+#sig.on{opacity:1}
+#noise{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;mix-blend-mode:screen;image-rendering:pixelated}
+#hurt{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,30,.65) 100%);opacity:0}
+#static{position:fixed;inset:0;pointer-events:none;background:#9ab;opacity:0;mix-blend-mode:screen}
+/* title */
+#title{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at center,rgba(0,0,0,.25),rgba(0,0,0,.85));overflow:auto}
+#tbox{width:min(760px,100%);display:grid;grid-template-columns:1fr 250px;gap:18px;background:var(--panel);border:2px solid var(--teal);border-radius:10px;padding:20px;box-shadow:0 0 40px rgba(47,227,197,.25)}
+#logo{grid-column:1/-1;text-align:center}
+#logo h1{margin:0;font-size:clamp(38px,8vw,68px);letter-spacing:4px;color:var(--teal);text-shadow:3px 0 var(--red),-2px 0 #3af,0 0 24px rgba(47,227,197,.6);animation:gl 3s infinite}
+@keyframes gl{0%,92%,100%{transform:none}93%{transform:translate(-3px,1px) skewX(6deg)}95%{transform:translate(3px,-1px)}97%{transform:translate(-1px,0) skewX(-4deg)}}
+#logo p{margin:2px 0 0;color:#9fd}
+#logo small{color:#6a9;font-size:12px}
+.col{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label.l{font-size:13px;color:#8cb}
+#facePrev{width:100%;aspect-ratio:4/3;border:6px solid #3d3f47;border-radius:10px;background:#111;image-rendering:pixelated;box-shadow:inset 0 0 0 3px #0d0d10}
+.chip{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer}
+.chip.on{border-color:#fff}
+#tmsg{min-height:20px;color:#ffd23d;font-size:14px}
+#codeIn{width:110px;text-transform:uppercase;letter-spacing:4px;text-align:center}
+@media(max-width:640px){#tbox{grid-template-columns:1fr}}
+/* hud */
+#hud{position:fixed;inset:0;pointer-events:none}
+#quota{position:absolute;left:14px;top:12px;background:rgba(0,0,0,.55);padding:8px 12px;border-left:3px solid var(--teal);font-size:14px;min-width:220px}
+#quota b{color:#ffd23d}
+#lobby{position:absolute;right:14px;top:12px;background:rgba(0,0,0,.55);padding:8px 12px;border-right:3px solid var(--teal);text-align:right;font-size:14px}
+#lobby big{font-size:22px;letter-spacing:3px;color:var(--teal)}
+#bars{position:absolute;left:14px;bottom:14px;width:230px;display:flex;flex-direction:column;gap:5px}
+.bar{height:16px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);position:relative;border-radius:3px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:#e33}
+.bar span{position:absolute;left:6px;top:0;font-size:11px;line-height:16px;font-weight:bold;text-shadow:0 1px 2px #000}
+#bO2 i{background:#3ab0ff}#bSt i{background:#e8d040}#bFilm i{background:#ffd23d}
+#bO2.warn{animation:bl .6s steps(2) infinite}@keyframes bl{50%{opacity:.3}}
+#hot{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:6px;pointer-events:auto}
+.slot{width:58px;height:58px;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative}
+.slot.on{border-color:var(--teal);box-shadow:0 0 10px var(--teal)}
+.slot small{position:absolute;left:4px;top:1px;font-size:11px;color:#aaa}.slot em{position:absolute;right:4px;bottom:1px;font-size:11px;font-style:normal}
+#carry{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);font-size:13px;background:rgba(0,0,0,.5);padding:3px 8px;border-radius:4px}
+#cross{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:rgba(255,255,255,.75);box-shadow:0 0 3px #000}
+#prompt{position:absolute;left:50%;top:58%;transform:translateX(-50%);background:rgba(0,0,0,.65);padding:6px 12px;border-radius:5px;font-weight:bold;white-space:nowrap}
+#prompt kbd{background:#fff;color:#000;border-radius:3px;padding:0 6px;margin-right:6px}
+#banner{position:absolute;left:50%;top:18%;transform:translateX(-50%);width:min(60vw,760px);text-align:center;font-size:clamp(17px,2.6vw,26px);font-weight:bold;text-shadow:0 2px 6px #000,0 0 14px currentColor;opacity:0;transition:opacity .4s}
+#lever{position:absolute;left:50%;top:9%;transform:translateX(-50%);font-size:22px;font-weight:bold;color:#ffd23d;text-shadow:0 2px 6px #000}
+#toasts{position:absolute;right:14px;top:150px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;max-width:min(380px,70vw)}
+.toast{background:rgba(0,0,0,.72);padding:7px 11px;border-radius:5px;border-left:3px solid var(--teal);font-size:14px;animation:tin .25s}
+@keyframes tin{from{transform:translateX(30px);opacity:0}}
+#spec{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(60,0,0,.7);padding:8px 14px;border-radius:6px;font-weight:bold;text-align:center}
+/* viewfinder */
+#vf{position:fixed;inset:0;pointer-events:none}
+#vf .c{position:absolute;width:46px;height:46px;border:3px solid #fff;filter:drop-shadow(0 0 2px #000)}
+#vf .c1{left:5%;top:7%;border-right:0;border-bottom:0}#vf .c2{right:5%;top:7%;border-left:0;border-bottom:0}#vf .c3{left:5%;bottom:9%;border-right:0;border-top:0}#vf .c4{right:5%;bottom:9%;border-left:0;border-top:0}
+#vfRec{position:absolute;left:7%;top:10%;font-size:22px;font-weight:bold;text-shadow:0 0 4px #000}
+#vfRec b{color:var(--red)}#vfRec.rec b{animation:bl 1s steps(2) infinite}
+#vfFilm{position:absolute;right:7%;top:10%;text-align:right;font-weight:bold;text-shadow:0 0 4px #000}
+#vfGain{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:26px;font-weight:bold;color:#ffd23d;text-shadow:0 0 6px #000;opacity:0;transition:opacity .3s}
+#vfHint{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);font-size:13px;opacity:.8;text-shadow:0 0 4px #000}
+#vf .sq{position:absolute;left:50%;top:50%;width:70px;height:46px;margin:-23px -35px;border:2px solid rgba(255,255,255,.6)}
+/* chat */
+#chat{position:absolute;left:14px;bottom:150px;width:min(380px,60vw);display:flex;flex-direction:column;gap:2px;font-size:13px}
+#chat div{background:rgba(0,0,0,.45);padding:2px 6px;border-radius:3px;text-shadow:0 1px 2px #000;transition:opacity 1s}
+#chatIn{position:absolute;left:14px;bottom:120px;width:min(380px,60vw);pointer-events:auto}
+/* panels */
+.panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(680px,94vw);max-height:90vh;overflow:auto;background:var(--panel);border:2px solid var(--teal);border-radius:10px;padding:18px;display:none;z-index:20;box-shadow:0 0 40px rgba(0,0,0,.7)}
+.panel.show{display:block}
+.panel h2{margin:0 0 10px;color:var(--teal);font-size:24px}
+.panel .x{position:absolute;right:10px;top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.card.on{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
+.card h3{margin:0;font-size:17px}.card p{margin:0;font-size:13px;color:#bdd}
+.price{color:#ffd23d;font-weight:bold}
+.book{display:grid;grid-template-columns:160px 1fr;gap:12px}
+.book .list{display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow:auto}
+.book .list button{text-align:left;background:none;border:1px solid transparent;padding:6px 8px;border-radius:4px;min-height:36px}
+.book .list button.on{border-color:var(--teal);background:rgba(47,227,197,.12)}
+.book img{max-width:100%;border-radius:6px;border:2px solid #333;background:#fff}
+@media(max-width:560px){.book{grid-template-columns:1fr}.book .list{flex-direction:row;flex-wrap:wrap;max-height:none}}
+#upViews{font-size:42px;color:#ffd23d;font-weight:bold}
+.hl{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.15);padding:3px 0;font-size:14px}
+.cm{background:rgba(255,255,255,.05);padding:6px 8px;border-radius:5px;margin-top:5px;font-size:13px}
+/* face editor */
+#faceEd .wrap{display:grid;grid-template-columns:1fr 200px;gap:14px}
+#fc{width:100%;aspect-ratio:4/3;background:#111;border:8px solid #3d3f47;border-radius:12px;touch-action:none;image-rendering:pixelated;cursor:crosshair}
+.tab{background:none;border:2px solid #2a6a5c;border-radius:6px;padding:6px 14px;min-height:40px}.tab.on{background:var(--teal);color:#001a14;border-color:var(--teal)}
+.pal{display:flex;flex-wrap:wrap;gap:4px}.sw{width:26px;height:26px;border-radius:4px;border:2px solid #333}.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--teal)}
+.tool{background:rgba(0,0,0,.4);border:2px solid #2a6a5c;border-radius:5px;padding:4px 8px;min-height:36px}.tool.on{border-color:var(--teal);background:rgba(47,227,197,.2)}
+@media(max-width:560px){#faceEd .wrap{grid-template-columns:1fr}}
+/* touch */
+#pad{display:none}
+body.touch.playing #pad{display:block}body.touch.panelopen #pad{display:none}
+#joy{position:fixed;left:4%;bottom:7%;width:min(30vw,170px);aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.12);border:3px solid rgba(255,255,255,.35);touch-action:none;pointer-events:auto}
+#jk{position:absolute;left:30%;top:30%;width:40%;height:40%;border-radius:50%;background:rgba(255,255,255,.45);pointer-events:none}
+#pbtn{position:fixed;right:3%;bottom:6%;display:grid;grid-template-columns:repeat(3,64px);gap:8px;pointer-events:auto}
+#pbtn button,#ptop button{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.45);font-size:12px;font-weight:bold;color:#fff;touch-action:none}
+#pbtn button.dn,#pbtn button.on{background:rgba(47,227,197,.55)}
+#pbtn .rec{border-color:var(--red)}
+#ptop{position:fixed;right:12px;top:10px;display:flex;gap:6px;pointer-events:auto}
+#ptop button{width:54px;height:44px;border-radius:8px}
+body.touch #lobby{top:62px}
+body.touch #toasts{right:auto;left:50%;transform:translateX(-50%);top:78px;align-items:center;max-width:56vw}
+body.touch .toast{font-size:12px;padding:4px 8px}
+body.touch #banner{top:auto;bottom:40%;font-size:16px;width:min(56vw,600px)}
+body.touch #quota{font-size:12px;min-width:0;padding:5px 8px}
+body.touch .slot{width:48px;height:48px;font-size:20px}
+@media(max-height:500px){#pbtn{grid-template-columns:repeat(3,58px);gap:6px}#pbtn button{width:58px;height:58px;font-size:11px}#faceEd .wrap{grid-template-columns:minmax(0,1fr) 230px}#fc{width:min(100%,calc(62vh*4/3))}.panel{padding:12px}.panel h2{font-size:19px;margin-bottom:6px}}
+body.touch #bars{bottom:auto;top:96px;width:180px}body.touch .bar{height:13px}body.touch .bar span{line-height:13px;font-size:10px}
+body.touch #chat{bottom:auto;top:162px;width:min(260px,40vw);font-size:12px}
+body.touch #hot{bottom:auto;top:12px}
+body.touch #carry{bottom:auto;top:80px}
+#pause .ctl{font-size:13px;columns:2;color:#bdd}
+@media(max-width:560px){#pause .ctl{columns:1}}
+#fatal{z-index:30}
+</style></head><body>
+<div id="game"></div>
+<canvas id="noise" width="160" height="90"></canvas>
+<div id="sig"></div><div id="hurt"></div><div id="static"></div>
+
+<div id="hud" class="hide">
+  <div id="quota"></div>
+  <div id="lobby" class="hide"></div>
+  <div id="lever" class="hide"></div>
+  <div id="banner"></div>
+  <div id="toasts"></div>
+  <div id="cross"></div>
+  <div id="prompt" class="hide"></div>
+  <div id="spec" class="hide"></div>
+  <div id="chat"></div>
+  <input id="chatIn" type="text" maxlength="140" placeholder="Say something… (Enter to send)" class="hide">
+  <div id="carry" class="hide"></div>
+  <div id="bars">
+    <div class="bar" id="bHp"><i></i><span></span></div>
+    <div class="bar" id="bSt"><i></i><span>STAMINA</span></div>
+    <div class="bar" id="bO2"><i></i><span></span></div>
+    <div class="bar" id="bFilm"><i></i><span></span></div>
+  </div>
+  <div id="hot"></div>
+</div>
+<div id="vf" class="hide"><div class="c c1"></div><div class="c c2"></div><div class="c c3"></div><div class="c c4"></div><div class="sq"></div>
+  <div id="vfRec"><b>●</b> <span id="vfT">STBY</span></div><div id="vfFilm"></div><div id="vfGain"></div><div id="vfHint">click = record · F / right-click = lower camera</div></div>
+
+<div id="pad">
+  <div id="joy"><div id="jk"></div></div>
+  <div id="ptop"><button data-k="KeyP">MENU</button><button data-k="KeyT">CHAT</button><button data-k="KeyQ">LIGHT</button></div>
+  <div id="pbtn">
+    <button data-k="KeyC" data-tog="1">CROUCH</button><button data-k="KeyF">CAM</button><button data-k="M0" class="rec">REC / USE</button>
+    <button data-k="ShiftLeft" data-tog="1">RUN</button><button data-k="KeyE">USE (E)</button><button data-k="Space">JUMP</button>
+  </div>
+</div>
+
+<div id="title">
+  <div id="tbox">
+    <div id="logo"><h1>SIGNAL LOST</h1><p>a Content Warning fangame</p><small>by s0meTh1ng.MP4 / Henry &amp; Claude.AI · <span id="ver"></span></small></div>
+    <div class="col">
+      <label class="l" for="nameIn">Your name</label>
+      <input id="nameIn" type="text" maxlength="16" placeholder="TV Head">
+      <label class="l">Suit color</label><div class="row" id="colors"></div>
+      <label class="l">Bots (AI teammates)</label><div class="row" id="botsSel"></div>
+      <div class="row" style="margin-top:6px"><button class="btn" id="bSolo">▶ PLAY (solo + bots)</button><button class="btn" id="bHost">HOST ONLINE</button></div>
+      <div class="row"><input id="codeIn" type="text" maxlength="4" placeholder="CODE"><button class="btn" id="bJoin">JOIN</button></div>
+      <div class="row"><button class="btn sm" id="bHow">How to play</button><button class="btn sm" id="bBook">Monster Book</button></div>
+      <div id="tmsg"></div>
+    </div>
+    <div class="col"><label class="l">Your TV face</label><img id="facePrev" alt="your face"><button class="btn" id="bFace">✏️ Draw / type face</button></div>
+  </div>
+</div>
+
+<div class="panel" id="faceEd">
+  <h2>Your TV face</h2>
+  <div class="row" style="margin-bottom:10px"><button class="tab on" data-m="draw">✏️ Draw</button><button class="tab" data-m="type">⌨️ Type</button></div>
+  <div class="wrap">
+    <canvas id="fc" width="160" height="120"></canvas>
+    <div class="col">
+      <div id="feDraw" class="col">
+        <div class="row"><button class="tool" data-tool="brush">Brush</button><button class="tool" data-tool="eraser">Eraser</button><button class="tool" data-tool="fill">Fill</button></div>
+        <div class="row"><button class="tool" data-size="3">S</button><button class="tool" data-size="6">M</button><button class="tool" data-size="11">L</button><button class="tool" data-size="20">XL</button></div>
+        <label class="l">Color</label><div class="pal" id="fePal"></div>
+        <label class="l">Background (eraser + clear)</label><div class="pal" id="feBg"></div>
+      </div>
+      <div id="feType" class="col" style="display:none">
+        <input id="ftext" type="text" maxlength="30" placeholder="type your face…">
+        <button class="tool" id="ffont">Change font</button>
+        <label class="l">Text color</label><div class="pal" id="feTPal"></div>
+        <label class="l">Background</label><div class="pal" id="feTBg"></div>
+      </div>
+      <div class="row"><button class="btn sm" id="feUndo">Undo</button><button class="btn sm" id="feClear">Clear</button><button class="btn sm" id="feRand">Random</button></div>
+      <div class="row"><button class="btn" id="feSave">Save</button><button class="btn red sm" id="feCancel">Cancel</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="shop"><button class="btn sm x" data-close>✕</button><h2>SIGNAL MART</h2><p>Team money: <b class="price" id="shopMoney"></b></p><div class="grid" id="shopGrid"></div></div>
+<div class="panel" id="term"><button class="btn sm x" data-close>✕</button><h2>MAP TERMINAL</h2><p id="termNote"></p><div class="grid" id="termGrid"></div></div>
+<div class="panel" id="bookP"><button class="btn sm x" data-close>✕</button><h2>MONSTER BOOK</h2><div class="book"><div class="list" id="bookList"></div><div id="bookPage"></div></div></div>
+<div class="panel" id="upP"><button class="btn sm x" data-close>✕</button><h2>▶ ScreamTube</h2><div id="upTitle" style="font-weight:bold;font-size:17px"></div><div id="upViews"></div><div id="upHl"></div><div id="upCm"></div></div>
+<div class="panel" id="howP"><button class="btn sm x" data-close>✕</button><h2>HOW TO PLAY</h2>
+  <p>You're a TV head trying to go viral. Dive into the <b>Signal World</b> with the <b>Signal Bell</b>, film monsters, and get back up before your oxygen runs out. Upload your footage on the <b>TV</b> to get views. Hit the <b>view quota</b> in 3 days… or else.</p>
+  <ul><li><b>Scary moments are worth 3× views</b> — a monster attacking, a friend getting grabbed, Jerry exploding.</li><li>If you die, your footage is lost.</li><li>Pick up glowing <b>artifacts</b> and bring them up to sell. (Careful… some loot is the Computer.)</li><li>The bell leaves 10 seconds after someone pulls the lever. Anyone outside is <b>lost</b>.</li><li>Crouch to sneak past the Ear. Don't look away from the Man. NEVER touch Jerry.</li><li>Rumor: if a Hijack and a Computer meet in the <b>Server Room</b>…</li></ul>
+  <div class="ctl" id="ctlList"></div></div>
+<div class="panel" id="pause"><h2>PAUSED</h2>
+  <div class="row"><button class="btn" id="pResume">Resume</button><button class="btn sm" id="pHow">How to play</button><button class="btn sm" id="pFace">Edit face</button><button class="btn red sm" id="pLeave">Leave game</button></div>
+  <p><label class="l" for="sens">Mouse / touch sensitivity</label><br><input id="sens" type="range" min="0.3" max="2.5" step="0.1" style="width:100%"></p>
+  <div id="hostOpts"><label class="l">Host: sandbox mode (spawn any monster while in the Signal World)</label>
+    <div class="row"><button class="btn sm" id="pSand">Sandbox: OFF</button></div>
+    <div class="row" id="spawnBtns" style="margin-top:6px"></div></div>
+  <div class="ctl" id="ctlList2"></div></div>
+<div class="panel" id="overP"><h2 style="color:var(--red)">QUOTA FAILED</h2><p id="overTxt"></p><p>The network has cancelled your channel. A new run starts now.</p><button class="btn" data-close>Try again</button></div>
+<div class="panel" id="fatal"><h2>Uh oh</h2><p id="fatalTxt"></p><button class="btn" onclick="location.reload()">Back to title</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/core.js"></script><script src="js/face.js"></script><script src="js/models.js"></script>
+<script src="js/world.js"></script><script src="js/monsters.js"></script><script src="js/net.js"></script>
+<script src="js/bots.js"></script><script src="js/game.js"></script><script src="js/ui.js"></script>
+<script>
+if (!window.THREE) document.getElementById('tmsg').textContent = "Couldn't load 3D (three.js). Check your internet and reload.";
+else boot();
+</script>
+</body></html>
