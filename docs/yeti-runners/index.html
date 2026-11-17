@@ -417,21 +417,22 @@ function makeYeti(){
   const furM = new THREE.MeshLambertMaterial({color:0xf4f6fa});
   const faceM = new THREE.MeshLambertMaterial({color:0x8fa4c0});
   const eyeM = new THREE.MeshBasicMaterial({color:0x111111});
+  const base = [];
   const head = new THREE.Group(); scene.add(head);
-  const hs = new THREE.Mesh(SPH, furM); hs.scale.setScalar(0.2); head.add(hs);
-  const face = new THREE.Mesh(SPH, faceM); face.scale.set(0.14,0.13,0.07); face.position.set(0,-0.02,-0.15); head.add(face);
-  [-0.06,0.06].forEach(x=>{ const e=new THREE.Mesh(SPH,eyeM); e.scale.setScalar(0.028); e.position.set(x,0.02,-0.21); head.add(e); });
-  [-1,1].forEach(s=>{ const h=new THREE.Mesh(CONE,M(0xd8d0c0)); h.scale.set(0.035,0.1,0.035); h.position.set(s*0.13,0.17,0); h.rotation.z=-s*0.5; head.add(h); });
+  const hs = new THREE.Mesh(SPH, furM); hs.scale.setScalar(0.2); head.add(hs); base.push(hs);
+  const face = new THREE.Mesh(SPH, faceM); face.scale.set(0.14,0.13,0.07); face.position.set(0,-0.02,-0.15); head.add(face); base.push(face);
+  [-0.06,0.06].forEach(x=>{ const e=new THREE.Mesh(SPH,eyeM); e.scale.setScalar(0.028); e.position.set(x,0.02,-0.21); head.add(e); base.push(e); });
+  [-1,1].forEach(s=>{ const h=new THREE.Mesh(CONE,M(0xd8d0c0)); h.scale.set(0.035,0.1,0.035); h.position.set(s*0.13,0.17,0); h.rotation.z=-s*0.5; head.add(h); base.push(h); });
   const body = new THREE.Group(); scene.add(body);
-  const bs = new THREE.Mesh(SPH, furM); bs.scale.set(0.32,0.38,0.27); body.add(bs);
-  const belly = new THREE.Mesh(SPH, faceM); belly.scale.set(0.2,0.25,0.06); belly.position.set(0,-0.03,-0.24); body.add(belly);
+  const bs = new THREE.Mesh(SPH, furM); bs.scale.set(0.32,0.38,0.27); body.add(bs); base.push(bs);
+  const belly = new THREE.Mesh(SPH, faceM); belly.scale.set(0.2,0.25,0.06); belly.position.set(0,-0.03,-0.24); body.add(belly); base.push(belly);
   const hands = [0,1].map(()=>{ const m=new THREE.Mesh(SPH,furM); m.scale.setScalar(0.085); scene.add(m); return m; });
   const tag = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(makeCanvas(512,128)), transparent:true}));
   tag.scale.set(0.9,0.225,1); scene.add(tag);
   const slots = {hat:new THREE.Group(), face:new THREE.Group(), back:new THREE.Group()};
   head.add(slots.hat); head.add(slots.face); body.add(slots.back);
   const tool = new THREE.Group(); scene.add(tool);
-  return {head, body, hands, tag, furM, eyeM, slots, tool, toolId:-1, target:null, entity:false, cosKey:''};
+  return {head, body, hands, tag, furM, eyeM, slots, tool, base, toolId:-1, target:null, entity:false, entKey:'off', entG:null, cosKey:''};
 }
 function removeYeti(av){ if (!av) return; [av.head,av.body,av.tag,av.tool,...av.hands].forEach(o=>scene.remove(o)); }
 function applyCos(av, cos){
@@ -449,10 +450,41 @@ function drawTag(av, name, badges){
   badges.forEach(b=>{ g.fillStyle={OG:'#ffd24a',TRUSTED:'#7fe0ff',STAFF:'#ff6a6a',OWNER:'#ff4fd8',SURVIVOR:'#9fff7a'}[b]||'#fff'; g.fillText(b,x,104); x+=110; });
   av.tag.material.map.needsUpdate = true;
 }
-function setEntityLook(av, on, cos){
-  if (av.entity===on) return; av.entity=on;
+// ---- N.O.T.S.A.F.E entity forms ----
+const ENTITY_FORMS = {
+  default:   {name:'The Entity',  power:'RAGE: 4 seconds of super speed', fur:0x050505, eye:0xff0000},
+  timekeeper:{name:'Time Keeper', power:'TIME FREEZE: freezes survivors near you', fur:0x3a1a8a, eye:0xffd24a},
+  exe:       {name:'Yeti.EXE',    power:'GLITCH: teleport behind the closest survivor', fur:0x080808, eye:0xff0000},
+  lungs:     {name:'🫁',          power:'DEEP BREATH: suck nearby survivors toward you', fur:0xff8aa0, eye:0x000000},
+};
+function entityParts(form){
+  const head = new THREE.Group(), body = new THREE.Group();
+  const add=(grp,geo,mat,sx,sy,sz,x,y,z,rx=0,ry=0,rz=0)=>{ const m=new THREE.Mesh(geo,typeof mat==='number'?M(mat):mat); m.scale.set(sx,sy,sz); m.position.set(x,y,z); m.rotation.set(rx,ry,rz); grp.add(m); return m; };
+  if (form==='timekeeper'){
+    add(head,CYL,0xf6f0dc,0.15,0.02,0.15,0,0,-0.2,Math.PI/2);
+    add(head,new THREE.TorusGeometry(0.15,0.015,6,24),M(0xffd24a,0.8),1,1,1,0,0,-0.21);
+    add(head,BOXG,0x111111,0.014,0.1,0.01,0,0.04,-0.225); add(head,BOXG,0xcc0000,0.08,0.01,0.01,0.03,-0.01,-0.225);
+    [-1,1].forEach(s=>add(head,CONE,M(0xffd24a,0.6),0.04,0.13,0.04,s*0.15,0.2,0,0,0,-s*0.5));
+  } else if (form==='exe'){
+    [-1,1].forEach(s=>add(head,BOXG,M(0xaa0000,0.6),0.015,0.1,0.01,s*0.06,-0.04,-0.215));
+    add(head,BOXG,M(0xff0000,0.8),0.12,0.02,0.01,0,-0.08,-0.215);
+    add(head,BOXG,new THREE.MeshBasicMaterial({color:0xff0000,transparent:true,opacity:0.35}),0.44,0.04,0.44,0,0.05,0);
+  } else if (form==='lungs'){
+    const pink=M(0xff7a96), dark=M(0xd04a6a);
+    [-1,1].forEach(s=>{ add(body,SPH,pink,0.24,0.38,0.2,s*0.2,0,0); for (let i=0;i<3;i++) add(body,CYL,dark,0.018,0.2,0.018,s*(0.12+i*0.03),0.05-i*0.12,-0.16,0,0,s*(0.6+i*0.2)); });
+    add(body,CYL,M(0xe8a0b0),0.06,0.55,0.06,0,0.5,0); add(body,CYL,dark,0.04,0.25,0.04,-0.09,0.22,0,0,0,0.6); add(body,CYL,dark,0.04,0.25,0.04,0.09,0.22,0,0,0,-0.6);
+  }
+  return {head, body};
+}
+function setEntityLook(av, on, cos, form='default'){
+  const key = on ? form : 'off'; if (av.entKey===key) return; av.entKey=key; av.entity=on;
+  if (av.entG){ av.head.remove(av.entG.head); av.body.remove(av.entG.body); av.entG=null; }
   av.head.scale.setScalar(on?1.5:1); av.body.scale.setScalar(on?1.5:1);
-  av.furM.color.setHex(on?0x050505:furColor(cos&&cos.fur)); av.eyeM.color.setHex(on?0xff0000:0x111111);
+  av.base.forEach(m=>m.visible = !(on && form==='lungs'));
+  av.slots.hat.visible = av.slots.face.visible = av.slots.back.visible = !on;
+  const F = ENTITY_FORMS[form] || ENTITY_FORMS.default;
+  av.furM.color.setHex(on ? F.fur : furColor(cos&&cos.fur)); av.eyeM.color.setHex(on ? F.eye : 0x111111);
+  if (on){ av.entG = entityParts(form); av.head.add(av.entG.head); av.body.add(av.entG.body); }
 }
 const TOOL_IDS = {none:0, hammer:1, rod:2, flash:3};
 function toolMesh(id){
@@ -467,7 +499,7 @@ function toolMesh(id){
 }
 
 // ================= LOCAL PLAYER =================
-const me = {alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0, mode:'hangout', battery:100, flashOn:true, hidden:false};
+const me = {entForm:'default', frozenT:0, boostT:0, alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0, mode:'hangout', battery:100, flashOn:true, hidden:false};
 const HAND_R = 0.07;
 const myFurM = new THREE.MeshLambertMaterial({color:furColor(save.eq.fur)});
 const hands = [0,1].map(i=>{
@@ -501,6 +533,7 @@ function snapTurn(a){
 }
 
 function stepPlayer(dt){
+  const frozenAt = me.frozenT>0 ? rig.position.clone() : null; if (frozenAt) me.frozenT-=dt;
   rig.updateMatrixWorld();
   if (!wasTouching){ vel.y -= 9.8*dt; rig.position.addScaledVector(vel,dt); rig.updateMatrixWorld(); }
   const corr = V3(); let n=0;
@@ -551,6 +584,7 @@ function stepPlayer(dt){
     h.mesh.position.copy(h.contact ? h.point : raw);
     h.grip.getWorldQuaternion(q); h.mesh.quaternion.copy(q);
   }
+  if (frozenAt){ rig.position.copy(frozenAt); vel.set(0,0,0); rig.updateMatrixWorld(); }
   const rh = hands[me.rightIdx];
   myTool.position.copy(rh.mesh.position); myTool.quaternion.copy(rh.mesh.quaternion);
 }
@@ -1256,7 +1290,7 @@ function newGameState(){
     pvp:{kills:{}},
     horror:{active:false, round:0, phase:'play', timer:0, alive:{}, fuses:[0,0,0,0,0], exitOpen:false, monster:[-12,0,288], winners:[], tpSeq:0},
     story:newStory(),
-    notsafe:{active:false, round:0, phase:'wait', timer:0, alive:{}, entityId:null, winners:[], tpSeq:0}};
+    notsafe:{active:false, round:0, phase:'wait', timer:0, alive:{}, entityId:null, form:'default', powCd:0, winners:[], tpSeq:0}};
 }
 let G = newGameState();
 function isHostLike(){ return NET.role!=='client'; }
@@ -1341,6 +1375,7 @@ function hostHandle(id, m){
     case 'exit': { const H=G.horror; if (G.pm[id]==='horror' && H.phase==='play' && H.exitOpen && H.alive[id]){ H.phase='win'; H.timer=9; H.winners=modePlayers('horror').filter(i=>H.alive[i]);
       modePlayers('horror').forEach(i=>sendTo(i,{t:'toast', text:'🚪 '+(p?p.name:'')+' escaped the Lodge! CHAPTER 1 COMPLETE'})); } break; }
     case 'staff': hostStaff(id, m); break;
+    case 'ent': hostEntityPower(id); break;
   }
 }
 function joinedMsg(id, m, key, alive, seq){ sendTo(id,{t:'joined', m, key, alive, seq}); }
@@ -1356,10 +1391,24 @@ function hostJoin(id, m){
 }
 function startAcid(){ const A=G.acid; A.active=true; A.round++; A.phase='wait'; A.timer=6; A.acidY=-2.5; A.winners=[]; A.alive={}; modePlayers('acid').forEach(i=>A.alive[i]=true); A.tpSeq++; }
 function startHorror(){ const H=G.horror; H.active=true; H.round++; H.phase='play'; H.timer=0; H.fuses=[0,0,0,0,0]; H.exitOpen=false; H.monster=[-12,0,288]; H.winners=[]; H.alive={}; modePlayers('horror').forEach(i=>H.alive[i]=true); H.tpSeq++; }
-function startNotSafe(entId){
-  const N=G.notsafe; N.active=true; N.round++; N.phase='wait'; N.timer=6; N.entityId=entId; N.winners=[]; N.alive={}; N.tpSeq++;
+function startNotSafe(entId, form){
+  const N=G.notsafe; N.form=ENTITY_FORMS[form]?form:'default'; N.powCd=0; N.active=true; N.round++; N.phase='wait'; N.timer=6; N.entityId=entId; N.winners=[]; N.alive={}; N.tpSeq++;
   Object.keys(P).forEach(id=>{ G.pm[id]='notsafe'; N.alive[id]=(id!==entId); joinedMsg(id,'notsafe', id===entId?'notsafeEnt':'notsafe', true, N.tpSeq); });
-  broadcast({t:'g', g:G}); broadcast({t:'toast', text:'⚠ N.O.T.S.A.F.E — '+P[entId].name+' is the ENTITY. Survive 90 seconds!'});
+  broadcast({t:'g', g:G}); broadcast({t:'toast', text:'⚠ N.O.T.S.A.F.E — '+P[entId].name+' is '+ENTITY_FORMS[N.form].name.toUpperCase()+'. Survive 90 seconds!'});
+}
+function hostEntityPower(id){
+  const N=G.notsafe; if (!N.active || N.phase!=='play' || id!==N.entityId || N.powCd>0) return;
+  const e=P[id].st; if (!e) return; N.powCd=18; const c=[e[0],e[1],e[2]];
+  const survivors = modePlayers('notsafe').filter(i=>i!==id && N.alive[i] && P[i].st);
+  if (N.form==='timekeeper'){ broadcast({t:'freeze', c, r:12, d:2.5}); broadcast({t:'toast', text:'⏰ TIME FREEZE!'}); }
+  else if (N.form==='exe'){
+    let best=null, bd=1e9; survivors.forEach(i=>{ const s=P[i].st; const d=Math.hypot(s[0]-c[0],s[2]-c[2]); if (d<bd){ bd=d; best=s; } });
+    if (best){ const f=V3(0,0,-1).applyQuaternion(new THREE.Quaternion(best[3],best[4],best[5],best[6]).normalize()); f.y=0; if (f.lengthSq()<0.01) f.set(0,0,-1); f.normalize();
+      sendTo(id,{t:'tp', p:[best[0]-f.x*1.6, Math.max(0,best[1]-1.5), best[2]-f.z*1.6], silent:true}); }
+    broadcast({t:'glitch'});
+  }
+  else if (N.form==='lungs'){ broadcast({t:'inhale', c, r:11}); broadcast({t:'toast', text:'🫁 *DEEP BREATH*'}); }
+  else { sendTo(id,{t:'boost', d:4}); broadcast({t:'toast', text:'The Entity is ENRAGED!'}); }
 }
 function sendAllToLobby(){ G.notsafe.active=false; Object.keys(P).forEach(id=>{ G.pm[id]='hangout'; joinedMsg(id,'hangout','lobby',true,0); }); broadcast({t:'g', g:G}); }
 function hostStaff(id, m){
@@ -1372,7 +1421,7 @@ function hostStaff(id, m){
       broadcast({t:'toast', text:'🔨 '+t.name+' was kicked by '+s.name});
       setTimeout(()=>{ const c=NET.conns[m.target]; try{ if (c) c.close(); }catch(e){} removePlayer(m.target); }, 500);
       break;
-    case 'notsafe': startNotSafe(id); break;
+    case 'notsafe': startNotSafe(id, m.form); break;
     case 'end': case 'lobby': sendAllToLobby(); break;
     case 'bring': if (t && s.st) sendTo(m.target,{t:'tp', p:[s.st[0]+0.8, Math.max(0,s.st[1]-1.5), s.st[2]]}); break;
     case 'grant':
@@ -1422,6 +1471,7 @@ function hostStep(dt){
   const N=G.notsafe;
   if (N.active){
     const ids=modePlayers('notsafe');
+    N.powCd=Math.max(0,N.powCd-dt);
     if (N.phase==='wait'){ N.timer-=dt; if (N.timer<=0){ N.phase='play'; N.timer=90; broadcast({t:'toast', text:'RUN.'}); } }
     else if (N.phase==='play'){
       N.timer-=dt; const alive=ids.filter(i=>N.alive[i] && i!==N.entityId);
@@ -1467,7 +1517,12 @@ function clientHandle(m){
     case 'atk': if (me.mode==='story') spawnAtk(m); break;
     case 'clearatk': if (me.mode==='story') clearAtks(); break;
     case 'toast': toast(m.text); break;
-    case 'tp': teleport(V3(m.p[0],m.p[1],m.p[2])); toast('A staff member brought you to them.'); break;
+    case 'tp': teleport(V3(m.p[0],m.p[1],m.p[2])); if (!m.silent) toast('A staff member brought you to them.'); else { tone(60,0.4,0.3,'sawtooth',3); flashScreen('glitch',0.5); } break;
+    case 'freeze': { const N=G.notsafe; if (me.mode==='notsafe' && me.alive && N.entityId!==NET.myId && headWorld().distanceTo(V3(m.c[0],m.c[1],m.c[2]))<m.r){ me.frozenT=m.d; flashScreen('freeze',m.d); tone(1200,0.6,0.15,'sine',0.3); toast('⏰ FROZEN IN TIME!'); } break; }
+    case 'glitch': if (me.mode==='notsafe' && G.notsafe.entityId!==NET.myId){ flashScreen('glitch',0.9); tone(80,0.5,0.2,'sawtooth',4); } break;
+    case 'inhale': { const N=G.notsafe; if (me.mode==='notsafe' && me.alive && N.entityId!==NET.myId){ const c=V3(m.c[0],m.c[1]-1,m.c[2]); const h=headWorld(); const d=h.distanceTo(c);
+      if (d<m.r){ const pull=c.sub(h).setLength(Math.min(8,4+d*0.5)); pull.y+=2; vel.copy(pull); hands.forEach(x=>x.contact=false); wasTouching=false; flashScreen('inhale',1); hapticAll(1,400); } tone(160,1.2,0.2,'sine',0.4); } break; }
+    case 'boost': me.boostT=m.d; tone(200,0.6,0.3,'sawtooth',2); break;
     case 'reward': reward(m.n, m.why); if (m.stat==='kills'){ save.stats.kills++; if (save.stats.kills>=5) ach('pvp5'); persist(); } break;
     case 'full': setStatus('That room is full (10 yetis).'); becomeSolo(); break;
     case 'hit': {
@@ -1542,7 +1597,7 @@ function localChecks(dt){
       if ([e.av.head.position, e.av.hands[0].position, e.av.hands[1].position].some(p=>p.distanceTo(head)<0.55 || p.distanceTo(body)<0.6)) die('☠ The ENTITY got you! Spectate from the lobby.');
     }
   }
-  me.speedMult = (me.mode==='notsafe' && N.entityId===NET.myId) ? 1.5 : 1;
+  me.boostT=Math.max(0,me.boostT-dt); me.speedMult = (me.mode==='notsafe' && N.entityId===NET.myId) ? (me.boostT>0?2.2:1.5) : 1;
   storyChecks(dt);
   const body=head.clone(); body.y-=0.5;
   for (const pr of projPool){
@@ -1602,7 +1657,9 @@ function updateRemotes(dt){
     av.tag.position.copy(av.head.position).y += 0.45*sc;
     if (av.toolId!==s[13]){ av.toolId=s[13]; av.tool.clear(); if (s[13]) av.tool.add(toolMesh(s[13])); }
     const rh = av.hands[s[15]===0?0:1]; av.tool.position.copy(rh.position); av.tool.quaternion.copy(av.head.quaternion);
-    setEntityLook(av, G.notsafe.active && G.notsafe.entityId===id, p.cos);
+    setEntityLook(av, G.notsafe.active && G.notsafe.entityId===id, p.cos, G.notsafe.form);
+    if (av.entKey==='lungs' && av.entG){ const b=1+0.14*Math.sin(performance.now()/380); av.entG.body.scale.set(b,b,b); }
+    if (av.entKey==='exe' && Math.random()<0.08){ av.head.position.x+=rand(-0.15,0.15); av.head.position.z+=rand(-0.15,0.15); }
     const vis = s[14]!==0 || mapAt(av.head.position)==='lobby';
     av.head.visible = av.body.visible = av.tag.visible = av.hands[0].visible = av.hands[1].visible = vis;
   }
@@ -1685,7 +1742,7 @@ function drawWatch(){
   const ent = me.mode==='notsafe' && G.notsafe.entityId===NET.myId;
   wg.fillStyle = ent?'#400':(me.alive?'#0e2236':'#333'); wg.fillRect(0,0,256,160);
   wg.textAlign='center'; wg.fillStyle='#ffd27a'; wg.font='bold 28px sans-serif'; wg.fillText(MODE_INFO[me.mode][0],128,34);
-  wg.fillStyle='#fff'; wg.font='bold 30px sans-serif'; wg.fillText(ent?'YOU ARE THE ENTITY':(me.alive?modeStatus():'OUT — spectating'),128,78);
+  wg.fillStyle='#fff'; wg.font='bold 30px sans-serif'; wg.fillText(ent?(G.notsafe.powCd>0?'Power in '+Math.ceil(G.notsafe.powCd)+'s':'POWER READY (R trig)'):(me.alive?modeStatus():'OUT — spectating'),128,78);
   wg.font='bold 26px sans-serif';
   if (me.tool==='flash'){ wg.fillStyle=me.battery>25?'#9fff7a':'#f55'; wg.fillText('🔦 '+Math.round(me.battery)+'%'+(me.flashOn?'':' OFF'),70,128); wg.fillStyle='#f55'; wg.fillText(me.mode==='story'?'HP '+Math.max(0,Math.round(me.hp)):'',190,128); }
   else if (me.mode==='pvp' || TK.state!=='off'){ wg.fillStyle='#f55'; wg.fillText('HP '+Math.max(0,Math.round(me.hp)),70,128); wg.fillStyle='#9fe0ff'; wg.fillText('❄ '+save.shards,186,128); }
@@ -1704,6 +1761,18 @@ function drawBoard(){
   b.tex.needsUpdate=true;
 }
 
+// screen effects (freeze / glitch / inhale)
+const fxC = makeCanvas(128,128), fxg = fxC.getContext('2d'), fxTex = new THREE.CanvasTexture(fxC);
+const fxMesh = new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.MeshBasicMaterial({map:fxTex, transparent:true, opacity:0.5, depthTest:false}));
+fxMesh.position.z=-0.25; fxMesh.renderOrder=997; fxMesh.visible=false; camera.add(fxMesh);
+const fx = {kind:'', t:0};
+function flashScreen(kind, t){ fx.kind=kind; fx.t=t; fxMesh.visible=true; }
+function stepFx(dt){
+  if (fx.t<=0){ fxMesh.visible=false; return; } fx.t-=dt;
+  if (fx.kind==='glitch'){ for (let i=0;i<40;i++){ fxg.fillStyle=Math.random()<0.5?'#000':(Math.random()<0.5?'#f00':'#fff'); fxg.fillRect(0,Math.random()*128,128,Math.random()*8); } fxMesh.material.opacity=0.55; }
+  else { fxg.fillStyle = fx.kind==='freeze' ? '#7fd8ff' : '#ff6a8a'; fxg.fillRect(0,0,128,128); fxMesh.material.opacity = fx.kind==='freeze'?0.35:Math.min(0.4,fx.t*0.5); }
+  fxTex.needsUpdate=true;
+}
 // ================= MENU =================
 const menuC = makeCanvas(1024,768), mg = menuC.getContext('2d'), menuTex = new THREE.CanvasTexture(menuC);
 const menuMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.96,0.72), new THREE.MeshBasicMaterial({map:menuTex, transparent:true, depthTest:false}));
@@ -1845,25 +1914,27 @@ function drawProfile(y){
 }
 function drawStaff(y){
   txt('STAFF PANEL — Staff Perms verified ✔',24,y+18,26,'#ff8a8a');
-  btn(24,y+44,300,62,'Kick Hammer: '+(me.hammer?'ON':'OFF'),()=>{ me.hammer=!me.hammer; toast(me.hammer?'🔨 Kick Hammer equipped — hit a player to kick them.':'Kick Hammer put away.'); },{on:me.hammer,color:'#6a2a2a'});
-  btn(336,y+44,430,62,'N.O.T.S.A.F.E — become Entity',()=>{ send({t:'staff', a:'notsafe'}); toggleMenu(); },{color:'#8a1010',size:24});
-  btn(778,y+44,222,62,'All to Lobby',()=>send({t:'staff', a:'lobby'}),{color:'#555',size:24});
-  txt('Entity powers: 1.5x speed, can\'t be eliminated, one touch takes out survivors.',24,y+130,18,'#caa');
-  txt('Players',24,y+166,24,'#9fe0ff');
+  btn(24,y+40,300,60,'Kick Hammer: '+(me.hammer?'ON':'OFF'),()=>{ me.hammer=!me.hammer; toast(me.hammer?'🔨 Kick Hammer equipped — hit a player to kick them.':'Kick Hammer put away.'); },{on:me.hammer,color:'#6a2a2a'});
+  btn(336,y+40,430,60,'START N.O.T.S.A.F.E',()=>{ send({t:'staff', a:'notsafe', form:me.entForm}); toggleMenu(); },{color:'#8a1010',size:26});
+  btn(778,y+40,222,60,'All to Lobby',()=>send({t:'staff', a:'lobby'}),{color:'#555',size:24});
+  txt('Entity:',24,y+136,22,'#ffd27a');
+  Object.keys(ENTITY_FORMS).forEach((k,i)=>btn(120+i*222,y+110,212,52,ENTITY_FORMS[k].name,()=>{ me.entForm=k; },{on:me.entForm===k,color:'#4a1a3a',size:22}));
+  txt('Power (right trigger, 18s cooldown): '+ENTITY_FORMS[me.entForm].power,24,y+184,18,'#caa');
+  txt('Players',24,y+214,22,'#9fe0ff');
   const others = Object.keys(P).filter(id=>id!==NET.myId);
-  if (!others.length) txt('Nobody else is here yet.',24,y+206,22,'#889');
-  others.slice(0,8).forEach((id,i)=>{ const p=P[id], yy=y+190+i*62;
-    txt(p.name+(p.owner?' [OWNER]':p.staff?' [STAFF]':''),24,yy+26,24);
-    btn(400,yy,150,52,'KICK',()=>send({t:'staff', a:'kick', target:id}),{disabled:p.owner,color:'#8a1a1a',size:22});
-    btn(560,yy,150,52,'BRING',()=>send({t:'staff', a:'bring', target:id}),{size:22});
-    if (me.owner) btn(720,yy,260,52,p.staff?'Remove Staff':'Give Staff Perms',()=>send({t:'staff', a:'grant', target:id}),{color:'#6a4a10',size:22});
+  if (!others.length) txt('Nobody else is here yet.',24,y+250,22,'#889');
+  others.slice(0,7).forEach((id,i)=>{ const p=P[id], yy=y+232+i*58;
+    txt(p.name+(p.owner?' [OWNER]':p.staff?' [STAFF]':''),24,yy+24,22);
+    btn(400,yy,150,50,'KICK',()=>send({t:'staff', a:'kick', target:id}),{disabled:p.owner,color:'#8a1a1a',size:22});
+    btn(560,yy,150,50,'BRING',()=>send({t:'staff', a:'bring', target:id}),{size:22});
+    if (me.owner) btn(720,yy,160,50,p.staff?'Unstaff':'Give Staff',()=>send({t:'staff', a:'grant', target:id}),{color:'#6a4a10',size:20});
   });
 }
-
 // ================= INPUT =================
 function onTrigger(i){
   if (!renderer.xr.isPresenting) return;
   if (menu.open){ menuClick(ctrls[i]); return; }
+  if (i===me.rightIdx && me.mode==='notsafe' && G.notsafe.entityId===NET.myId){ send({t:'ent'}); return; }
   if (i===me.rightIdx && me.tool==='rod') fishTrigger();
   else if (i!==me.rightIdx && me.tool==='flash'){ me.flashOn=!me.flashOn; tone(me.flashOn?900:500,0.05,0.1,'square'); }
 }
@@ -1899,7 +1970,7 @@ function frame(){
     setMyTool(me.tool);
     const lit = me.tool==='flash' && me.flashOn && me.battery>0; flashlight.visible = lit;
     me.battery = clamp(me.battery + dt*(lit ? (mk.startsWith('story')?-1.1:-0.4) : 0.9), 0, 100);
-    myFurM.color.setHex((me.mode==='notsafe' && G.notsafe.entityId===NET.myId) ? 0x111111 : furColor(save.eq.fur));
+    myFurM.color.setHex((me.mode==='notsafe' && G.notsafe.entityId===NET.myId) ? (ENTITY_FORMS[G.notsafe.form]||ENTITY_FORMS.default).fur : furColor(save.eq.fur));
     stepFishing(dt);
     localChecks(dt);
     save.playSec += dt; shardT += dt; if (shardT>=30){ shardT=0; save.shards++; }
@@ -1914,7 +1985,7 @@ function frame(){
   netTick(dt);
   updateRemotes(dt);
   syncWorld(dt);
-  stepToast(dt); stepEnding(dt);
+  stepToast(dt); stepEnding(dt); stepFx(dt);
   hudT-=dt; if (hudT<=0){ hudT=0.3; drawWatch(); }
   boardT-=dt; if (boardT<=0){ boardT=1; drawBoard(); }
   renderer.render(scene, camera);
