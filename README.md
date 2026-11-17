@@ -16,5 +16,5 @@ Play: https://gmeyer301.github.io/Chad/garden-time/ (files in `docs/garden-time`
 Play: https://gmeyer301.github.io/Chad/signal-lost/ (files in `docs/signal-lost`).
 
 ## Yeti Runners (VR)
-Multiplayer VR gorilla-locomotion game for Meta Quest where everyone is a yeti. Modes: Hangout, Rising Acid, PvP, Horror Ch.1, Story Mode (3 chapters + final boss, 3 endings), Fishing, Find the Yetis, plus the staff-only N.O.T.S.A.F.E event. Shop, cosmetics, collectibles, achievements, OG/Trusted badges, staff menu with Kick Hammer. Online rooms with 4-letter codes.
+Multiplayer VR gorilla-locomotion game for Meta Quest where everyone is a yeti. Pick modes by walking through portals in the Portal Hall: Rising Acid, PvP, Horror Ch.1, Story Mode "The Dimming" (3 dark chapters with their own monsters + a final boss, lore logs, 3 endings), Fishing and Find the Yetis (15 hidden yetis plus a secret code dungeon and the Time Keeper Yeti boss). Staff-only N.O.T.S.A.F.E event, shop, cosmetics, collectibles, achievements, OG/Trusted badges, staff menu with Kick Hammer. Online rooms with 4-letter codes.
 Play (open in the Quest Browser inside the headset): https://gmeyer301.github.io/Chad/yeti-runners/ (files in `docs/yeti-runners`).

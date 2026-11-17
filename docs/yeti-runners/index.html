@@ -183,16 +183,6 @@ const MAPS = {
   markers:{c:V3(300,0,300),   name:'Yeti Peaks',   sky:0xd6eeff, fog:[30,110],hemi:1.0, sun:0.7},
   notsafe:{c:V3(-300,0,-300), name:'N.O.T.S.A.F.E',sky:0x1a0000, fog:[3,26],  hemi:0.3, sun:0.1, hemiCol:0xff4040},
 };
-const STORY = [
-  {name:'Frostwood',      ground:0xe8f2ff, wall:0x9fb4c8, plat:0x7a5a3a, rock:0xb8c4d0, sky:0xa9c9e8, fog:[20,70], hemi:0.9, boss:'The Snowmaw',     bossCol:0xdde8f5, size:1.4},
-  {name:'Crystal Caves',  ground:0x2a2f4a, wall:0x1c2038, plat:0x6a5acd, rock:0x4a4f7a, sky:0x10142a, fog:[8,45],  hemi:0.5, boss:'Glimmer Wraith',  bossCol:0xb388ff, size:1.3},
-  {name:'Blizzard Peak',  ground:0xcfd8e3, wall:0x8899aa, plat:0x5a6a7a, rock:0x8a9aaa, sky:0x8a99aa, fog:[6,32],  hemi:0.8, boss:'Stormhorn',       bossCol:0x4a6a8a, size:1.6},
-  {name:'The Dark Summit',ground:0x2a1a3a, wall:0x1a0a2a, plat:0x4a2a6a, rock:0x3a2a4a, sky:0x0c0418, fog:[10,50], hemi:0.4, boss:'The Night Warden', bossCol:0x2a0a40, size:2.0},
-];
-STORY.forEach((L,k)=>{
-  MAPS['story'+k]  = {c:V3(600,0,k*200), name:L.name, sky:L.sky, fog:L.fog, hemi:L.hemi, sun:0.5};
-  MAPS['story'+k+'b'] = {c:V3(680,0,k*200), name:L.name+' — Boss', sky:L.sky, fog:L.fog, hemi:L.hemi, sun:0.5};
-});
 function mapAt(p){ let best='lobby', bd=1e9; for (const k in MAPS){ const c=MAPS[k].c; const d=Math.hypot(p.x-c.x,p.z-c.z); if (d<bd){bd=d;best=k;} } return best; }
 
 const SPAWNS = {
@@ -200,7 +190,6 @@ const SPAWNS = {
   notsafe:V3(-300,0,-288), notsafeEnt:V3(-300,0,-313),
   pvp:[V3(-312,0,-12),V3(-288,0,-12),V3(-312,0,12),V3(-288,0,12),V3(-300,0,-14),V3(-300,0,14),V3(-314,0,0),V3(-286,0,0)],
 };
-STORY.forEach((L,k)=>{ SPAWNS['story'+k+'find']=V3(600,0,k*200+18); SPAWNS['story'+k+'boss']=V3(680,0,k*200+12); });
 function spawnPos(key){
   let s = SPAWNS[key] || SPAWNS.lobby;
   if (Array.isArray(s)) s = pickOne(s);
@@ -216,14 +205,43 @@ function buildLobby(){
   box(0,-0.5,0,64,1,64,0xf4f8ff); walls(0,0,64,64,5,0xc8d6e6);
   cabin(-14,-16,7,5,3.2,0x8a5a3a);
   sign(['SHOP','Open menu: Y button'],-14,2.4,-13.3,3,1,0,'#5a2a10','#ffd27a');
-  cabin(14,-16,7,5,3.2,0x5a6a8a);
-  sign(['MODES','Host picks in the menu'],14,2.4,-13.3,3,1,0,'#102a4a','#9fe0ff');
   box(10,1.5,8,5,3,4,0xaab6c2); box(11,3.6,8.5,3,1.2,2.6,0xbfc9d3); box(9,5,9,1.6,1.6,1.6,0xd0d8e0);
   box(-11,0.02,9,9,0.04,7,0x9fd8ff,false);
-  box(-4,2,-6,1,4,1,0x6b4423); box(-4,4.15,-6,3,0.3,3,0x9b6b3a); box(-2.2,2.6,-6,1,0.3,1,0x9b6b3a); box(-2.8,1.3,-6.9,1,0.3,1,0x9b6b3a);
-  [[-24,-24],[24,-24],[-24,24],[24,24],[-26,0],[26,2],[0,-26],[-6,-24],[20,12],[-20,16],[6,24],[-28,-10]].forEach(p=>pine(p[0],p[1],1+Math.random()*0.4));
-  lobbyBoard = sign(['YETI RUNNERS'],0,3,-22,7,3.5,0,'#0e2236','#fff',60);
-  box(0,3,-22.1,7.3,3.8,0.1,0x3a2412,false);
+  box(-8,2,-4,1,4,1,0x6b4423); box(-8,4.15,-4,3,0.3,3,0x9b6b3a); box(-6.2,2.6,-4,1,0.3,1,0x9b6b3a); box(-6.8,1.3,-4.9,1,0.3,1,0x9b6b3a);
+  [[-24,-24],[24,-24],[-24,24],[24,24],[-26,0],[26,2],[-9,-26],[9,-26],[20,12],[-20,16],[6,24],[-28,-10]].forEach(p=>pine(p[0],p[1],1+Math.random()*0.4));
+  // ---- PORTAL HALL ----
+  const HC=0x6a7f99;
+  box(-3.3,2.25,-20.5,0.6,4.5,21,HC); box(3.3,2.25,-20.5,0.6,4.5,21,HC);       // side walls (z -10 .. -31)
+  box(0,4.65,-20.5,7.2,0.3,21,0x4a5a70);                                       // roof
+  box(-2.4,4.3,-10.15,2.4,0.4,0.3,HC); box(2.4,4.3,-10.15,2.4,0.4,0.3,HC);
+  sign(['PORTAL HALL','Walk into a portal to play'],0,3.6,-9.95,4,1,0,'#16324f','#9fe0ff');
+  for (let i=0;i<6;i++) box(0,4.45,-12-i*3.6,0.4,0.1,0.4,M(0xbfe8ff,1),false);
+  lobbyBoard = sign(['YETI RUNNERS'],0,2.4,-30.6,5.4,2.7,0,'#0e2236','#fff',60);
+  [['acid',-1,-14],['pvp',1,-14],['horror',-1,-20.5],['story',1,-20.5],['fishing',-1,-27],['markers',1,-27]].forEach(([m,side,z])=>{
+    makePortal(V3(side*2.85,1.5,z), side<0?Math.PI/2:-Math.PI/2, PORTAL_COL[m], PORTAL_LABEL[m], {join:m});
+  });
+}
+// ---- portals ----
+const portals = [];
+const PORTAL_COL = {acid:0x5dff3a, pvp:0xff6a2a, horror:0x9a0000, story:0xb388ff, fishing:0x3aa8ff, markers:0xffffff, hangout:0xffd27a};
+const PORTAL_LABEL = {acid:'RISING ACID', pvp:'PvP', horror:'HORROR CH.1', story:'STORY MODE', fishing:'FISHING', markers:'FIND THE YETIS', hangout:'BACK TO LOBBY'};
+function makePortal(p, ry, col, label, action, labelOn=true){
+  const g = new THREE.Group(); g.position.copy(p); g.rotation.y = ry; scene.add(g);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.0,0.1,10,32), M(col,0.8)); g.add(ring);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(0.95,32), new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0.45, side:THREE.DoubleSide})); g.add(disc);
+  const swirl = new THREE.Group(); g.add(swirl);
+  for (let i=0;i<10;i++){ const d=new THREE.Mesh(SPH,new THREE.MeshBasicMaterial({color:0xffffff})); d.scale.setScalar(0.04); const a=i/10*Math.PI*2, r=0.25+(i%3)*0.22; d.position.set(Math.cos(a)*r,Math.sin(a)*r,0.02); swirl.add(d); }
+  if (labelOn){ const s = sign([label],0,1.45,0,2.0,0.42,0,'#0b1622','#'+col.toString(16).padStart(6,'0'),70); scene.remove(s); g.add(s); }
+  const po = {g, ring, p:p.clone(), action, swirl, cd:0}; portals.push(po); return po;
+}
+function buildReturnPortals(){
+  const back = {join:'hangout'};
+  makePortal(V3(304.5,1.4,11.5), Math.PI, PORTAL_COL.hangout, 'LOBBY', back);
+  makePortal(V3(-294,1.4,16.5), Math.PI, PORTAL_COL.hangout, 'LOBBY', back);
+  makePortal(V3(-5,1.4,315.5), Math.PI, PORTAL_COL.hangout, 'LOBBY', back);
+  makePortal(V3(8,1.4,-280.5), Math.PI, PORTAL_COL.hangout, 'LOBBY', back);
+  makePortal(V3(306,1.4,334.5), Math.PI, PORTAL_COL.hangout, 'LOBBY', back);
+  [0,1,2].forEach(k=>makePortal(V3(CH_FIND_SPAWN[k].x-3,1.4,k*200+21.4), Math.PI, PORTAL_COL.hangout, 'LOBBY', back));
 }
 function buildAcid(){
   const X=300; box(X,-0.5,0,24,1,24,0x5a5a5a); walls(X,0,24,24,48,0x4a5560);
@@ -293,70 +311,6 @@ function buildNotSafe(){
   box(X,4.6,Z-18.7,9.3,2.3,0.1,0x000000,false);
 }
 
-// story
-const storyItems = [], storyMem = [], pedestals = [];
-const PEDESTAL_DEF = [['normal','RESTORE',-5,0xffd27a],['bad','KEEP',5,0x8a2a2a],['true','REMEMBER',0,0xb388ff]];
-function buildStory(){
-  STORY.forEach((L,k)=>{
-    const Z=k*200, FX=600, BX=680;
-    storyItems[k] = [];
-    if (k<3){
-      box(FX,-0.5,Z,44,1,44,L.ground); walls(FX,Z,44,44,8,L.wall);
-      const r = mulberry(k*97+13); const plats=[];
-      let px=FX-6+r()*12, pz=Z-4+r()*8, py=0.6;
-      for (let i=0;i<24;i++){
-        const w = 2.2+r()*1.6; box(px,py,pz,w,0.4,w,L.plat); plats.push(V3(px,py+0.2,pz));
-        const a = r()*Math.PI*2; px=clamp(px+Math.cos(a)*3.2,FX-19,FX+19); pz=clamp(pz+Math.sin(a)*3.2,Z-19,Z+14);
-        py = (i%6===5) ? 0.6+r()*1.2 : py+0.6+r()*0.6;
-      }
-      for (let i=0;i<14;i++){
-        const x=FX+r()*36-18, z=Z+r()*36-18; if (Math.hypot(x-FX,z-(Z+18))<4) continue;
-        const h=0.8+r()*2.2; box(x,h/2,z,1+r()*2,h,1+r()*2,L.rock);
-      }
-      [2,7,11,16,21].forEach((pi,i)=>{
-        const p = plats[pi].clone(); p.y += 0.5;
-        const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), M(0xfff27a,0.9)); m.position.copy(p); scene.add(m);
-        storyItems[k].push({p, m});
-      });
-      let hi = plats[0]; plats.forEach(p=>{ if (p.y>hi.y) hi=p; });
-      const mp = hi.clone(); mp.y += 0.5;
-      const mm = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), M(0xc77dff,1)); mm.position.copy(mp); scene.add(mm);
-      storyMem[k] = {p:mp, m:mm};
-      sign(['CHAPTER '+(k+1)+': '+L.name.toUpperCase(),'Find 5 Light Shards — then face '+L.boss],FX,3.5,Z+21.6,6,1.6,Math.PI,'#101828','#ffe9a0');
-    }
-    box(BX,-0.5,Z,32,1,32,L.ground); walls(BX,Z,32,32,9,L.wall);
-    [[-8,-8],[8,-8],[-8,8],[8,8]].forEach(p=>box(BX+p[0],1.5,Z+p[1],1.6,3,1.6,L.rock));
-    if (k===3){
-      PEDESTAL_DEF.forEach(d=>{
-        const g = new THREE.Group(); g.position.set(BX+d[2],0,Z-9); scene.add(g);
-        const base = new THREE.Mesh(BOXG,M(0x2a2a3a)); base.scale.set(1,1.2,1); base.position.y=0.6; g.add(base);
-        const orb = new THREE.Mesh(SPH,M(d[3],1)); orb.scale.setScalar(0.25); orb.position.y=1.5; g.add(orb);
-        const s = sign([d[1]],0,2.3,0,1.6,0.5,0,'#000','#fff',70); scene.remove(s); g.add(s);
-        g.visible = false; pedestals.push({id:d[0], g, p:V3(BX+d[2],1.5,Z-9)});
-      });
-    }
-  });
-}
-// boss mesh (one, moved per level)
-let bossMesh, bossCore, bossTag;
-function buildBoss(){
-  bossMesh = new THREE.Group(); scene.add(bossMesh);
-  const body = new THREE.Mesh(SPH, new THREE.MeshLambertMaterial({color:0xdde8f5})); body.name='body'; bossMesh.add(body);
-  const eyeM = new THREE.MeshBasicMaterial({color:0xff3030});
-  [-0.35,0.35].forEach(x=>{ const e=new THREE.Mesh(SPH,eyeM); e.scale.setScalar(0.14); e.position.set(x,0.25,-0.88); bossMesh.add(e); });
-  [-0.55,0.55].forEach(x=>{ const h=new THREE.Mesh(CONE,M(0x222222)); h.scale.set(0.18,0.6,0.18); h.position.set(x,0.95,0); h.rotation.z=-x*0.8; bossMesh.add(h); });
-  bossCore = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({color:0x553355})); bossCore.scale.setScalar(0.32); bossCore.position.set(0,-0.3,-0.9); bossMesh.add(bossCore);
-  bossTag = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(makeCanvas(512,128)), transparent:true, depthTest:false}));
-  bossTag.scale.set(2.4,0.6,1); bossTag.position.y = 1.8; bossMesh.add(bossTag);
-  bossMesh.visible = false;
-}
-function drawBossTag(name, hp, max){
-  const c = bossTag.material.map.image, g = c.getContext('2d');
-  g.clearRect(0,0,512,128); g.fillStyle='#fff'; g.font='bold 44px sans-serif'; g.textAlign='center'; g.fillText(name,256,48);
-  g.fillStyle='#300'; g.fillRect(56,72,400,30); g.fillStyle='#f33'; g.fillRect(56,72,400*Math.max(0,hp)/max,30);
-  bossTag.material.map.needsUpdate = true;
-}
-
 // markers ("Find the Yetis")
 const MARKERS = [
   ['Welcome Yeti', V3(3,0.35,-3), 'Easy', 0xffffff],
@@ -395,7 +349,7 @@ function spawnProj(p, v, c=0xff4040){
   pr.live=true; pr.p=V3(p[0],p[1],p[2]); pr.v=V3(v[0],v[1],v[2]); pr.life=5; pr.m.material.color.setHex(c); pr.m.visible=true; pr.m.position.copy(pr.p);
 }
 
-function buildWorld(){ buildLobby(); buildAcid(); buildPvp(); buildHorror(); buildFishing(); buildPeaks(); buildNotSafe(); buildStory(); buildBoss(); buildMarkers(); }
+function buildWorld(){ buildLobby(); buildAcid(); buildPvp(); buildHorror(); buildFishing(); buildPeaks(); buildNotSafe(); buildStory(); buildSecret(); buildMarkers(); buildReturnPortals(); }
 
 // ================= MAP LIGHTING =================
 let curMapKey = '';
@@ -412,11 +366,11 @@ const COS = {
   hat: [['none','No Hat',0],['beanie','Beanie',50],['party','Party Hat',75],['cone','Traffic Cone',60],['headphones','Headphones',120],
         ['tophat','Top Hat',150],['antlers','Antlers',200],['halo','Halo',300],['crown','Crown',400],
         ['ogcap','OG Cap',-1,'Have the OG badge'],['survivor','Survivor Horns',-1,'Survive N.O.T.S.A.F.E']],
-  face:[['none','No Face Item',0],['mustache','Mustache',70],['shades','Shades',90],['visor','Ice Visor',160],['mask','Hollow Mask',-1,'Beat Horror Ch.1']],
+  face:[['none','No Face Item',0],['mustache','Mustache',70],['shades','Shades',90],['visor','Ice Visor',160],['mask','Hollow Mask',-1,'Beat Horror Ch.1'],['clock','Clock Face',-1,'Claim the Time Keeper Yeti']],
   back:[['none','Nothing',0],['cape','Red Cape',180],['jetpack','Jetpack',250],['wings','Frost Wings',350],
         ['dawncape','Dawn Cape',-1,'Story: Normal Ending'],['lantern','Memory Lantern',-1,'Story: True Ending'],['cloak','Night Cloak',-1,'Story: Bad Ending']],
   fur: [['white','Snow White',0,'',0xf4f6fa],['sand','Sand',60,'',0xe0c9a0],['ice','Ice Blue',80,'',0x9fd8ff],['mint','Mint',100,'',0x9ff0c8],
-        ['pink','Bubblegum',100,'',0xffb0d0],['midnight','Midnight',150,'',0x2a3050],['gold','Gold',500,'',0xffd24a],['ember','Ember',-1,'Trusted User (1 hour)',0xff7a3a]],
+        ['pink','Bubblegum',100,'',0xffb0d0],['midnight','Midnight',150,'',0x2a3050],['gold','Gold',500,'',0xffd24a],['ember','Ember',-1,'Trusted User (1 hour)',0xff7a3a],['galaxy','Galaxy',-1,'Claim the Time Keeper Yeti',0x3a1a8a]],
 };
 function furColor(id){ const f = COS.fur.find(x=>x[0]===id); return f ? f[4] : 0xf4f6fa; }
 function own(key){ if (!save.owned[key]){ save.owned[key]=1; const [s,id]=key.split(':'); const it=COS[s]&&COS[s].find(x=>x[0]===id); if (it) toast('🎁 Unlocked: '+it[1]); persist(); } }
@@ -442,6 +396,7 @@ function cosMesh(slot, id){
       case 'mustache': add(BOXG,0x3a2010,0.16,0.035,0.03,0,-0.07,-0.2); break;
       case 'shades': add(BOXG,0x111111,0.09,0.05,0.02,-0.06,0.02,-0.21); add(BOXG,0x111111,0.09,0.05,0.02,0.06,0.02,-0.21); add(BOXG,0x111111,0.05,0.015,0.02,0,0.035,-0.21); break;
       case 'visor': add(BOXG,new THREE.MeshBasicMaterial({color:0x7fe8ff,transparent:true,opacity:0.6}),0.3,0.07,0.04,0,0.02,-0.2); break;
+      case 'clock': add(CYL,0xf6f0dc,0.13,0.02,0.13,0,0,-0.2,Math.PI/2); add(BOXG,0x111111,0.012,0.08,0.01,0,0.03,-0.215); add(BOXG,0x111111,0.06,0.012,0.01,0.025,0,-0.215); add(new THREE.TorusGeometry(0.13,0.012,6,24),0xffd24a,1,1,1,0,0,-0.21); break;
       case 'mask': add(BOXG,0xeeeeee,0.27,0.3,0.03,0,0,-0.21); add(BOXG,0x000000,0.06,0.04,0.01,-0.06,0.04,-0.23); add(BOXG,0x000000,0.06,0.04,0.01,0.06,0.04,-0.23); add(BOXG,0x000000,0.1,0.02,0.01,0,-0.08,-0.23); break;
     }
   } else if (slot==='back'){
@@ -512,7 +467,7 @@ function toolMesh(id){
 }
 
 // ================= LOCAL PLAYER =================
-const me = {alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0};
+const me = {alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0, mode:'hangout', battery:100, flashOn:true, hidden:false};
 const HAND_R = 0.07;
 const myFurM = new THREE.MeshLambertMaterial({color:furColor(save.eq.fur)});
 const hands = [0,1].map(i=>{
@@ -603,7 +558,6 @@ function setMyTool(id){
   if (id===myToolId) return; myToolId=id;
   [...myTool.children].forEach(c=>{ if (c!==flashlight && c!==flashlight.target) myTool.remove(c); });
   const t = toolMesh(TOOL_IDS[id]); myTool.add(t); myTool.userData.tip = t.userData.tip;
-  flashlight.visible = id==='flash';
 }
 
 // ================= FISHING =================
@@ -659,13 +613,618 @@ function openCapsule(){
   const uniq = Object.keys(save.coll).length; if (uniq>=5) ach('coll5'); if (uniq>=COLL.length) ach('allcoll');
   persist();
 }
+// ================= STORY MODE: "THE DIMMING" =================
+// Original story. Inspired by multiplayer-horror chapter games: every chapter is its own dark map
+// with its own survival rule, scarce light, lore logs, a hidden Memory Shard and a boss.
+const CH = [
+  {name:'Frostlight Labs', item:'Keycard', itemCol:0x4fd8ff, monster:'STATIC', mtype:'hunter', mcol:0x8a8f99,
+   boss:'WARDEN UNIT-7', bossCol:0x8899aa, size:1.5, hp:5, atks:['proj','ring','proj','ring'],
+   ground:0x1e2329, wall:0x3a4450, sky:0x040608, fog:[2,15], hemi:0.1,
+   intro:'The emergency lights are dead. Find 4 KEYCARDS to power the Reactor Lift. Something called STATIC walks these halls — if it spots you, HIDE IN A LOCKER.'},
+  {name:'The Sunken Mines', item:'Lantern Core', itemCol:0xffb84a, monster:'THE DEEP EAR', mtype:'listener', mcol:0x3a2a22,
+   boss:'THE BURROW KING', bossCol:0x6a4a2a, size:1.8, hp:5, atks:['shards','ring','shards','proj'],
+   ground:0x231a14, wall:0x3a2e24, sky:0x020101, fog:[1.5,11], hemi:0.07,
+   intro:'Pitch black. Find 5 LANTERN CORES. The Deep Ear is blind... but it hears EVERYTHING. Swinging your arms fast makes noise. Move slowly near it.'},
+  {name:'The Frozen Carnival', item:'Golden Ticket', itemCol:0xffd24a, monster:'MR. GRIN', mtype:'statue', mcol:0xe8e0f0,
+   boss:'THE RINGMASTER', bossCol:0xb02040, size:1.6, hp:6, atks:['laserLow','proj','laserLow','ring'],
+   ground:0x2a2440, wall:0x1a1430, sky:0x0a0612, fog:[3,22], hemi:0.16,
+   intro:'The old staff carnival, frozen in time. Collect 5 GOLDEN TICKETS. Mr. Grin only moves when NOBODY is looking at him. Keep your eyes on him.'},
+  {name:'The Winterheart Core', monster:null, boss:'THE DIMMING', bossCol:0x14001c, size:2.2, hp:10,
+   atks:['proj','ring','shards','laserLow'], atks2:['laserHigh','shards','laserLow','ring','proj','shards'],
+   ground:0x1a0a2a, wall:0x0a0414, sky:0x060010, fog:[6,40], hemi:0.3,
+   intro:'The Dimming waits at the heart of the mountain. Defeat it... then decide what to do with the light.'},
+];
+const STORY_PROLOGUE = 'Long after the Great Melt, the last yetis built FROSTLIGHT — a mountain lab whose WINTERHEART reactor lit the Aurora that kept the world warm. One night an experiment went wrong. The Aurora went dark. Something called THE DIMMING is spreading, and the things inside the mountain are awake.';
+const LOGS = [
+  ['LOG 01 — Dr. Frost','The Winterheart is stable at 98%. The Council wants 120% so the Aurora shines brighter. I said no. They did not listen.'],
+  ['LOG 02 — Security','Unit-7 has started locking doors by itself. It keeps repeating: PROTECT THE HEART. Protect it from who?'],
+  ['LOG 03 — Miner Pell','We dug too deep looking for more crystal. Something down here answered our echoes.'],
+  ['LOG 04 — Dr. Frost','The overload did not destroy the Winterheart. It SPLIT it. Light in one half... and The Dimming in the other.'],
+  ['LOG 05 — Ringmaster','We built the carnival to keep the kids smiling through the long dark. Now the masks will not come off.'],
+  ['LOG 06 — Dr. Frost','If anyone finds my three Memory Shards, you will learn who The Dimming really is. Please... do not just destroy it.'],
+];
+const ENDINGS = {
+  normal:['LIGHT RETURNS','You shatter The Dimming and relight the Winterheart. The Aurora blazes across the sky again... but deep in the core, a faint voice whispers "thank you."'],
+  bad:['THE LONG DARK','You take the Winterheart\'s light for yourself. The Aurora flickers out forever. In the silence, the mountain gets a new monster... you.'],
+  true:['WINTERHEART','The Memory Shards reveal the truth: The Dimming is Dr. Frost, who trapped the dark half inside herself to save everyone. You reunite both halves of the heart. Dr. Frost wakes up, the Aurora returns, and the yetis finally go home.'],
+};
+const CH_FIND_SPAWN = [V3(595,0,218), V3(600,0,218), V3(600,0,218)];
+CH.forEach((C,k)=>{
+  MAPS['story'+k]   = {c:V3(600,0,k*200), name:C.name, sky:C.sky, fog:C.fog, hemi:C.hemi, sun:0.05};
+  MAPS['story'+k+'b'] = {c:V3(680,0,k*200), name:C.name+' — Boss', sky:C.sky, fog:[C.fog[0]+4,C.fog[1]+20], hemi:C.hemi+0.25, sun:0.15};
+  if (k<3) SPAWNS['story'+k+'find'] = CH_FIND_SPAWN[k];
+  SPAWNS['story'+k+'boss'] = V3(680,0,k*200+12);
+});
+
+// ---------- per-chapter content positions (local to chapter centre) ----------
+const CH_ITEMS = [
+  [[-15,1.0,-15],[15,1.0,-15],[-15,1.0,5],[15,1.0,15]],
+  [[-14,2.6,-12],[13,0.6,-16],[16,3.1,8],[-16,0.6,14],[2,4.1,-2]],
+  [[-12,1.4,-10],[12,1.4,-12],[0,4.2,-14],[-14,1.4,12],[14,0.6,12.8]],
+];
+const CH_MEM = [[5,2.75,-15],[-6,3.0,6],[18,5.3,-18]];
+const CH_LOGS = [[[-5,1.0,5],[5,1.0,-5]],[[8,0.6,12],[-10,0.6,-4]],[[-4,1.4,8],[8,1.4,-4]]];
+const CH_BATT = [[[-15,0.4,15],[15,0.4,-5],[-5,0.4,-15],[5,0.4,15]],[[0,0.4,16],[-12,0.4,0],[12,0.4,-6],[0,0.4,-16]],[[0,0.4,0],[-16,0.4,-16],[16,0.4,16]]];
+const CH_EXIT = [[5,1.5,-21.4],[0,1.5,-21.4],[0,1.5,-21.4]];
+const CH_LOCKERS = [[[-21,-13],[21,-3],[-21,13],[21,17],[-13,-21]],[[-21,0],[21,-12]],[]];
+
+const storyObj = []; // per chapter {items:[{p,m}], mem:{p,m}, logs:[{p,m,i}], batt:[{p,m,t}], exit:{p,g}, lockers:[{min,max}], mon:Group}
+function buildStory(){
+  CH.forEach((C,k)=>{
+    const FX=600, Z=k*200, BX=680; const o = {items:[], logs:[], batt:[], lockers:[]};
+    storyObj[k] = o;
+    if (k<3){
+      box(FX,-0.5,Z,44,1,44,C.ground); walls(FX,Z,44,44,6,C.wall);
+      if (k===0){ // LABS: grid of rooms with doorways
+        box(FX,4.15,Z,44,0.3,44,0x15181c);
+        [-10,0,10].forEach(line=>{
+          for (let c=-2;c<2;c++){ const a=c*11, b=a+11; // segment from a..b with a 2.6 door gap in the middle
+            const mid=(a+b)/2, l1=(mid-1.3)-a, l2=b-(mid+1.3);
+            box(FX+line,2,Z+a+l1/2,0.3,4,l1,C.wall); box(FX+line,2,Z+b-l2/2,0.3,4,l2,C.wall);
+            box(FX+a+l1/2,2,Z+line,l1,4,0.3,C.wall); box(FX+b-l2/2,2,Z+line,l2,4,0.3,C.wall);
+          }
+        });
+        [[-15,-15],[15,-15],[-15,5],[15,15],[-5,5],[5,-5]].forEach(p=>box(FX+p[0],0.4,Z+p[1],1.6,0.8,1,0x55606c));
+        box(FX+5,1.3,Z-15,1.2,2.6,0.6,0x44505c); box(FX+3.8,0.6,Z-15,0.8,1.2,0.6,0x44505c);
+        for (let i=0;i<10;i++) box(FX-20+i*4.4,3.9,Z-21.6,0.6,0.08,0.1,M(0xff2020,0.6),false);
+      } else if (k===1){ // MINES: rock pillars + ledges
+        box(FX,5.15,Z,44,0.3,44,0x120d0a);
+        const r = mulberry(77);
+        for (let i=0;i<26;i++){ const x=FX+r()*38-19, z=Z+r()*38-19; if (Math.hypot(x-600,z-(Z+18))<4) continue; if ([...CH_ITEMS[1],...CH_LOGS[1],...CH_BATT[1],CH_MEM[1],[-6,0,6],[-6,0,8],[0,0,-21]].some(q=>Math.hypot(x-(600+q[0]),z-(Z+q[2]))<3)) continue; const w=1+r()*2.4, h=1+r()*4; box(x,h/2,z,w,h,w,0x3a2e24); }
+        box(FX-14,1.25,Z-12,3,2.5,3,0x4a3a2a); box(FX+16,1.5,Z+8,2.6,3,2.6,0x4a3a2a); box(FX+2,1.95,Z-2,2.4,3.9,2.4,0x4a3a2a);
+        box(FX-6,2.6,Z+6,3,0.4,3,0x5a4a3a); box(FX-6,1.3,Z+8,1,2.6,1,0x5a4a3a); box(FX-4.6,0.7,Z+8,1,1.4,1,0x5a4a3a);
+        for (let i=-3;i<=3;i++) box(FX+i*6,0.05,Z,0.2,0.1,40,0x5a5a5a,false);
+      } else { // CARNIVAL: booths, tents, wheel
+        [[-12,-10],[12,-12],[-14,12],[-4,8],[8,-4]].forEach(p=>{ box(FX+p[0],0.6,Z+p[1],3,1.2,1.6,0x6a2a4a); box(FX+p[0],2.5,Z+p[1],3.4,0.2,2,0xffd24a); });
+        [[14,10],[-16,-16],[16,-18]].forEach(p=>{ box(FX+p[0],1,Z+p[1],4,2,4,0x8a2040); const t=new THREE.Mesh(CONE,M(0xe0e0f0)); t.scale.set(3,2.5,3); t.position.set(FX+p[0],3.25,Z+p[1]); scene.add(t); box(FX+p[0],2.2,Z+p[1],3,0.4,3,0x8a2040).visible=false; });
+        box(FX,2,Z-14,1,4,1,0x7a7a8a); const wheel=new THREE.Mesh(new THREE.TorusGeometry(4.5,0.15,8,40),M(0xff8ad8,0.4)); wheel.position.set(FX,5.5,Z-15); scene.add(wheel); o.wheel=wheel;
+        box(FX,0.15,Z-14,3,0.3,3,0x7a7a8a);
+        for (let i=0;i<24;i++){ const a=i/24*Math.PI*2; const b=new THREE.Mesh(SPH,M([0xff4040,0xffd24a,0x40c0ff,0x9fff7a][i%4],1)); b.scale.setScalar(0.12); b.position.set(FX+Math.cos(a)*20,3.5,Z+Math.sin(a)*20); scene.add(b); }
+        box(FX+18,2.6,Z-18,3,0.3,3,0x5a4a6a); box(FX+18,1.3,Z-16.2,1,2.6,1,0x5a4a6a); box(FX+18,0.6,Z-15,1,1.2,1,0x5a4a6a); box(FX+18,4.9,Z-18,1.2,0.3,1.2,0x5a4a6a); box(FX+18,3.8,Z-18.9,0.6,1.8,0.6,0x5a4a6a);
+      }
+      CH_LOCKERS[k].forEach(l=>{ const x=FX+l[0], z=Z+l[1]; const sx = Math.abs(l[0])>20 ? 1 : 0;
+        const g=0x506070; box(x,2.25,z,1.2,0.1,1.2,g); // roof
+        if (sx){ const s=Math.sign(l[0]); box(x,1.1,z-0.6,1.2,2.2,0.08,g); box(x,1.1,z+0.6,1.2,2.2,0.08,g); box(x+s*0.6,1.1,z,0.08,2.2,1.2,g); }
+        else { box(x-0.6,1.1,z,0.08,2.2,1.2,g); box(x+0.6,1.1,z,0.08,2.2,1.2,g); box(x,1.1,z-0.6,1.2,2.2,0.08,g); }
+        o.lockers.push({min:V3(x-0.55,0,z-0.55), max:V3(x+0.55,2.2,z+0.55)}); });
+      CH_ITEMS[k].forEach(p=>{ const m=new THREE.Mesh(k===0?BOXG:new THREE.OctahedronGeometry(0.2), M(C.itemCol,1)); if (k===0) m.scale.set(0.22,0.14,0.02); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.items.push({p:m.position.clone(), m}); });
+      { const p=CH_MEM[k]; const m=new THREE.Mesh(new THREE.OctahedronGeometry(0.18),M(0xc77dff,1)); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.mem={p:m.position.clone(), m}; }
+      CH_LOGS[k].forEach((p,i)=>{ const m=new THREE.Mesh(BOXG,M(0xf0e6c8,0.3)); m.scale.set(0.25,0.02,0.32); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.logs.push({p:m.position.clone(), m, i:k*2+i}); });
+      CH_BATT[k].forEach(p=>{ const m=new THREE.Mesh(CYL,M(0x7fff7a,0.7)); m.scale.set(0.06,0.16,0.06); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.batt.push({p:m.position.clone(), m, t:0}); });
+      { const e=CH_EXIT[k]; o.exit = makePortal(V3(FX+e[0],e[1],Z+e[2]), 0, 0x555555, 'LOCKED', {story:'exit'}); }
+      o.mon = makeMonster(k);
+      sign(['CHAPTER '+(k+1)+': '+C.name.toUpperCase(),'Find '+CH_ITEMS[k].length+' '+C.item+'s'],FX+5,3.2,Z+21.6,4.4,1.1,Math.PI,'#0b0e14','#ffe9a0');
+    }
+    // boss arena
+    box(BX,-0.5,Z,32,1,32,C.ground); walls(BX,Z,32,32,9,C.wall);
+    [[-8,-8],[8,-8],[-8,8],[8,8]].forEach(p=>box(BX+p[0],1.5,Z+p[1],1.6,3,1.6,C.wall));
+    for (let i=0;i<16;i++){ const a=i/16*Math.PI*2; box(BX+Math.cos(a)*15.4,7,Z+Math.sin(a)*15.4,0.4,0.4,0.4,M(C.bossCol===0x14001c?0xb040ff:0xff6040,1),false); }
+    if (k===3){
+      o.ped = [];
+      [['normal','RESTORE',-5,0xffd27a],['bad','TAKE',5,0x8a2a2a],['true','REUNITE',0,0xc77dff]].forEach(d=>{
+        const g=new THREE.Group(); g.position.set(BX+d[2],0,Z-9); scene.add(g);
+        const base=new THREE.Mesh(BOXG,M(0x2a2a3a)); base.scale.set(1,1.2,1); base.position.y=0.6; g.add(base);
+        const orb=new THREE.Mesh(SPH,M(d[3],1)); orb.scale.setScalar(0.25); orb.position.y=1.5; g.add(orb);
+        const s=sign([d[1]],0,2.3,0,1.6,0.5,0,'#000','#fff',70); scene.remove(s); g.add(s);
+        g.visible=false; o.ped.push({id:d[0], g, p:V3(BX+d[2],1.5,Z-9)});
+      });
+    }
+  });
+  buildStoryBoss();
+}
+function makeMonster(k){
+  const g = new THREE.Group(); const C = CH[k];
+  if (k===0){ // STATIC: tall flickering figure with a TV-noise face
+    const b=new THREE.Mesh(new THREE.CapsuleGeometry(0.3,1.7,6,10),new THREE.MeshLambertMaterial({color:C.mcol})); b.position.y=1.2; g.add(b); g.userData.body=b;
+    const f=new THREE.Mesh(BOXG,new THREE.MeshBasicMaterial({color:0xffffff})); f.scale.set(0.4,0.3,0.05); f.position.set(0,2.1,-0.3); g.add(f); g.userData.face=f;
+  } else if (k===1){ // DEEP EAR: hunched, eyeless, giant ears
+    const b=new THREE.Mesh(SPH,new THREE.MeshLambertMaterial({color:C.mcol})); b.scale.set(0.6,0.7,0.9); b.position.y=0.8; g.add(b);
+    const h=new THREE.Mesh(SPH,M(0x2a1e18)); h.scale.setScalar(0.35); h.position.set(0,1.2,-0.7); g.add(h);
+    [-1,1].forEach(s=>{ const e=new THREE.Mesh(SPH,M(0x6a4a3a)); e.scale.set(0.08,0.55,0.35); e.position.set(s*0.45,1.5,-0.6); e.rotation.z=s*0.5; g.add(e); });
+  } else { // MR. GRIN: thin figure with a white mask and a huge grin
+    const b=new THREE.Mesh(new THREE.CapsuleGeometry(0.22,1.9,6,10),M(0x2a1a3a)); b.position.y=1.3; g.add(b);
+    const c=makeCanvas(128,128), x=c.getContext('2d'); x.fillStyle='#f4f0ff'; x.beginPath(); x.arc(64,64,62,0,7); x.fill();
+    x.fillStyle='#000'; x.beginPath(); x.arc(42,50,9,0,7); x.arc(86,50,9,0,7); x.fill(); x.lineWidth=7; x.beginPath(); x.arc(64,62,38,0.2,Math.PI-0.2); x.stroke();
+    const f=new THREE.Mesh(new THREE.CircleGeometry(0.3,24),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)})); f.position.set(0,2.35,-0.24); f.rotation.y=Math.PI; g.add(f);
+  }
+  g.position.set(600,0,k*200-15); g.visible=false; scene.add(g); return g;
+}
+let sBoss, sBossCore, sBossTag;
+function buildStoryBoss(){
+  sBoss = new THREE.Group(); scene.add(sBoss);
+  const body = new THREE.Mesh(SPH, new THREE.MeshLambertMaterial({color:0x8899aa})); sBoss.add(body); sBoss.userData.body=body;
+  const eyeM = new THREE.MeshBasicMaterial({color:0xff3030});
+  [-0.35,0.35].forEach(x=>{ const e=new THREE.Mesh(SPH,eyeM); e.scale.setScalar(0.14); e.position.set(x,0.25,-0.88); sBoss.add(e); });
+  [-0.55,0.55].forEach(x=>{ const h=new THREE.Mesh(CONE,M(0x222222)); h.scale.set(0.18,0.6,0.18); h.position.set(x,0.95,0); h.rotation.z=-x*0.8; sBoss.add(h); });
+  sBossCore = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({color:0x553355})); sBossCore.scale.setScalar(0.32); sBossCore.position.set(0,-0.3,-0.9); sBoss.add(sBossCore);
+  sBossTag = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(makeCanvas(512,128)), transparent:true, depthTest:false}));
+  sBossTag.scale.set(2.4,0.6,1); sBossTag.position.y=1.8; sBoss.add(sBossTag); sBoss.visible=false;
+}
+function drawBossTagS(name,hp,max){
+  const c=sBossTag.material.map.image, g=c.getContext('2d'); g.clearRect(0,0,512,128);
+  g.fillStyle='#fff'; g.font='bold 44px sans-serif'; g.textAlign='center'; g.fillText(name,256,48);
+  g.fillStyle='#300'; g.fillRect(56,72,400,30); g.fillStyle='#f33'; g.fillRect(56,72,400*Math.max(0,hp)/max,30); sBossTag.material.map.needsUpdate=true;
+}
+
+// ================= ATTACKS (shared by story bosses + Time Keeper) =================
+const ATK = []; const laserMat = new THREE.MeshBasicMaterial({color:0xff2a6a, transparent:true, opacity:0.9});
+const warnMat = new THREE.MeshBasicMaterial({color:0xff3030, transparent:true, opacity:0.5, side:THREE.DoubleSide});
+let atkHitCd = 0;
+function spawnAtk(m){
+  const c = V3(m.c[0],m.c[1],m.c[2]);
+  if (m.k==='laser'){
+    const g=new THREE.Group(); g.position.set(c.x,c.y+m.h,c.z); scene.add(g); const L=m.L||22;
+    for (let i=0;i<m.n;i++){ const b=new THREE.Mesh(BOXG,m.col?new THREE.MeshBasicMaterial({color:m.col,transparent:true,opacity:0.9}):laserMat); b.scale.set(2*L,0.06,0.06); b.rotation.y=i*Math.PI/m.n; g.add(b); }
+    ATK.push({k:'laser', g, c, n:m.n, w:m.w, h:m.h, L, t:0, dur:m.dur});
+  } else if (m.k==='ring'){
+    const r=new THREE.Mesh(new THREE.TorusGeometry(1,0.08,6,48),new THREE.MeshBasicMaterial({color:m.col||0xffa040})); r.rotation.x=Math.PI/2; r.position.set(c.x,c.y+0.3,c.z); scene.add(r);
+    ATK.push({k:'ring', g:r, c, s:m.s||6, max:m.r||16, R:0.5, t:0});
+  } else if (m.k==='shards'){
+    for (const q of m.list){
+      const w=new THREE.Mesh(new THREE.RingGeometry(0.8,1.0,24),warnMat); w.rotation.x=-Math.PI/2; w.position.set(q[0],c.y+0.03,q[1]); scene.add(w);
+      const s=new THREE.Mesh(new THREE.OctahedronGeometry(0.5),M(m.col||0x7fe8ff,0.8)); s.scale.set(0.6,1.6,0.6); s.position.set(q[0],c.y+14,q[1]); scene.add(s);
+      ATK.push({k:'shard', w, s, x:q[0], z:q[1], y:c.y, t:0, d:m.d||1.4});
+    }
+  }
+}
+function clearAtks(){ for (const a of ATK){ if (a.g) scene.remove(a.g); if (a.w) scene.remove(a.w); if (a.s) scene.remove(a.s); } ATK.length=0; }
+let onAtkHit = null; // set by whoever owns the fight
+function stepAtks(dt){
+  atkHitCd -= dt; const head=headWorld(); const feet=rig.position.y;
+  const hit = dmg=>{ if (atkHitCd>0) return; atkHitCd=0.8; hapticAll(1,150); tone(140,0.2,0.3,'sawtooth'); if (onAtkHit) onAtkHit(dmg); };
+  for (let i=ATK.length-1;i>=0;i--){
+    const a=ATK[i]; a.t+=dt; let done=false;
+    if (a.k==='laser'){
+      const warm = a.t<1.0; a.g.rotation.y += a.w*dt*(warm?0.2:1);
+      a.g.children.forEach(b=>{ b.scale.y=b.scale.z=warm?0.03:0.14; });
+      const y=a.c.y+a.h;
+      if (!warm && y>feet-0.05 && y<head.y+0.12){
+        const dx=head.x-a.c.x, dz=head.z-a.c.z;
+        if (Math.hypot(dx,dz)<a.L) for (let k=0;k<a.n;k++){ const phi=a.g.rotation.y+k*Math.PI/a.n; if (Math.abs(dx*Math.sin(phi)+dz*Math.cos(phi))<0.3){ hit(20); break; } }
+      }
+      if (a.t>a.dur) done=true;
+    } else if (a.k==='ring'){
+      a.R += a.s*dt; a.g.scale.set(a.R,a.R,1);
+      const r=Math.hypot(head.x-a.c.x, head.z-a.c.z);
+      if (Math.abs(r-a.R)<0.35 && feet<a.c.y+0.45) hit(18);
+      if (a.R>a.max) done=true;
+    } else if (a.k==='shard'){
+      const f=clamp((a.t-(a.d-0.35))/0.35,0,1); a.s.position.y=a.y+14-f*13.4; a.w.material.opacity=0.3+0.4*Math.abs(Math.sin(a.t*10));
+      if (f>=1 && !a.landed){ a.landed=true; tone(90,0.2,0.15,'square'); if (Math.hypot(head.x-a.x, head.z-a.z)<1.0 && head.y-a.y<3.2) hit(25); }
+      if (a.t>a.d+0.8) done=true;
+    }
+    if (done){ if (a.g) scene.remove(a.g); if (a.w) scene.remove(a.w); if (a.s) scene.remove(a.s); ATK.splice(i,1); }
+  }
+}
+
+// ================= STORY: HOST =================
+function newStory(){
+  return {active:false, run:0, round:0, ch:0, stage:'intro', timer:0, items:[], mem:[0,0,0], exitOpen:false,
+    mon:[600,-15], monGoal:null, boss:null, ending:null, spawnKey:'story0find', tpSeq:0};
+}
+function startStory(){
+  const S = G.story; const seq=S.tpSeq+1, run=S.run+1;
+  G.story = Object.assign(newStory(), {active:true, run, round:run, tpSeq:seq}); enterChapter(0, false);
+}
+function enterChapter(ch, bump=true){
+  const S=G.story; S.ch=ch; S.stage='intro'; S.timer=8; S.exitOpen=false; S.items=new Array(ch<3?CH_ITEMS[ch].length:0).fill(0);
+  S.mon=[600, ch*200-15]; S.monGoal=null; S.boss=null;
+  S.spawnKey = ch<3 ? 'story'+ch+'find' : 'story3boss';
+  if (bump) S.tpSeq++;
+  broadcast({t:'g', g:G});
+}
+function storyPlayers(){ return Object.keys(P).filter(id=>G.pm[id]==='story'); }
+function initStoryBoss(){
+  const S=G.story, C=CH[S.ch]; S.stage='boss';
+  S.boss={p:[680,3,S.ch*200], hp:C.hp, max:C.hp, vuln:0, t:0, atkT:4, atkI:0, hitCd:0};
+  S.spawnKey='story'+S.ch+'boss'; S.tpSeq++;
+  broadcast({t:'toast', text:'⚔ '+C.boss+' appears!'});
+}
+function hostStoryStep(dt){
+  const S=G.story; if (!S.active) return;
+  const ids=storyPlayers(); if (!ids.length){ S.active=false; return; }
+  if (S.stage==='intro'){ S.timer-=dt; if (S.timer<=0){ if (S.ch<3) S.stage='explore'; else initStoryBoss(); } return; }
+  if (S.stage==='explore'){
+    const C=CH[S.ch], Z=S.ch*200; const m=S.mon;
+    const here = ids.filter(id=>P[id].st && mapAt({x:P[id].st[0],z:P[id].st[2]})==='story'+S.ch);
+    let target=null, speed=1.3;
+    if (C.mtype==='hunter'){
+      let bd=14; for (const id of here){ const s=P[id].st; if (s[16]&2) continue; const d=Math.hypot(s[0]-m[0],s[2]-m[1]); if (d<bd){ bd=d; target=[s[0],s[2]]; } }
+      speed = target?2.7:1.5;
+    } else if (C.mtype==='listener'){
+      for (const id of here){ const s=P[id].st; if ((s[16]&1) && Math.hypot(s[0]-m[0],s[2]-m[1])<18) S.monGoal=[s[0],s[2]]; }
+      if (S.monGoal){ target=S.monGoal; speed=3.3; if (Math.hypot(target[0]-m[0],target[1]-m[1])<0.6) S.monGoal=null; } else speed=1.0;
+    } else if (C.mtype==='statue'){
+      const watched = here.some(id=>P[id].st[16]&4);
+      let bd=1e9; for (const id of here){ const s=P[id].st; const d=Math.hypot(s[0]-m[0],s[2]-m[1]); if (d<bd){ bd=d; target=[s[0],s[2]]; } }
+      speed = watched?0:4.2;
+    }
+    if (!target){ if (!S.wander || Math.hypot(S.wander[0]-m[0],S.wander[1]-m[1])<1) S.wander=[600+rand(-18,18), Z+rand(-18,18)]; target=S.wander; }
+    const dx=target[0]-m[0], dz=target[1]-m[1], d=Math.hypot(dx,dz);
+    if (d>0.05){ m[0]+=dx/d*Math.min(d,speed*dt); m[1]+=dz/d*Math.min(d,speed*dt); }
+    m[0]=clamp(m[0],579,621); m[1]=clamp(m[1],Z-21,Z+21);
+    return;
+  }
+  if (S.stage==='boss'){
+    const B=S.boss, C=CH[S.ch]; B.t+=dt; B.hitCd=Math.max(0,B.hitCd-dt);
+    const cx=680, cz=S.ch*200;
+    if (B.vuln>0){ B.vuln-=dt; B.p[1]=Math.max(1.4,B.p[1]-dt*4); return; }
+    B.p[0]=cx+Math.cos(B.t*0.45)*6; B.p[2]=cz-4+Math.sin(B.t*0.45)*5; B.p[1]=3.6+Math.sin(B.t*2)*0.5;
+    B.atkT-=dt;
+    if (B.atkT<=0){
+      const list = (S.ch===3 && B.hp<=B.max/2) ? C.atks2 : C.atks;
+      const k = list[B.atkI%list.length]; B.atkI++;
+      bossAttack(k);
+      B.atkT = k.startsWith('laser') ? 7.5 : 3.4;
+      if (B.atkI%4===0){ B.vuln=5.5; B.atkT=6.5; broadcast({t:'toast', text:'It\'s STUNNED — punch the glowing core!'}); }
+    }
+  }
+  if (S.stage==='clear'){ S.timer-=dt; if (S.timer<=0) enterChapter(S.ch+1); }
+  if (S.stage==='done'){ S.timer-=dt; if (S.timer<=0){ storyPlayers().forEach(id=>{ G.pm[id]='hangout'; sendTo(id,{t:'joined', m:'hangout', key:'lobby', alive:true, seq:0}); }); S.active=false; } }
+}
+function bossAttack(k){
+  const S=G.story, cz=S.ch*200, c=[680,0,cz], B=S.boss;
+  const here = storyPlayers().filter(id=>P[id].st && mapAt({x:P[id].st[0],z:P[id].st[2]})==='story'+S.ch+'b');
+  const final = S.ch===3;
+  if (k==='proj') here.forEach(id=>{ const s=P[id].st; const d=V3(s[0]-B.p[0], s[1]-0.2-B.p[1], s[2]-B.p[2]).setLength(final?9:7); broadcast({t:'proj', p:B.p.slice(), v:[d.x,d.y,d.z], c:final?0xb040ff:0xff4040}); });
+  if (k==='ring') broadcast({t:'atk', k:'ring', c:[B.p[0],0,B.p[2]], s:6, r:17, col:final?0xb040ff:0xffa040});
+  if (k==='shards'){ const list=[]; here.forEach(id=>{ const s=P[id].st; list.push([s[0],s[2]]); list.push([s[0]+rand(-2,2),s[2]+rand(-2,2)]); });
+    for (let i=0;i<6;i++) list.push([680+rand(-14,14), cz+rand(-14,14)]); broadcast({t:'atk', k:'shards', c, list, d:1.5, col:final?0xb040ff:0xb08a5a}); }
+  if (k==='laserLow') broadcast({t:'atk', k:'laser', c, n:final?3:2, w:final?1.0:0.8, h:0.45, dur:6.5, L:16});
+  if (k==='laserHigh') broadcast({t:'atk', k:'laser', c, n:2, w:-0.9, h:1.45, dur:6.5, L:16, col:0xb040ff});
+}
+function hostStoryMsg(id, m){
+  const S=G.story; if (!S.active || G.pm[id]!=='story') return;
+  if (m.k==='item' && S.stage==='explore' && !S.items[m.i]){
+    S.items[m.i]=1; const n=S.items.reduce((a,b)=>a+b,0), tot=S.items.length;
+    broadcast({t:'toast', text:'✨ '+CH[S.ch].item+' found ('+n+'/'+tot+')'});
+    if (n===tot){ S.exitOpen=true; broadcast({t:'toast', text:'The way forward is OPEN — find the glowing exit!'}); }
+  }
+  if (m.k==='mem' && S.stage==='explore' && !S.mem[S.ch]){ S.mem[S.ch]=1; broadcast({t:'toast', text:'💜 A Memory Shard... ('+S.mem.reduce((a,b)=>a+b,0)+'/3)'}); }
+  if (m.k==='exit' && S.stage==='explore' && S.exitOpen) initStoryBoss();
+  if (m.k==='bosshit' && S.stage==='boss' && S.boss.vuln>0 && S.boss.hitCd<=0){
+    S.boss.hp--; S.boss.hitCd=0.35;
+    if (S.boss.hp<=0){
+      clearAllAtks();
+      if (S.ch<3){ S.stage='clear'; S.timer=6; broadcast({t:'toast', text:'🏆 '+CH[S.ch].boss+' DEFEATED!'}); }
+      else { S.stage='ending'; broadcast({t:'toast', text:'The Dimming falls... choose an ending at the pedestals.'}); }
+    }
+  }
+  if (m.k==='pedestal' && S.stage==='ending'){
+    if (m.c==='true' && S.mem.reduce((a,b)=>a+b,0)<3) return;
+    S.ending=m.c; S.stage='done'; S.timer=24;
+  }
+  broadcast({t:'g', g:G});
+}
+function clearAllAtks(){ broadcast({t:'clearatk'}); }
+
+// ================= STORY: CLIENT =================
+const storyLocal = {battT:{}, cardShown:{}, caughtCd:0, pend:{}};
+function storyChecks(dt){
+  const S=G.story; if (me.mode!=='story' || !S.active) return;
+  const head=headWorld(); const mk=mapAt(head);
+  const key=S.run+'_'+S.ch;
+  if (S.stage==='intro' && !storyLocal.cardShown[key]){
+    storyLocal.cardShown[key]=1;
+    const C=CH[S.ch]; showPanel((S.ch<3?'CHAPTER '+(S.ch+1):'FINAL CHAPTER')+': '+C.name.toUpperCase(), (S.ch===0?STORY_PROLOGUE+'  ':'')+C.intro, S.ch===0?14:9);
+  }
+  storyLocal.caughtCd-=dt;
+  const o = storyObj[S.ch];
+  if (S.stage==='explore' && S.ch<3 && mk==='story'+S.ch){
+    o.items.forEach((it,i)=>{ const k='i'+key+i; if (!S.items[i] && !storyLocal.pend[k] && nearAnyHand(it.p,0.4)){ storyLocal.pend[k]=1; send({t:'story', k:'item', i}); tone(880,0.12,0.15,'sine',1.5); } });
+    const km='m'+key; if (!S.mem[S.ch] && !storyLocal.pend[km] && nearAnyHand(o.mem.p,0.4)){ storyLocal.pend[km]=1; send({t:'story', k:'mem'}); tone(600,0.3,0.15,'sine',2); }
+    if (S.exitOpen && (nearAnyHand(o.exit.p,0.9) || o.exit.p.distanceTo(head)<1.0) && !storyLocal.pend['x'+key]){ storyLocal.pend['x'+key]=1; send({t:'story', k:'exit'}); }
+    // monster catch
+    const md = Math.hypot(head.x-S.mon[0], head.z-S.mon[1]);
+    if (md<0.95 && storyLocal.caughtCd<=0 && !(CH[S.ch].mtype==='hunter' && me.hidden)){
+      storyLocal.caughtCd=4; toast('👁 '+CH[S.ch].monster+' caught you! Back to the start...'); hapticAll(1,400); sting(false);
+      me.battery=Math.max(0,me.battery-30); teleport(spawnPos(S.spawnKey));
+    }
+  }
+  if (mk==='story'+S.ch){
+    o && o.logs && o.logs.forEach(l=>{ if (nearAnyHand(l.p,0.35) && !storyLocal.pend['l'+l.i+key]){ storyLocal.pend['l'+l.i+key]=1; showPanel(LOGS[l.i][0], LOGS[l.i][1], 9); tone(500,0.1,0.1);
+      if (!save.logs) save.logs={}; save.logs[l.i]=1; if (Object.keys(save.logs).length>=LOGS.length) ach('lore'); persist(); } });
+    o && o.batt && o.batt.forEach(b=>{ if (b.t<=0 && nearAnyHand(b.p,0.35)){ b.t=45; me.battery=Math.min(100,me.battery+45); toast('🔋 Battery +45'); tone(1000,0.08,0.1); } });
+  }
+  if (S.stage==='boss' && mk==='story'+S.ch+'b' && S.boss.vuln>0 && bossHitCd<=0){
+    const core=sBossCore.getWorldPosition(V3());
+    if (hands.some(h=>h.connected && h.mesh.position.distanceTo(core)<0.55*CH[S.ch].size)){ bossHitCd=0.6; send({t:'story', k:'bosshit'}); hapticAll(1,100); tone(200,0.15,0.3,'square'); }
+  }
+  if (S.stage==='ending'){
+    storyObj[3].ped.forEach(pd=>{ if (pd.g.visible && !storyLocal.pend['pd'+S.run] && nearAnyHand(pd.p,0.45)){ storyLocal.pend['pd'+S.run]=1; send({t:'story', k:'pedestal', c:pd.id}); setTimeout(()=>delete storyLocal.pend['pd'+S.run],1500); } });
+  }
+}
+function computeStoryBits(head){
+  let bits=0;
+  if (hands.some(h=>h.connected && h.speed>3.2)) bits|=1;
+  me.hidden = false;
+  const S=G.story;
+  if (me.mode==='story' && S.active && S.ch<3){
+    for (const l of storyObj[S.ch].lockers){ if (head.x>l.min.x&&head.x<l.max.x&&head.z>l.min.z&&head.z<l.max.z&&head.y<l.max.y+0.2){ me.hidden=true; break; } }
+    if (me.hidden) bits|=2;
+    const mon=V3(S.mon[0],1.6,S.mon[1]); const to=mon.sub(head); const d=to.length();
+    if (d<24){ const fwd=V3(0,0,-1).applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion())); if (to.normalize().dot(fwd)>0.72) bits|=4; }
+  }
+  return bits;
+}
+function syncStory(dt){
+  const S=G.story; const hw=headWorld();
+  storyObj.forEach((o,k)=>{
+    const on = S.active && S.ch===k;
+    if (o.items) o.items.forEach((it,i)=>{ it.m.visible = on && S.stage==='explore' && !S.items[i]; it.m.rotation.y+=dt*2; });
+    if (o.mem){ o.mem.m.visible = on && S.stage==='explore' && !S.mem[k]; o.mem.m.rotation.y+=dt*3; }
+    if (o.batt) o.batt.forEach(b=>{ b.t-=dt; b.m.visible = b.t<=0; });
+    if (o.exit){ const open = on && S.exitOpen; o.exit.ring.material = M(open?0x7fff7a:0x555555, open?1:0.1); o.exit.g.visible = true; o.exit.open=open; }
+    if (o.mon){
+      o.mon.visible = on && S.stage==='explore';
+      if (o.mon.visible){
+        const tgt=V3(S.mon[0],0,S.mon[1]);
+        if (CH[k].mtype==='statue') o.mon.position.copy(tgt); else o.mon.position.lerp(tgt, 1-Math.exp(-8*dt));
+        o.mon.lookAt(hw.x,0,hw.z); o.mon.rotateY(Math.PI);
+        if (k===0){ o.mon.userData.face.material.color.setHSL(0,0,Math.random()); o.mon.userData.body.visible = Math.random()>0.06; }
+      }
+    }
+    if (o.wheel) o.wheel.rotation.z += dt*0.2;
+    if (o.ped) o.ped.forEach(pd=>{ pd.g.visible = S.active && S.stage==='ending' && (pd.id!=='true' || S.mem.reduce((a,b)=>a+b,0)>=3); });
+  });
+  const showBoss = S.active && S.stage==='boss' && S.boss;
+  sBoss.visible = !!showBoss;
+  if (showBoss){
+    const C=CH[S.ch], B=S.boss;
+    sBoss.scale.setScalar(C.size); sBoss.userData.body.material.color.setHex(C.bossCol);
+    sBoss.position.lerp(V3(B.p[0],B.p[1],B.p[2]), 1-Math.exp(-6*dt));
+    sBoss.lookAt(hw.x, sBoss.position.y, hw.z); sBoss.rotateY(Math.PI);
+    sBossCore.material.color.setHex(B.vuln>0 ? (Math.sin(performance.now()/90)>0?0xffff60:0xff8a00) : 0x553355);
+    const tag=B.hp+'_'+S.ch; if (sBoss.userData.tag!==tag){ sBoss.userData.tag=tag; drawBossTagS(C.boss,B.hp,B.max); }
+  }
+}
+// ================= FIND THE YETIS SECRET: THE TIME KEEPER =================
+if (!save.tk) save.tk = {d1:0, d2:0, awake:0, claimed:0};
+MAPS.dungeon = {c:V3(460,0,300), name:'???', sky:0x000000, fog:[3,22], hemi:0.22, sun:0};
+MAPS.space   = {c:V3(460,0,520), name:'The Edge of Time', sky:0x02010a, fog:[90,260], hemi:0.75, sun:0.5};
+SPAWNS.dungeon = V3(460,0,306); SPAWNS.space = V3(460,0,536); SPAWNS.peaksPortal = V3(300,0,322);
+
+const MORSE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
+const keypads = [];
+let crackWall, spacePortal, tkShrine, tkBoss, morseLamp, d1Door, d2Door, tkExitPortal, spaceExitPortal;
+
+function galaxyTex(){
+  const c=makeCanvas(256,256), g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,256,256); gr.addColorStop(0,'#1a0640'); gr.addColorStop(0.5,'#3a1a8a'); gr.addColorStop(1,'#0a2a6a');
+  g.fillStyle=gr; g.fillRect(0,0,256,256);
+  for (let i=0;i<220;i++){ g.fillStyle=`rgba(255,255,255,${Math.random()})`; const r=Math.random()*1.6+0.3; g.beginPath(); g.arc(Math.random()*256,Math.random()*256,r,0,7); g.fill(); }
+  for (let i=0;i<6;i++){ g.fillStyle=`rgba(${150+Math.random()*100},120,255,0.18)`; g.beginPath(); g.arc(Math.random()*256,Math.random()*256,20+Math.random()*40,0,7); g.fill(); }
+  return new THREE.CanvasTexture(c);
+}
+const GALAXY_MAT = new THREE.MeshBasicMaterial({map:galaxyTex()});
+function makeTimeKeeper(){
+  const g = new THREE.Group();
+  const body=new THREE.Mesh(SPH,GALAXY_MAT); body.scale.set(0.42,0.5,0.36); body.position.y=0.55; g.add(body);
+  const head=new THREE.Group(); head.position.y=1.25; g.add(head);
+  const hs=new THREE.Mesh(SPH,GALAXY_MAT); hs.scale.setScalar(0.3); head.add(hs);
+  const cc=makeCanvas(256,256); const ctex=new THREE.CanvasTexture(cc);
+  const clock=new THREE.Mesh(new THREE.CircleGeometry(0.22,32), new THREE.MeshBasicMaterial({map:ctex})); clock.position.set(0,0,-0.27); clock.rotation.y=Math.PI; head.add(clock);
+  [-1,1].forEach(s=>{ const h=new THREE.Mesh(CONE,M(0xffd24a,0.6)); h.scale.set(0.05,0.16,0.05); h.position.set(s*0.2,0.26,0); h.rotation.z=-s*0.5; head.add(h); });
+  const hands=[-1,1].map(s=>{ const m=new THREE.Mesh(SPH,GALAXY_MAT); m.scale.setScalar(0.13); m.position.set(s*0.55,0.6,-0.1); g.add(m); return m; });
+  const bubble=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(makeCanvas(1024,192)), transparent:true, depthTest:false}));
+  bubble.scale.set(2.6,0.49,1); bubble.position.y=2.0; bubble.visible=false; g.add(bubble);
+  scene.add(g);
+  return {g, head, clock, cc, ctex, hands, bubble, spin:1, sayT:0};
+}
+function drawClock(tk, t){
+  const g=tk.cc.getContext('2d'); g.clearRect(0,0,256,256);
+  g.fillStyle='#f6f0dc'; g.beginPath(); g.arc(128,128,124,0,7); g.fill(); g.lineWidth=8; g.strokeStyle='#ffd24a'; g.stroke();
+  g.fillStyle='#222'; g.font='bold 34px sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+  [['12',0],['3',1],['6',2],['9',3]].forEach(([n,i])=>{ const a=i*Math.PI/2; g.fillText(n,128+Math.sin(a)*92,128-Math.cos(a)*92); });
+  const hand=(a,len,w,c)=>{ g.strokeStyle=c; g.lineWidth=w; g.lineCap='round'; g.beginPath(); g.moveTo(128,128); g.lineTo(128+Math.sin(a)*len,128-Math.cos(a)*len); g.stroke(); };
+  hand(t*0.1,58,10,'#222'); hand(t,86,6,'#222'); hand(t*6,96,3,'#c00');
+  g.fillStyle='#c00'; g.beginPath(); g.arc(128,128,9,0,7); g.fill(); tk.ctex.needsUpdate=true;
+}
+function tkSay(tk, text, secs=4){
+  const c=tk.bubble.material.map.image, g=c.getContext('2d'); g.clearRect(0,0,1024,192);
+  g.fillStyle='rgba(20,6,50,0.9)'; g.fillRect(10,10,1004,172); g.strokeStyle='#ffd24a'; g.lineWidth=6; g.strokeRect(10,10,1004,172);
+  g.fillStyle='#ffe9a0'; g.font='bold 64px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(text,512,96);
+  tk.bubble.material.map.needsUpdate=true; tk.bubble.visible=true; tk.sayT=secs; toast('⏰ TIME KEEPER: "'+text+'"');
+}
+
+// ---------- keypad (poke the letters with your hand) ----------
+const KP_ROWS = ['ABCDEFG','HIJKLMN','OPQRSTU','VWXYZ<✔'];
+function makeKeypad(pos, ry, answer, onSolve){
+  const W=1.12, H=0.64, c=makeCanvas(560,320), tex=new THREE.CanvasTexture(c);
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(W,H), new THREE.MeshBasicMaterial({map:tex})); mesh.position.copy(pos); mesh.rotation.y=ry; scene.add(mesh);
+  const disp=sign(['_ _ _'], 0,0,0, W,0.22, ry, '#000','#7fff7a',60); disp.position.copy(pos); disp.position.y+=0.48;
+  const kp = {mesh, disp, c, tex, answer, onSolve, typed:'', lit:-1, litT:0, last:[null,null], solved:false};
+  kp.draw = ()=>{
+    const g=c.getContext('2d'); g.fillStyle='#1a1a22'; g.fillRect(0,0,560,320);
+    KP_ROWS.forEach((row,r)=>[...row].forEach((ch,col)=>{ const i=r*7+col;
+      g.fillStyle = i===kp.lit ? '#ffd24a' : (ch==='✔'?'#2a7a3a':ch==='<'?'#7a2a2a':'#3a4a6a'); g.fillRect(col*80+5,r*80+5,70,70);
+      g.fillStyle='#fff'; g.font='bold 40px sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(ch==='<'?'⌫':ch,col*80+40,r*80+42); }));
+    tex.needsUpdate=true;
+    disp.userData.draw([kp.solved ? 'UNLOCKED' : (kp.typed || '_ _ _')]);
+  };
+  kp.draw(); keypads.push(kp); return kp;
+}
+function stepKeypad(kp, dt){
+  if (kp.litT>0){ kp.litT-=dt; if (kp.litT<=0){ kp.lit=-1; kp.draw(); } }
+  if (kp.solved) return;
+  hands.forEach((h,hi)=>{
+    if (!h.connected){ kp.last[hi]=null; return; }
+    const l = kp.mesh.worldToLocal(h.mesh.position.clone());
+    if (Math.abs(l.z)<0.1 && Math.abs(l.x)<0.56 && Math.abs(l.y)<0.32){
+      const col=clamp(Math.floor((l.x+0.56)/0.16),0,6), row=clamp(Math.floor((0.32-l.y)/0.16),0,3), i=row*7+col;
+      if (kp.last[hi]!==i){ kp.last[hi]=i; pressKey(kp, i, h); }
+    } else kp.last[hi]=null;
+  });
+}
+function pressKey(kp, i, h){
+  const ch = KP_ROWS[Math.floor(i/7)][i%7]; kp.lit=i; kp.litT=0.2; haptic(h,0.5,30); tone(700,0.06,0.1,'square',1);
+  if (ch==='<') kp.typed=kp.typed.slice(0,-1);
+  else if (ch==='✔'){
+    if (kp.typed===kp.answer){ kp.solved=true; sting(true); kp.onSolve(); }
+    else { tone(110,0.4,0.25,'sawtooth',1); toast('✖ WRONG CODE'); kp.typed=''; }
+  } else if (kp.typed.length<10) kp.typed+=ch;
+  kp.draw();
+}
+
+// ---------- build ----------
+function buildSecret(){
+  // 1) cracked wall at the back of the cave in Yeti Peaks
+  const c=makeCanvas(256,256), g=c.getContext('2d'); g.fillStyle='#4a5866'; g.fillRect(0,0,256,256);
+  g.strokeStyle='#0a0a12'; g.lineWidth=6; g.beginPath(); g.moveTo(128,10); g.lineTo(100,80); g.lineTo(150,120); g.lineTo(90,190); g.lineTo(130,250); g.moveTo(150,120); g.lineTo(210,150); g.moveTo(100,80); g.lineTo(40,70); g.stroke();
+  g.fillStyle='rgba(180,140,255,0.25)'; g.fillRect(0,0,256,256);
+  crackWall = new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.8), new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));
+  crackWall.position.set(318,1.0,299.43); scene.add(crackWall);
+  portals.push({g:crackWall, p:V3(318,1.0,299.5), swirl:new THREE.Object3D(), cd:0, action:{local:()=>{ teleport(spawnPos('dungeon')); toast('...you squeezed through the crack. Where is this?'); tone(80,1.2,0.3,'sine',0.5); }}});
+  // 2) the dungeon
+  const X=460, Z=300, stone=0x34343e;
+  box(X,-0.5,Z-14,8.6,1,47,0x26262e); box(X,5.15,Z-14,8.6,0.3,47,0x15151a);
+  box(X-4.3,2.5,Z-14,0.6,5,47,stone); box(X+4.3,2.5,Z-14,0.6,5,47,stone);
+  box(X,2.5,Z+9.3,8.6,5,0.6,stone); box(X,2.5,Z-37.3,8.6,5,0.6,stone);
+  for (let i=0;i<8;i++){ const z=Z+6-i*5.6; box(X-3.9,3,z,0.2,0.4,0.2,M(0xff8a2a,1),false); box(X+3.9,3,z,0.2,0.4,0.2,M(0xff8a2a,1),false); }
+  d1Door = box(X,2.5,Z-12,8,5,0.4,0x5a3a20); d2Door = box(X,2.5,Z-24,8,5,0.4,0x3a2050);
+  makePortal(V3(X-2.6,1.4,Z+8.9), Math.PI, 0xffffff, 'EXIT', {local:()=>{ teleport(spawnPos('markers')); }});
+  // room 1: morse
+  sign(['-.--   .   -   ..','The door hums in this rhythm...'], X-3.95,2.6,Z-4, 3.4,1.2, Math.PI/2, '#0a0a10','#9fe0ff',70);
+  const chart = Object.entries(MORSE).map(([k,v])=>k+' '+v);
+  const pc=makeCanvas(512,640), pg=pc.getContext('2d'); pg.fillStyle='#e8dcc0'; pg.fillRect(0,0,512,640); pg.fillStyle='#2a1a0a'; pg.font='bold 34px serif'; pg.textAlign='center'; pg.fillText('MORSE CODE',256,44);
+  pg.font='bold 28px monospace'; pg.textAlign='left'; chart.forEach((t,i)=>pg.fillText(t, i<13?40:280, 96+(i%13)*41));
+  const poster=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(pc)})); poster.position.set(X-3.95,2.2,Z-8.6); poster.rotation.y=Math.PI/2; scene.add(poster);
+  morseLamp = new THREE.Mesh(SPH, new THREE.MeshBasicMaterial({color:0x221100})); morseLamp.scale.setScalar(0.18); morseLamp.position.set(X-3.9,3.9,Z-4); scene.add(morseLamp);
+  makeKeypad(V3(X+3.95,1.35,Z-9), -Math.PI/2, 'YETI', ()=>{ save.tk.d1=1; persist(); ach('code1'); toast('🔓 The stone door grinds open...'); });
+  // room 2: number cipher
+  sign(['18 · 21 · 14 · 14 · 5 · 18 · 19','A different lock. A different language.'], X-3.95,2.6,Z-16.5, 3.4,1.2, Math.PI/2, '#0a0a10','#ffd27a',64);
+  const nc=makeCanvas(512,640), ng=nc.getContext('2d'); ng.fillStyle='#d8d0e8'; ng.fillRect(0,0,512,640); ng.fillStyle='#1a0a2a'; ng.font='bold 34px serif'; ng.textAlign='center'; ng.fillText('THE OLD COUNT',256,44);
+  ng.font='bold 28px monospace'; ng.textAlign='left'; 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((ch,i)=>ng.fillText(ch+' = '+(i+1), i<13?60:290, 96+(i%13)*41));
+  const poster2=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(nc)})); poster2.position.set(X-3.95,2.2,Z-20.8); poster2.rotation.y=Math.PI/2; scene.add(poster2);
+  makeKeypad(V3(X+3.95,1.35,Z-21), -Math.PI/2, 'RUNNERS', ()=>{ save.tk.d2=1; persist(); toast('🔓 The last door opens...'); awakenTimeKeeper(); });
+  // room 3: shrine
+  box(X,0.3,Z-32,3,0.6,3,0x2a1a4a); for (let i=0;i<6;i++){ const a=i/6*Math.PI*2; box(X+Math.cos(a)*3.2,2,Z-32+Math.sin(a)*3.2,0.4,4,0.4,M(0x6a4aff,0.4)); }
+  tkShrine = makeTimeKeeper(); tkShrine.g.position.set(X,0.6,Z-32); tkShrine.g.scale.setScalar(1.3);
+  tkExitPortal = makePortal(V3(X+2.8,1.4,Z-36.9), 0, 0xffd24a, 'BACK TO PEAKS', {local:()=>{ teleport(spawnPos('peaksPortal')); }});
+  // 3) portal in Yeti Peaks (appears once he is awake)
+  spacePortal = makePortal(V3(300,1.6,316), Math.PI, 0x8a5aff, '???', {local:()=>{ teleport(spawnPos('space')); startTKFight(); }});
+  // 4) the edge of time (space platform)
+  const SX=460, SZ=520;
+  box(SX,-0.5,SZ,24,1,40,0x2a2050); box(SX,-0.02,SZ,22,0.04,38,M(0x4a3a8a,0.2),false);
+  for (let i=0;i<20;i++){ const a=i/20; box(SX-12,0.15,SZ-20+a*40,0.3,0.3,0.3,M(0xffd24a,1),false); box(SX+12,0.15,SZ-20+a*40,0.3,0.3,0.3,M(0xffd24a,1),false); }
+  const sg=new THREE.BufferGeometry(); const pts=[];
+  for (let i=0;i<1800;i++){ const v=V3(rand(-1,1),rand(-0.6,1),rand(-1,1)).normalize().multiplyScalar(rand(70,110)); pts.push(SX+v.x, v.y, SZ+v.z); }
+  sg.setAttribute('position', new THREE.Float32BufferAttribute(pts,3));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff, size:0.5, fog:false})));
+  const bigClock=new THREE.Mesh(new THREE.TorusGeometry(18,0.6,8,64),M(0xffd24a,0.6)); bigClock.position.set(SX,22,SZ-60); scene.add(bigClock);
+  tkBoss = makeTimeKeeper(); tkBoss.g.position.set(SX,0,SZ-15); tkBoss.g.scale.setScalar(3); tkBoss.g.visible=false;
+  spaceExitPortal = makePortal(V3(SX,1.6,SZ+19), Math.PI, 0xffd24a, 'BACK TO PEAKS', {local:()=>{ endTKFight(); teleport(spawnPos('peaksPortal')); }});
+}
+
+function awakenTimeKeeper(){
+  tkShrine.spin = 8; tone(60,2.5,0.35,'sawtooth',0.5); hapticAll(1,800);
+  setTimeout(()=>{ tkSay(tkShrine,'YOU HAVE AWAKEN ME',6); }, 1200);
+  setTimeout(()=>{ save.tk.awake=1; persist(); toast('🌌 A strange portal has opened in the middle of Yeti Peaks...'); }, 5000);
+}
+
+// ---------- the fight (runs only on your headset) ----------
+const TK = {state:'off', t:0, q:[], hp:100};
+function startTKFight(){
+  if (save.tk.claimed){ TK.state='claimed'; tkBoss.g.visible=true; tkBoss.g.rotation.set(0,0,0); tkSay(tkBoss,'...you again. Fine. I am yours.',4); return; }
+  clearAtks(); me.hp=100; TK.state='intro'; TK.t=0; TK.q=[];
+  tkBoss.g.visible=true; tkBoss.g.rotation.set(0,0,0); tkBoss.g.position.set(460,0,505); tkBoss.spin=4;
+  tkSay(tkBoss,'YOU SHALL NEVER COLLECT ME!',4); tone(70,1.5,0.35,'sawtooth',0.6);
+  const C=[460,0,520]; const at=(t,f)=>TK.q.push([t,f]);
+  const shardsAround=(n,spread)=>{ const head=headWorld(); const l=[[head.x,head.z]]; for (let i=0;i<n;i++) l.push([460+rand(-10.5,10.5),520+rand(-18,18)]); for (let i=0;i<3;i++) l.push([head.x+rand(-spread,spread),head.z+rand(-spread,spread)]); spawnAtk({k:'shards',c:C,list:l,d:1.4,col:0xffd24a}); };
+  const ring=()=>spawnAtk({k:'ring',c:[460,0,505],s:7,r:30,col:0xffd24a});
+  // attack script (seconds from start)
+  at(4,  ()=>{ tkSay(tkBoss,'TICK... TOCK...',2); spawnAtk({k:'laser',c:C,n:2,w:0.8,h:0.45,dur:8,L:22,col:0xffd24a}); });
+  at(13, ()=>{ tkSay(tkBoss,'THE SKY IS FALLING!',2); shardsAround(8,2); });
+  at(15, ()=>shardsAround(8,2)); at(17, ()=>shardsAround(10,2));
+  at(20, ()=>{ ring(); }); at(22.5, ()=>ring()); at(25, ()=>ring());
+  at(28, ()=>{ tkSay(tkBoss,'DUCK, LITTLE YETI!',2); spawnAtk({k:'laser',c:C,n:2,w:-1.0,h:1.45,dur:8,L:22,col:0xb07aff}); });
+  at(32, ()=>shardsAround(6,2));
+  at(38, ()=>{ tkSay(tkBoss,'MIDNIGHT STRIKES!',2.5); spawnAtk({k:'laser',c:C,n:3,w:1.1,h:0.45,dur:10,L:22,col:0xffd24a}); });
+  at(40, ()=>shardsAround(8,2)); at(43, ()=>{ ring(); shardsAround(8,2); }); at(46, ()=>shardsAround(10,2));
+  at(50, ()=>{ TK.state='tired'; tkSay(tkBoss,'I... grow... so... tired...',4); tkBoss.spin=0.3; });
+  at(54, ()=>{ TK.state='sleep'; tkSay(tkBoss,'Zzz... Zzz...',999); });
+  onAtkHit = dmg=>{ me.hp-=dmg; if (me.hp<=0){ toast('⏪ TIME REWINDS... try again!'); clearAtks(); teleport(spawnPos('space')); startTKFight(); } };
+}
+function endTKFight(){ TK.state='off'; clearAtks(); onAtkHit = me.mode==='story' ? (d=>storyHurt(d)) : null; tkBoss.g.visible=false; }
+function stepTK(dt, head){
+  if (TK.state==='off') return;
+  if (mapAt(head)!=='space'){ endTKFight(); return; }
+  TK.t+=dt;
+  while (TK.q.length && TK.q[0][0]<=TK.t){ const f=TK.q.shift()[1]; f(); }
+  const b=tkBoss.g;
+  if (TK.state==='intro'){ b.position.y = 0.3+Math.sin(TK.t*2)*0.3; b.lookAt(head.x,b.position.y,head.z); b.rotateY(Math.PI); }
+  if (TK.state==='tired'){ b.rotation.x = Math.min(Math.PI/2.2, b.rotation.x+dt*0.4); b.position.y=Math.max(0,b.position.y-dt); }
+  if (TK.state==='sleep'){
+    b.rotation.x = Math.PI/2.2;
+    const tkHead = tkBoss.head.getWorldPosition(V3());
+    if (nearAnyHand(tkHead,2.2) || head.distanceTo(tkHead)<2.4){
+      TK.state='claimed'; save.tk.claimed=1; tkBoss.bubble.visible=false;
+      own('fur:galaxy'); own('face:clock'); reward(500,'You collected the TIME KEEPER YETI!'); ach('timekeeper'); sting(true); hapticAll(1,600);
+      showPanel('TIME KEEPER YETI — COLLECTED!','The keeper of every second is now yours. Unlocked: Galaxy fur + Clock Face cosmetic. Check ITEMS → YETIS.',10); persist();
+    }
+  }
+  if (TK.state==='claimed'){ b.scale.setScalar(Math.max(0.6,b.scale.x-dt*2)); }
+}
+// ---------- per-frame ----------
+const MORSE_SEQ = (()=>{ const u=0.22, s=[]; 'YETI'.split('').forEach(ch=>{ [...MORSE[ch]].forEach(sym=>{ s.push([1,sym==='.'?u:3*u]); s.push([0,u]); }); s.push([0,2*u]); }); s.push([0,5*u]); return s; })();
+const MORSE_TOTAL = MORSE_SEQ.reduce((a,b)=>a+b[1],0);
+let morseWasOn=false;
+function secretChecks(dt, head, mk){
+  if (mk==='dungeon') keypads.forEach(kp=>stepKeypad(kp,dt));
+  stepTK(dt, head);
+  if (TK.state==='off') onAtkHit = d=>storyHurt(d);
+  if (TK.state!=='off' || me.mode==='story') stepAtks(dt);
+}
+function syncSecret(dt){
+  const tk=save.tk;
+  d1Door.visible = !tk.d1; d1Door.userData.col.on = !tk.d1;
+  d2Door.visible = !tk.d2; d2Door.userData.col.on = !tk.d2;
+  keypads[0].solved = !!tk.d1; keypads[1].solved = !!tk.d2;
+  spacePortal.g.visible = !!tk.awake && !tk.claimed;
+  tkExitPortal.g.visible = !!tk.d2;
+  spaceExitPortal.g.visible = TK.state==='claimed' || TK.state==='off';
+  // morse lamp
+  let t = (performance.now()/1000) % MORSE_TOTAL, on=0; for (const [v,d] of MORSE_SEQ){ if (t<d){ on=v; break; } t-=d; }
+  morseLamp.material.color.setHex(on?0xfff2a0:0x221100);
+  if (on && !morseWasOn && curMapKey==='dungeon' && headWorld().distanceTo(morseLamp.position)<9) tone(660, 0.12, 0.06, 'sine', 1);
+  morseWasOn = !!on;
+  // time keepers
+  [tkShrine, tkBoss].forEach(k=>{
+    if (!k.g.visible) return;
+    k.clockT = (k.clockT||0) + dt*k.spin; k.drawT=(k.drawT||0)-dt; if (k.drawT<=0){ k.drawT=0.1; drawClock(k, k.clockT); }
+    if (k.sayT<900){ k.sayT-=dt; if (k.sayT<=0) k.bubble.visible=false; }
+    k.hands.forEach((h,i)=>{ h.position.y = 0.6+Math.sin(performance.now()/300+i*3)*0.08; });
+  });
+  if (!tk.d2){ tkShrine.g.rotation.set(-0.2,0,0); tkShrine.spin=0; } else if (tkShrine.spin>1){ tkShrine.spin=Math.max(1,tkShrine.spin-dt); tkShrine.g.rotation.x=0; }
+}
 // ================= ACHIEVEMENTS / REWARDS =================
 const ACH = [['first','First Steps','Enter VR'],['climber','Sky Yeti','Climb 20m high'],['fish1',"Gone Fishin'",'Catch a fish'],['fish10','Angler','Catch 10 fish'],
   ['mark5','Marker Hunter','Find 5 hidden Yetis'],['acidwin','Acid Proof','Survive Rising Acid'],['pvp5','Brawler','Get 5 PvP KOs'],['buy1','Shopper','Buy a cosmetic'],
-  ['coll5','Collector','Own 5 collectibles'],['social','Social Yeti','Play with a friend'],['trusted','Trusted User','Play for 1 hour'],['story1','Chapter Clear','Beat a story boss']];
-const BIG = [['horror1','Escaped the Lodge','Beat Horror Chapter 1'],['end_normal','Dawn Returns','Story: Normal Ending'],['end_true','The Whole Truth','Story: True Ending'],
-  ['end_bad','Eternal Night','Story: Bad Ending'],['survivor','Not Safe, Still Alive','Survive N.O.T.S.A.F.E'],['allmarkers','Yeti Finder','Find all 15 Yetis'],
-  ['allfish','Master Angler','Catch every fish'],['allcoll','Full Collection','Own all 12 collectibles']];
+  ['coll5','Collector','Own 5 collectibles'],['social','Social Yeti','Play with a friend'],['trusted','Trusted User','Play for 1 hour'],['story1','Chapter Clear','Beat a story boss'],
+  ['lore','Archivist','Read all 6 story logs'],['code1','Codebreaker','Crack the Morse door']];
+const BIG = [['horror1','Escaped the Lodge','Beat Horror Chapter 1'],['end_normal','Light Returns','Story: Normal Ending'],['end_true','Winterheart','Story: True Ending'],
+  ['end_bad','The Long Dark','Story: Bad Ending'],['survivor','Not Safe, Still Alive','Survive N.O.T.S.A.F.E'],['allmarkers','Yeti Finder','Find all 15 Yetis'],
+  ['allfish','Master Angler','Catch every fish'],['allcoll','Full Collection','Own all 12 collectibles'],['timekeeper','Keeper of Time','Claim the Time Keeper Yeti']];
 function reward(n, why){ save.shards += n; if (why) toast('+'+n+' ❄  '+why); persist(); }
 function ach(id){
   if (save.ach[id]) return; save.ach[id]=Date.now();
@@ -685,49 +1244,57 @@ function checkUnlocks(){
 const NET = {role:'solo', peer:null, conns:{}, host:null, myId:'me', code:''};
 const P = {}; // id -> {name,cos,badges,staff,owner,st,av}
 const MODE_INFO = {
-  hangout:['Hangout','Chill, climb, hang out with friends.'], acid:['Rising Acid','Climb the tower — the acid keeps rising!'],
+  hangout:['Lobby','Walk into a portal in the Portal Hall to play.'], acid:['Rising Acid','Climb the tower — the acid keeps rising!'],
   pvp:['PvP','Swing your fists fast to knock out other yetis.'], horror:['Horror Ch.1','Find 5 fuses and escape The Lodge. The Hollow is hunting.'],
-  story:['Story Mode','Find the Light Shards, beat the bosses, choose the ending.'], fishing:['Fishing','Cast into the Frozen Lake for rare fish.'],
-  markers:['Find the Yetis','Hunt down all 15 hidden Yeti markers.'], notsafe:['N.O.T.S.A.F.E','A staff member is the ENTITY. SURVIVE.'],
+  story:['Story: The Dimming','Survive dark chapters, beat the bosses, choose the ending.'], fishing:['Fishing','Cast into the Frozen Lake for rare fish.'],
+  markers:['Find the Yetis','Hunt down all 15 hidden Yetis... and maybe something more.'], notsafe:['N.O.T.S.A.F.E','A staff member is the ENTITY. SURVIVE.'],
 };
 const MODE_SPAWN = {hangout:'lobby',acid:'acid',pvp:'pvp',horror:'horror',story:'story0find',fishing:'fishing',markers:'markers',notsafe:'notsafe'};
 function newGameState(){
-  return {mode:'hangout', round:1, phase:'play', timer:0, alive:{}, acidY:-2.5, kills:{}, fuses:[0,0,0,0,0], exitOpen:false,
-    monster:[-12,0,288], entityId:null, winners:[], spawnKey:'lobby', tpSeq:1,
-    story:{level:0, stage:'find', items:[0,0,0,0,0], mem:[0,0,0], boss:[680,3,0], hp:6, max:6, vuln:0, ending:null}};
+  return {pm:{},
+    acid:{active:false, round:0, phase:'wait', timer:0, alive:{}, acidY:-2.5, winners:[], tpSeq:0},
+    pvp:{kills:{}},
+    horror:{active:false, round:0, phase:'play', timer:0, alive:{}, fuses:[0,0,0,0,0], exitOpen:false, monster:[-12,0,288], winners:[], tpSeq:0},
+    story:newStory(),
+    notsafe:{active:false, round:0, phase:'wait', timer:0, alive:{}, entityId:null, winners:[], tpSeq:0}};
 }
 let G = newGameState();
 function isHostLike(){ return NET.role!=='client'; }
-function currentSpawnKey(){ return (G.mode==='notsafe' && G.entityId===NET.myId) ? 'notsafeEnt' : G.spawnKey; }
+function spawnKeyFor(m){
+  if (m==='notsafe') return G.notsafe.entityId===NET.myId ? 'notsafeEnt' : 'notsafe';
+  if (m==='story') return G.story.spawnKey;
+  return MODE_SPAWN[m]||'lobby';
+}
+function currentSpawnKey(){ return spawnKeyFor(me.mode); }
 
 function send(m){ if (NET.role==='client'){ if (NET.host && NET.host.open) NET.host.send(m); } else hostHandle(NET.myId, m); }
 function sendTo(id, m){ if (id===NET.myId) clientHandle(m); else { const c=NET.conns[id]; if (c && c.open) c.send(m); } }
 function broadcast(m){ for (const id in NET.conns){ const c=NET.conns[id]; if (c.open) c.send(m); } clientHandle(m); }
 function playersInfo(){ const o={}; for (const id in P){ const p=P[id]; o[id]={name:p.name,cos:p.cos,badges:p.badges,staff:p.staff,owner:p.owner}; } return o; }
+function modePlayers(m){ return Object.keys(P).filter(id=>G.pm[id]===m); }
 
 function initSelfAsHost(){
   for (const id in P){ removeYeti(P[id].av); delete P[id]; }
   NET.myId = NET.role==='host' ? 'host' : 'me';
   P[NET.myId] = {name:save.name||'Yeti', cos:save.eq, badges:myBadges(), staff:true, owner:true, st:null};
   me.staff = true; me.owner = true;
-  G = newGameState(); G.alive[NET.myId]=true;
-  lastTp=-1; onGameUpdate();
+  G = newGameState(); G.pm[NET.myId]='hangout';
+  me.mode='hangout'; me.alive=true; for (const k in lastSeq) delete lastSeq[k];
+  teleport(spawnPos('lobby'));
 }
 function becomeSolo(msg){
   try { if (NET.peer) NET.peer.destroy(); } catch(e){}
   NET.role='solo'; NET.peer=null; NET.conns={}; NET.host=null; NET.code='';
   initSelfAsHost(); if (msg){ toast(msg); setStatus(msg); }
 }
-
 function startHost(cb){
   if (typeof Peer==='undefined'){ cb('Multiplayer needs internet (PeerJS failed to load).'); return; }
   const letters='ABCDEFGHJKLMNPQRSTUVWXYZ'; const code=[0,0,0,0].map(()=>letters[Math.floor(Math.random()*letters.length)]).join('');
   const peer = new Peer('yetirunners-'+code.toLowerCase());
   peer.on('open', ()=>{ NET.role='host'; NET.peer=peer; NET.code=code; initSelfAsHost(); cb(null, code); });
   peer.on('connection', conn=>{
-    conn.on('data', d=>{ if (d && d.t==='hello'){ NET.conns[conn.peer]=conn; } if (NET.conns[conn.peer]) hostHandle(conn.peer, d); });
-    conn.on('close', ()=>removePlayer(conn.peer));
-    conn.on('error', ()=>removePlayer(conn.peer));
+    conn.on('data', d=>{ if (d && d.t==='hello') NET.conns[conn.peer]=conn; if (NET.conns[conn.peer]) hostHandle(conn.peer, d); });
+    conn.on('close', ()=>removePlayer(conn.peer)); conn.on('error', ()=>removePlayer(conn.peer));
   });
   peer.on('error', e=>{ if (e.type==='unavailable-id'){ peer.destroy(); startHost(cb); } else cb('Network error: '+e.type); });
 }
@@ -746,11 +1313,12 @@ function joinRoom(code, cb){
 }
 function removePlayer(id){
   if (!P[id] || id===NET.myId) return;
-  const name = P[id].name; removeYeti(P[id].av); delete P[id]; delete NET.conns[id]; delete G.alive[id];
+  const name=P[id].name; removeYeti(P[id].av); delete P[id]; delete NET.conns[id]; delete G.pm[id];
+  ['acid','horror','notsafe'].forEach(m=>delete G[m].alive[id]);
   broadcast({t:'players', p:playersInfo()}); broadcast({t:'toast', text:name+' left'});
 }
 
-// ---------- host side ----------
+// ---------- host ----------
 function hostHandle(id, m){
   const p = P[id];
   switch (m.t){
@@ -758,22 +1326,42 @@ function hostHandle(id, m){
       if (Object.keys(P).length>=10){ sendTo(id,{t:'full'}); return; }
       const name = String(m.name||'Yeti').replace(/[^\w \-.]/g,'').slice(0,14) || 'Yeti';
       P[id] = {name, cos:m.cos||{}, badges:(m.badges||[]).filter(b=>['OG','TRUSTED','SURVIVOR'].includes(b)), staff:save.staffNames.includes(name), owner:false, st:null};
-      G.alive[id] = !['acid','horror','notsafe'].includes(G.mode);
+      G.pm[id]='hangout';
       sendTo(id,{t:'welcome', id, g:G});
       broadcast({t:'players', p:playersInfo()}); broadcast({t:'toast', text:name+' joined!'});
       break; }
-    case 's': if (p){ p.st = m.s; if (p.av) p.av.target = m.s; } break;
+    case 's': if (p){ p.st=m.s; if (p.av) p.av.target=m.s; } break;
     case 'cos': if (p){ p.cos=m.cos; if (m.badges) p.badges=m.badges.filter(b=>['OG','TRUSTED','SURVIVOR'].includes(b)); broadcast({t:'players', p:playersInfo()}); } break;
-    case 'dead': G.alive[id]=false; break;
+    case 'join': hostJoin(id, m.m); break;
+    case 'dead': { const st=G[G.pm[id]]; if (st && st.alive) st.alive[id]=false; break; }
     case 'pick': hostPick(id, m); break;
-    case 'bosshit': hostBossHit(); break;
-    case 'hit': if (G.mode==='pvp' && P[m.target]) sendTo(m.target,{t:'hit', from:id, dmg:clamp(+m.dmg||0,0,40), kb:m.kb}); break;
-    case 'ko': if (P[m.by]){ G.kills[m.by]=(G.kills[m.by]||0)+1; sendTo(m.by,{t:'reward', n:10, why:'KO on '+(p?p.name:'?'), stat:'kills'}); } break;
-    case 'exit': if (G.mode==='horror' && G.phase==='play' && G.exitOpen && G.alive[id]){ G.phase='win'; G.timer=9; G.winners=Object.keys(P).filter(i=>G.alive[i]); broadcast({t:'toast', text:'🚪 '+(p?p.name:'')+' escaped the Lodge! CHAPTER 1 COMPLETE'}); } break;
-    case 'pedestal': hostEnding(m.c); break;
+    case 'story': hostStoryMsg(id, m); break;
+    case 'hit': if (G.pm[id]==='pvp' && G.pm[m.target]==='pvp') sendTo(m.target,{t:'hit', from:id, dmg:clamp(+m.dmg||0,0,40), kb:m.kb}); break;
+    case 'ko': if (P[m.by]){ G.pvp.kills[m.by]=(G.pvp.kills[m.by]||0)+1; sendTo(m.by,{t:'reward', n:10, why:'KO on '+(p?p.name:'?'), stat:'kills'}); } break;
+    case 'exit': { const H=G.horror; if (G.pm[id]==='horror' && H.phase==='play' && H.exitOpen && H.alive[id]){ H.phase='win'; H.timer=9; H.winners=modePlayers('horror').filter(i=>H.alive[i]);
+      modePlayers('horror').forEach(i=>sendTo(i,{t:'toast', text:'🚪 '+(p?p.name:'')+' escaped the Lodge! CHAPTER 1 COMPLETE'})); } break; }
     case 'staff': hostStaff(id, m); break;
   }
 }
+function joinedMsg(id, m, key, alive, seq){ sendTo(id,{t:'joined', m, key, alive, seq}); }
+function hostJoin(id, m){
+  if (!MODE_INFO[m] || m==='notsafe' || !P[id]) return;
+  if (G.notsafe.active && G.pm[id]==='notsafe') return; // nobody escapes the event through a portal
+  G.pm[id]=m; let key=MODE_SPAWN[m], alive=true, seq=0;
+  if (m==='acid'){ const A=G.acid; if (!A.active) startAcid(); else if (A.phase!=='wait') alive=false; A.alive[id]=alive; seq=A.tpSeq; }
+  if (m==='horror'){ const H=G.horror; if (!H.active) startHorror(); H.alive[id]=true; seq=H.tpSeq; }
+  if (m==='story'){ if (!G.story.active) startStory(); key=G.story.spawnKey; seq=G.story.tpSeq; }
+  joinedMsg(id, m, alive?key:'lobby', alive, seq);
+  broadcast({t:'g', g:G});
+}
+function startAcid(){ const A=G.acid; A.active=true; A.round++; A.phase='wait'; A.timer=6; A.acidY=-2.5; A.winners=[]; A.alive={}; modePlayers('acid').forEach(i=>A.alive[i]=true); A.tpSeq++; }
+function startHorror(){ const H=G.horror; H.active=true; H.round++; H.phase='play'; H.timer=0; H.fuses=[0,0,0,0,0]; H.exitOpen=false; H.monster=[-12,0,288]; H.winners=[]; H.alive={}; modePlayers('horror').forEach(i=>H.alive[i]=true); H.tpSeq++; }
+function startNotSafe(entId){
+  const N=G.notsafe; N.active=true; N.round++; N.phase='wait'; N.timer=6; N.entityId=entId; N.winners=[]; N.alive={}; N.tpSeq++;
+  Object.keys(P).forEach(id=>{ G.pm[id]='notsafe'; N.alive[id]=(id!==entId); joinedMsg(id,'notsafe', id===entId?'notsafeEnt':'notsafe', true, N.tpSeq); });
+  broadcast({t:'g', g:G}); broadcast({t:'toast', text:'⚠ N.O.T.S.A.F.E — '+P[entId].name+' is the ENTITY. Survive 90 seconds!'});
+}
+function sendAllToLobby(){ G.notsafe.active=false; Object.keys(P).forEach(id=>{ G.pm[id]='hangout'; joinedMsg(id,'hangout','lobby',true,0); }); broadcast({t:'g', g:G}); }
 function hostStaff(id, m){
   const s = P[id]; if (!s || !(s.staff||s.owner)) return;
   const t = P[m.target];
@@ -785,8 +1373,7 @@ function hostStaff(id, m){
       setTimeout(()=>{ const c=NET.conns[m.target]; try{ if (c) c.close(); }catch(e){} removePlayer(m.target); }, 500);
       break;
     case 'notsafe': startNotSafe(id); break;
-    case 'end': startMode('hangout'); break;
-    case 'mode': if (MODE_INFO[m.m] && m.m!=='notsafe') startMode(m.m); break;
+    case 'end': case 'lobby': sendAllToLobby(); break;
     case 'bring': if (t && s.st) sendTo(m.target,{t:'tp', p:[s.st[0]+0.8, Math.max(0,s.st[1]-1.5), s.st[2]]}); break;
     case 'grant':
       if (!s.owner || !t || t.owner) return;
@@ -797,120 +1384,55 @@ function hostStaff(id, m){
       break;
   }
 }
-function startMode(m){
-  G.mode=m; G.round++; G.phase='play'; G.timer=0; G.winners=[]; G.entityId=null; G.alive={};
-  Object.keys(P).forEach(id=>G.alive[id]=true);
-  G.spawnKey = MODE_SPAWN[m]||'lobby';
-  if (m==='acid'){ G.phase='wait'; G.timer=6; G.acidY=-2.5; }
-  if (m==='pvp') G.kills={};
-  if (m==='horror'){ G.fuses=[0,0,0,0,0]; G.exitOpen=false; G.monster=[-12,0,288]; }
-  if (m==='story') G.story={level:0, stage:'find', items:[0,0,0,0,0], mem:[0,0,0], boss:[680,3,0], hp:6, max:6, vuln:0, ending:null};
-  G.tpSeq++; broadcast({t:'g', g:G});
-}
-function startNotSafe(entId){
-  G.mode='notsafe'; G.round++; G.phase='wait'; G.timer=6; G.entityId=entId; G.winners=[]; G.alive={};
-  Object.keys(P).forEach(id=>G.alive[id]=(id!==entId)); G.spawnKey='notsafe'; G.tpSeq++;
-  broadcast({t:'g', g:G}); broadcast({t:'toast', text:'⚠ N.O.T.S.A.F.E — '+P[entId].name+' is the ENTITY. Survive 90 seconds!'});
-}
 function hostPick(id, m){
-  const S = G.story;
-  if (m.k==='fuse' && G.mode==='horror' && G.phase==='play' && !G.fuses[m.i]){
-    G.fuses[m.i]=1; const n=G.fuses.reduce((a,b)=>a+b,0);
-    broadcast({t:'toast', text:'⚡ Fuse found ('+n+'/5)'});
-    if (n===5){ G.exitOpen=true; broadcast({t:'toast', text:'POWER RESTORED — GET TO THE EXIT!'}); }
+  const H=G.horror;
+  if (m.k==='fuse' && G.pm[id]==='horror' && H.phase==='play' && !H.fuses[m.i]){
+    H.fuses[m.i]=1; const n=H.fuses.reduce((a,b)=>a+b,0);
+    modePlayers('horror').forEach(i=>sendTo(i,{t:'toast', text:'⚡ Fuse found ('+n+'/5)'}));
+    if (n===5){ H.exitOpen=true; modePlayers('horror').forEach(i=>sendTo(i,{t:'toast', text:'POWER RESTORED — GET TO THE EXIT!'})); }
+    broadcast({t:'g', g:G});
   }
-  if (m.k==='item' && G.mode==='story' && S.stage==='find' && !S.items[m.i]){
-    S.items[m.i]=1; const n=S.items.reduce((a,b)=>a+b,0);
-    broadcast({t:'toast', text:'✨ Light Shard ('+n+'/5)'});
-    if (n===5){ initBoss(); G.spawnKey='story'+S.level+'boss'; G.tpSeq++; broadcast({t:'toast', text:'⚔ '+STORY[S.level].boss+' awakens!'}); }
-  }
-  if (m.k==='mem' && G.mode==='story' && S.stage==='find' && !S.mem[S.level]){
-    S.mem[S.level]=1; broadcast({t:'toast', text:'💜 A Memory Shard... ('+S.mem.reduce((a,b)=>a+b,0)+'/3)'});
-  }
-  broadcast({t:'g', g:G});
-}
-function initBoss(){ const S=G.story; S.stage='boss'; S.max=S.level===3?10:6; S.hp=S.max; S.boss=[680,3,S.level*200]; S.vuln=0; S.t=0; S.fireT=3; S.vulnT=0; S.hitCd=0; }
-function hostBossHit(){
-  const S = G.story;
-  if (G.mode!=='story' || S.stage!=='boss' || S.vuln<=0 || S.hitCd>0) return;
-  S.hp--; S.hitCd=0.35;
-  if (S.hp<=0){
-    if (S.level<3){ S.stage='clear'; S.t2=6; broadcast({t:'toast', text:'🏆 '+STORY[S.level].boss+' DEFEATED!'}); }
-    else { S.stage='ending'; broadcast({t:'toast', text:'The Night Warden falls... choose an ending at the pedestals.'}); }
-  }
-  broadcast({t:'g', g:G});
-}
-function hostEnding(c){
-  const S=G.story; if (G.mode!=='story' || S.stage!=='ending') return;
-  if (c==='true' && S.mem.reduce((a,b)=>a+b,0)<3) return;
-  S.ending=c; S.stage='done'; S.t2=25; broadcast({t:'g', g:G});
-}
-function aliveInMap(prefix){
-  return Object.keys(P).filter(id=>G.alive[id] && P[id].st && mapAt({x:P[id].st[0], z:P[id].st[2]}).startsWith(prefix));
 }
 function hostStep(dt){
-  const ids = Object.keys(P);
-  switch (G.mode){
-    case 'acid':
-      if (G.phase==='wait'){ G.timer-=dt; if (G.timer<=0){ G.phase='play'; G.timer=0; } }
-      else if (G.phase==='play'){
-        G.timer+=dt; if (G.timer>4) G.acidY=Math.min(41.6, G.acidY+dt*0.3);
-        const alive = ids.filter(i=>G.alive[i]);
-        if ((ids.length>1 && alive.length<=1) || alive.length===0 || G.timer>=150){ G.phase='end'; G.winners=alive; G.timer=6; }
-      } else { G.timer-=dt; if (G.timer<=0) startMode('acid'); }
-      break;
-    case 'horror':
-      if (G.phase==='play'){
-        const mo = G.monster; let best=null, bd=1e9;
-        for (const id of aliveInMap('horror')){ const s=P[id].st; const d=Math.hypot(s[0]-mo[0],s[2]-mo[2]); if (d<bd){ bd=d; best=s; } }
-        const spd = 1.9 + G.fuses.reduce((a,b)=>a+b,0)*0.22;
-        if (best){ const dx=best[0]-mo[0], dz=best[2]-mo[2], d=Math.hypot(dx,dz)||1; mo[0]+=dx/d*spd*dt; mo[2]+=dz/d*spd*dt; }
-        mo[0]=clamp(mo[0],-15,15); mo[2]=clamp(mo[2],285,315);
-        if (ids.filter(i=>G.alive[i]).length===0){ G.phase='fail'; G.timer=6; broadcast({t:'toast', text:'The Hollow got everyone... restarting.'}); }
-      } else { G.timer-=dt; if (G.timer<=0) startMode('horror'); }
-      break;
-    case 'story': {
-      const S = G.story;
-      if (S.stage==='boss'){
-        S.t+=dt; S.hitCd=Math.max(0,S.hitCd-dt);
-        const cx=680, cz=S.level*200, fast = S.level===3 && S.hp<=S.max/2;
-        if (S.vuln>0){ S.vuln-=dt; S.boss[1]=Math.max(1.4, S.boss[1]-dt*4); }
-        else {
-          S.boss[0]=cx+Math.cos(S.t*0.5)*6; S.boss[2]=cz+Math.sin(S.t*0.5)*6; S.boss[1]=3.5+Math.sin(S.t*2)*0.5;
-          S.fireT-=dt;
-          if (S.fireT<=0){
-            S.fireT = fast?1.2:2.3;
-            for (const id of aliveInMap('story'+S.level+'b')){
-              const s=P[id].st; const d=V3(s[0]-S.boss[0], s[1]-0.2-S.boss[1], s[2]-S.boss[2]); const spd=fast?9:7; d.setLength(spd);
-              broadcast({t:'proj', p:S.boss, v:[d.x,d.y,d.z], c:S.level===3?0xb040ff:0xff4040});
-            }
-          }
-          S.vulnT+=dt;
-          if (S.vulnT>(fast?8:11)){ S.vulnT=0; S.vuln=5; broadcast({t:'toast', text:'The boss is STUNNED — punch the glowing core!'}); }
-        }
-      } else if (S.stage==='clear'){
-        S.t2-=dt;
-        if (S.t2<=0){
-          S.level++;
-          if (S.level===3){ initBoss(); G.spawnKey='story3boss'; broadcast({t:'toast', text:'FINAL CHAPTER: The Dark Summit'}); }
-          else { S.stage='find'; S.items=[0,0,0,0,0]; G.spawnKey='story'+S.level+'find'; broadcast({t:'toast', text:'Chapter '+(S.level+1)+': '+STORY[S.level].name}); }
-          G.tpSeq++;
-        }
-      } else if (S.stage==='done'){ S.t2-=dt; if (S.t2<=0) startMode('hangout'); }
-      break; }
-    case 'notsafe':
-      if (G.phase==='wait'){ G.timer-=dt; if (G.timer<=0){ G.phase='play'; G.timer=90; broadcast({t:'toast', text:'RUN.'}); } }
-      else if (G.phase==='play'){
-        G.timer-=dt; const alive=ids.filter(i=>G.alive[i] && i!==G.entityId);
-        if (G.timer<=0 || (alive.length===0 && ids.length>1)){ G.phase='end'; G.winners=alive; G.timer=7;
-          broadcast({t:'toast', text: alive.length ? alive.length+' survivor(s) escaped the Entity!' : 'The Entity got everyone.'}); }
-      } else if (G.phase==='end'){ G.timer-=dt; if (G.timer<=0) startMode('hangout'); }
-      break;
+  const A=G.acid;
+  if (A.active){
+    const ids=modePlayers('acid');
+    if (!ids.length) A.active=false;
+    else if (A.phase==='wait'){ A.timer-=dt; if (A.timer<=0){ A.phase='play'; A.timer=0; } }
+    else if (A.phase==='play'){
+      A.timer+=dt; if (A.timer>4) A.acidY=Math.min(41.6, A.acidY+dt*0.3);
+      const alive=ids.filter(i=>A.alive[i]);
+      if ((ids.length>1 && alive.length<=1) || alive.length===0 || A.timer>=150){ A.phase='end'; A.winners=alive; A.timer=6; }
+    } else { A.timer-=dt; if (A.timer<=0) startAcid(); }
+  }
+  const H=G.horror;
+  if (H.active){
+    const ids=modePlayers('horror');
+    if (!ids.length) H.active=false;
+    else if (H.phase==='play'){
+      const mo=H.monster; let best=null, bd=1e9;
+      for (const id of ids){ if (!H.alive[id] || !P[id].st) continue; const s=P[id].st; if (mapAt({x:s[0],z:s[2]})!=='horror') continue; const d=Math.hypot(s[0]-mo[0],s[2]-mo[2]); if (d<bd){ bd=d; best=s; } }
+      const spd = 1.9 + H.fuses.reduce((a,b)=>a+b,0)*0.22;
+      if (best){ const dx=best[0]-mo[0], dz=best[2]-mo[2], d=Math.hypot(dx,dz)||1; mo[0]+=dx/d*spd*dt; mo[2]+=dz/d*spd*dt; }
+      mo[0]=clamp(mo[0],-15,15); mo[2]=clamp(mo[2],285,315);
+      if (ids.filter(i=>H.alive[i]).length===0){ H.phase='fail'; H.timer=6; ids.forEach(i=>sendTo(i,{t:'toast', text:'The Hollow got everyone... restarting.'})); }
+    } else { H.timer-=dt; if (H.timer<=0) startHorror(); }
+  }
+  hostStoryStep(dt);
+  const N=G.notsafe;
+  if (N.active){
+    const ids=modePlayers('notsafe');
+    if (N.phase==='wait'){ N.timer-=dt; if (N.timer<=0){ N.phase='play'; N.timer=90; broadcast({t:'toast', text:'RUN.'}); } }
+    else if (N.phase==='play'){
+      N.timer-=dt; const alive=ids.filter(i=>N.alive[i] && i!==N.entityId);
+      if (N.timer<=0 || (alive.length===0 && ids.length>1) || !P[N.entityId]){ N.phase='end'; N.winners=alive; N.timer=7;
+        broadcast({t:'toast', text: alive.length ? alive.length+' survivor(s) escaped the Entity!' : 'The Entity got everyone.'}); }
+    } else if (N.phase==='end'){ N.timer-=dt; if (N.timer<=0) sendAllToLobby(); }
   }
 }
 
-// ---------- client side ----------
-let lastTp=-1, kicked=false; const rewarded={}, seenPlay={}; let lastMode='';
+// ---------- client ----------
+let kicked=false; const lastSeq={}, rewarded={}, seenPlay={};
 function setPlayers(info){
   for (const id in P) if (!info[id]){ removeYeti(P[id].av); delete P[id]; }
   for (const id in info){
@@ -920,7 +1442,7 @@ function setPlayers(info){
     if (id!==NET.myId){
       if (!p.av) p.av = makeYeti();
       applyCos(p.av, p.cos);
-      const b = [...(p.badges||[])]; if (p.owner) b.push('OWNER'); else if (p.staff) b.push('STAFF');
+      const b=[...(p.badges||[])]; if (p.owner) b.push('OWNER'); else if (p.staff) b.push('STAFF');
       drawTag(p.av, p.name, b);
     }
   }
@@ -928,59 +1450,62 @@ function setPlayers(info){
   if (mine){ const had=me.staff; me.staff=!!(mine.staff||mine.owner); me.owner=!!mine.owner; if (!me.staff) me.hammer=false; if (had!==me.staff && menu.open) drawMenu(); }
   if (Object.keys(P).length>=2) ach('social');
 }
+function joinMode(m){ if (me.mode===m && m!=='hangout') return; send({t:'join', m}); }
 function clientHandle(m){
   switch (m.t){
-    case 'welcome': NET.myId=m.id; G=m.g; lastTp=-1; onGameUpdate(); break;
+    case 'welcome': NET.myId=m.id; G=m.g; me.mode='hangout'; me.alive=true; teleport(spawnPos('lobby')); break;
     case 'players': setPlayers(m.p); break;
     case 'st': for (const id in m.s){ if (id!==NET.myId && P[id] && P[id].av) P[id].av.target=m.s[id]; } break;
     case 'g': G=m.g; onGameUpdate(); break;
+    case 'joined':
+      me.mode=m.m; me.alive=m.alive; me.hp=100; me.downT=0; lastSeq[m.m]=m.seq; endFishing(); clearAtks();
+      teleport(spawnPos(m.key));
+      if (!m.alive) toast('A round is running — you\'ll be pulled in when the next one starts!');
+      else { const i=MODE_INFO[m.m]; if (i) toast(i[0]+' — '+i[1]); }
+      break;
     case 'proj': spawnProj(m.p, m.v, m.c); break;
+    case 'atk': if (me.mode==='story') spawnAtk(m); break;
+    case 'clearatk': if (me.mode==='story') clearAtks(); break;
     case 'toast': toast(m.text); break;
     case 'tp': teleport(V3(m.p[0],m.p[1],m.p[2])); toast('A staff member brought you to them.'); break;
     case 'reward': reward(m.n, m.why); if (m.stat==='kills'){ save.stats.kills++; if (save.stats.kills>=5) ach('pvp5'); persist(); } break;
     case 'full': setStatus('That room is full (10 yetis).'); becomeSolo(); break;
     case 'hit': {
-      if (G.mode!=='pvp' || me.downT>0) return;
+      if (me.mode!=='pvp' || me.downT>0) return;
       me.hp -= m.dmg; hapticAll(0.8,80); tone(120,0.15,0.25,'sawtooth');
       if (m.kb){ vel.set(m.kb[0],m.kb[1],m.kb[2]); hands.forEach(h=>h.contact=false); wasTouching=false; }
       if (me.hp<=0){ send({t:'ko', by:m.from}); me.downT=3; toast('💥 KO! Respawning...'); }
       break; }
     case 'kick':
       kicked = true; toast('🔨 You were KICKED by staff ('+m.by+')');
-      setTimeout(()=>{ const s=renderer.xr.getSession(); if (s) s.end(); becomeSolo(); kicked=false; setStatus('You were kicked from the room by '+m.by+'. You are now playing solo.'); }, 2000);
+      setTimeout(()=>{ const s=renderer.xr.getSession(); if (s) s.end(); becomeSolo(); kicked=false; lockLobby(false); setStatus('You were kicked from the room by '+m.by+'. You are now playing solo.'); }, 2000);
       break;
   }
 }
 function onGameUpdate(){
-  if (G.mode!==lastMode){ lastMode=G.mode; const i=MODE_INFO[G.mode]; if (i) toast('MODE: '+i[0]+' — '+i[1]); }
-  if (G.phase==='play') seenPlay[G.mode+G.round]=1;
-  if (G.tpSeq!==lastTp){
-    lastTp=G.tpSeq; me.hp=100; me.downT=0; endFishing();
-    me.alive = G.alive[NET.myId]!==false;
+  const st = G[me.mode];
+  if (st && st.tpSeq!==undefined && st.tpSeq!==lastSeq[me.mode]){
+    lastSeq[me.mode]=st.tpSeq; me.hp=100; me.downT=0; endFishing(); clearAtks();
+    me.alive = !st.alive || st.alive[NET.myId]!==false;
     teleport(spawnPos(me.alive ? currentSpawnKey() : 'lobby'));
   }
-  const S = G.story;
-  const key = G.mode+'|'+G.round+'|'+G.phase+'|'+S.stage+'|'+S.level;
-  if (rewarded[key]) return; rewarded[key]=1;
-  const id = NET.myId, was = seenPlay[G.mode+G.round];
-  if (G.mode==='acid' && G.phase==='end' && G.winners.includes(id) && was){ save.stats.acidWins++; reward(40,'You survived the acid!'); ach('acidwin'); }
-  if (G.mode==='horror' && G.phase==='win' && was){ reward(150,'Escaped The Lodge!'); ach('horror1'); own('face:mask'); }
-  if (G.mode==='notsafe' && G.phase==='end' && G.winners.includes(id) && was){ save.stats.entSurv++; reward(100,'You survived the ENTITY!'); ach('survivor'); own('hat:survivor'); send({t:'cos', cos:save.eq, badges:myBadges()}); }
-  if (G.mode==='story' && S.stage==='clear'){ save.stats.bosses++; reward(75,'Chapter cleared!'); ach('story1'); }
-  if (G.mode==='story' && S.stage==='done' && S.ending){
-    const e=S.ending; reward(200,'Story complete!'); ach('end_'+e); own({normal:'back:dawncape', true:'back:lantern', bad:'back:cloak'}[e]); showEnding(e);
+  const id=NET.myId, A=G.acid, H=G.horror, N=G.notsafe, S=G.story;
+  if (me.mode==='acid' && A.phase==='play') seenPlay['a'+A.round]=1;
+  if (me.mode==='horror' && H.phase==='play') seenPlay['h'+H.round]=1;
+  if (me.mode==='notsafe' && N.phase!=='end') seenPlay['n'+N.round]=1;
+  const once = k => { if (rewarded[k]) return false; rewarded[k]=1; return true; };
+  if (me.mode==='acid' && A.phase==='end' && A.winners.includes(id) && seenPlay['a'+A.round] && once('a'+A.round)){ save.stats.acidWins++; reward(40,'You survived the acid!'); ach('acidwin'); }
+  if (me.mode==='horror' && H.phase==='win' && seenPlay['h'+H.round] && once('h'+H.round)){ reward(150,'Escaped The Lodge!'); ach('horror1'); own('face:mask'); }
+  if (me.mode==='notsafe' && N.phase==='end' && N.winners.includes(id) && seenPlay['n'+N.round] && once('n'+N.round)){ save.stats.entSurv++; reward(100,'You survived the ENTITY!'); ach('survivor'); own('hat:survivor'); sendCos(); }
+  if (me.mode==='story' && S.stage==='clear' && once('sc'+S.run+'_'+S.ch)){ save.stats.bosses++; reward(75,'Chapter cleared!'); ach('story1'); }
+  if (me.mode==='story' && S.stage==='done' && S.ending && once('se'+S.run)){
+    const e=S.ending; reward(200,'Story complete!'); ach('end_'+e); own({normal:'back:dawncape', true:'back:lantern', bad:'back:cloak'}[e]);
+    showPanel(ENDINGS[e][0], ENDINGS[e][1]+'   — THE END —', 20);
   }
   persist();
 }
-const ENDINGS = {
-  normal:['DAWN RETURNS','You restore the Aurora and warmth floods back into the mountains. But the Warden\'s cracked mask still lies in the snow... who were they?'],
-  true:['THE WHOLE TRUTH','The three Memory Shards reveal the Night Warden was the very first Yeti Runner, lost in the great storm. You restore the Aurora AND free them. Everyone finally goes home.'],
-  bad:['ETERNAL NIGHT','You keep the light for yourself. The Aurora fades forever, the mountains freeze over... and a new Night Warden rises. You.'],
-};
-let endingShown = null;
-function showEnding(e){ endingShown = {e, t:20}; }
 
-// ---------- local checks (death, pickups, hits) ----------
+// ---------- local checks ----------
 const pending = {}; let bossHitCd=0;
 function nearAnyHand(p, r){ return hands.some(h=>h.connected && h.mesh.position.distanceTo(p)<r); }
 function die(reason){
@@ -988,65 +1513,51 @@ function die(reason){
   endFishing(); teleport(spawnPos('lobby'));
 }
 function localChecks(dt){
-  const head = headWorld(); const mk = mapAt(head); const S = G.story;
+  const head = headWorld(); const mk = mapAt(head);
   bossHitCd -= dt;
   if (rig.position.y>20 || head.y>21.5) ach('climber');
-  // respawn after KO / story knock-down
   if (me.downT>0){ me.downT-=dt; if (me.downT<=0){ me.hp=100; teleport(spawnPos(currentSpawnKey())); } }
-  // acid
-  if (G.mode==='acid' && G.phase==='play' && me.alive && mk==='acid'){
-    if (head.y < G.acidY+0.3 || hands.some(h=>h.connected && h.mesh.position.y < G.acidY)) die('☠ The acid got you! Wait for the next round.');
+  for (const po of portals){
+    po.cd-=dt; if (po.cd>0 || !po.g.visible || !po.action) continue;
+    if (!po.action.join && !po.action.local) continue;
+    if (po.p.distanceTo(head)<1.0 || nearAnyHand(po.p,0.8)){
+      po.cd=2; tone(300,0.4,0.2,'sine',3);
+      if (po.action.join) joinMode(po.action.join);
+      if (po.action.local) po.action.local();
+    }
   }
-  // horror monster
-  if (G.mode==='horror' && G.phase==='play' && me.alive && mk==='horror'){
-    if (Math.hypot(head.x-G.monster[0], head.z-G.monster[2])<0.9) die('👁 The Hollow caught you...');
-    FUSE_POS.forEach((p,i)=>{ if (!G.fuses[i] && !pending['f'+i+G.round] && nearAnyHand(p,0.35)){ pending['f'+i+G.round]=1; send({t:'pick',k:'fuse',i}); tone(700,0.1,0.15); } });
-    if (G.exitOpen && nearAnyHand(HORROR_EXIT,1.0) && !pending['exit'+G.round]){ pending['exit'+G.round]=1; send({t:'exit'}); }
+  const A=G.acid, H=G.horror, N=G.notsafe;
+  if (me.mode==='acid' && A.phase==='play' && me.alive && mk==='acid'){
+    if (head.y < A.acidY+0.3 || hands.some(h=>h.connected && h.mesh.position.y < A.acidY)) die('☠ The acid got you! Wait for the next round.');
   }
-  // entity
-  if (G.mode==='notsafe' && G.phase==='play' && me.alive && NET.myId!==G.entityId){
-    const e = P[G.entityId];
+  if (me.mode==='horror' && H.phase==='play' && me.alive && mk==='horror'){
+    if (Math.hypot(head.x-H.monster[0], head.z-H.monster[2])<0.9) die('👁 The Hollow caught you...');
+    FUSE_POS.forEach((p,i)=>{ const k='f'+i+'_'+H.round; if (!H.fuses[i] && !pending[k] && nearAnyHand(p,0.35)){ pending[k]=1; send({t:'pick',k:'fuse',i}); tone(700,0.1,0.15); } });
+    if (H.exitOpen && nearAnyHand(HORROR_EXIT,1.0) && !pending['exit'+H.round]){ pending['exit'+H.round]=1; send({t:'exit'}); }
+  }
+  if (me.mode==='notsafe' && N.phase==='play' && me.alive && NET.myId!==N.entityId){
+    const e=P[N.entityId];
     if (e && e.av && e.av.target){
-      const body = head.clone(); body.y-=0.5;
-      const pts = [e.av.head.position, e.av.hands[0].position, e.av.hands[1].position];
-      if (pts.some(p=>p.distanceTo(head)<0.55 || p.distanceTo(body)<0.6)) die('☠ The ENTITY got you! Spectate from the lobby.');
+      const body=head.clone(); body.y-=0.5;
+      if ([e.av.head.position, e.av.hands[0].position, e.av.hands[1].position].some(p=>p.distanceTo(head)<0.55 || p.distanceTo(body)<0.6)) die('☠ The ENTITY got you! Spectate from the lobby.');
     }
   }
-  me.speedMult = (G.mode==='notsafe' && G.entityId===NET.myId) ? 1.5 : 1;
-  // story pickups + boss
-  if (G.mode==='story'){
-    if (S.stage==='find' && S.level<3){
-      storyItems[S.level].forEach((it,i)=>{ const k='i'+S.level+i+G.round; if (!S.items[i] && !pending[k] && nearAnyHand(it.p,0.4)){ pending[k]=1; send({t:'pick',k:'item',i}); tone(880,0.12,0.15,'sine',1.5); } });
-      const mm = storyMem[S.level]; const km='m'+S.level+G.round;
-      if (!S.mem[S.level] && !pending[km] && nearAnyHand(mm.p,0.4)){ pending[km]=1; send({t:'pick',k:'mem'}); tone(600,0.3,0.15,'sine',2); }
-    }
-    if (S.stage==='boss' && S.vuln>0 && bossHitCd<=0){
-      const core = bossCore.getWorldPosition(V3());
-      if (hands.some(h=>h.connected && h.mesh.position.distanceTo(core)<0.55*STORY[S.level].size)){ bossHitCd=0.6; send({t:'bosshit'}); hapticAll(1,100); tone(200,0.15,0.3,'square'); }
-    }
-    if (S.stage==='ending'){
-      pedestals.forEach(pd=>{ if (pd.g.visible && !pending['pd'+G.round] && nearAnyHand(pd.p,0.45)){ pending['pd'+G.round]=1; send({t:'pedestal', c:pd.id}); setTimeout(()=>delete pending['pd'+G.round],1500); } });
-    }
-  }
-  // projectiles
-  const body = head.clone(); body.y-=0.5;
+  me.speedMult = (me.mode==='notsafe' && N.entityId===NET.myId) ? 1.5 : 1;
+  storyChecks(dt);
+  const body=head.clone(); body.y-=0.5;
   for (const pr of projPool){
     if (!pr.live) continue;
     pr.p.addScaledVector(pr.v,dt); pr.life-=dt; pr.m.position.copy(pr.p);
     if (pr.life<=0 || pr.p.y<-1){ pr.live=false; pr.m.visible=false; continue; }
-    if (me.downT<=0 && (pr.p.distanceTo(head)<0.35 || pr.p.distanceTo(body)<0.4)){
-      pr.live=false; pr.m.visible=false; me.hp-=34; hapticAll(1,150); tone(140,0.2,0.3,'sawtooth');
-      if (me.hp<=0){ me.downT=3; toast('💫 Knocked down! Back in 3...'); }
-    }
+    if (me.mode==='story' && me.downT<=0 && (pr.p.distanceTo(head)<0.35 || pr.p.distanceTo(body)<0.4)){ pr.live=false; pr.m.visible=false; storyHurt(34); }
   }
-  // remote hits: pvp + kick hammer
   for (const id in P){
     if (id===NET.myId) continue; const av=P[id].av; if (!av || !av.target) continue;
-    const ph = av.head.position, pb = av.body.position;
-    if (G.mode==='pvp'){
+    const ph=av.head.position, pb=av.body.position;
+    if (me.mode==='pvp'){
       for (const h of hands){
         if (!h.connected || h.speed<2.5 || (h.hitCd[id]||0)>performance.now()) continue;
-        const hp = h.mesh.position;
+        const hp=h.mesh.position;
         if (hp.distanceTo(ph)<0.35 || hp.distanceTo(pb)<0.45){
           h.hitCd[id]=performance.now()+500; const kb=h.vel.clone().setLength(Math.min(7,h.speed*0.9)); kb.y=Math.max(kb.y,2.5);
           send({t:'hit', target:id, dmg:Math.round(Math.min(35,h.speed*7)), kb:[r2(kb.x),r2(kb.y),r2(kb.z)]}); haptic(h,1,60); tone(260,0.08,0.25,'square');
@@ -1054,14 +1565,13 @@ function localChecks(dt){
       }
     }
     if (me.tool==='hammer'){
-      const tipP = myTool.children.length ? V3(0,0,-0.45).applyMatrix4(myTool.matrixWorld) : null;
-      if (tipP && (tipP.distanceTo(ph)<0.4 || tipP.distanceTo(pb)<0.45) && !pending['k'+id]){
+      const tipP = V3(0,0,-0.45).applyMatrix4(myTool.matrixWorld);
+      if ((tipP.distanceTo(ph)<0.4 || tipP.distanceTo(pb)<0.45) && !pending['k'+id]){
         if (P[id].owner){ if (!pending['ko'+id]){ pending['ko'+id]=1; toast("Can't kick the room owner."); setTimeout(()=>delete pending['ko'+id],2000);} }
         else { pending['k'+id]=1; send({t:'staff', a:'kick', target:id}); hapticAll(1,200); tone(90,0.3,0.35,'square'); setTimeout(()=>delete pending['k'+id],3000); }
       }
     }
   }
-  // markers
   MARKERS.forEach((mm,i)=>{
     if (save.markers[i]) return;
     if (nearAnyHand(mm[1],0.4) || mm[1].distanceTo(head)<0.45){
@@ -1069,6 +1579,11 @@ function localChecks(dt){
       const n=Object.keys(save.markers).length; if (n>=5) ach('mark5'); if (n>=MARKERS.length) ach('allmarkers');
     }
   });
+  secretChecks(dt, head, mk);
+}
+function storyHurt(dmg){
+  me.hp-=dmg; hapticAll(1,150); tone(140,0.2,0.3,'sawtooth');
+  if (me.hp<=0 && me.downT<=0){ me.downT=3; toast('💫 Knocked down! Back in 3...'); }
 }
 
 // ---------- remote avatars + world sync ----------
@@ -1077,7 +1592,7 @@ function updateRemotes(dt){
   const a = 1-Math.exp(-14*dt);
   for (const id in P){
     if (id===NET.myId) continue; const p=P[id], av=p.av; if (!av || !av.target) continue;
-    const s = av.target;
+    const s=av.target;
     av.head.position.lerp(V3(s[0],s[1],s[2]), a);
     _q.set(s[3],s[4],s[5],s[6]); if (_q.lengthSq()>0.5){ _q.normalize(); av.head.quaternion.slerp(_q,a); }
     _e.setFromQuaternion(av.head.quaternion,'YXZ');
@@ -1087,7 +1602,7 @@ function updateRemotes(dt){
     av.tag.position.copy(av.head.position).y += 0.45*sc;
     if (av.toolId!==s[13]){ av.toolId=s[13]; av.tool.clear(); if (s[13]) av.tool.add(toolMesh(s[13])); }
     const rh = av.hands[s[15]===0?0:1]; av.tool.position.copy(rh.position); av.tool.quaternion.copy(av.head.quaternion);
-    setEntityLook(av, G.mode==='notsafe' && G.entityId===id, p.cos);
+    setEntityLook(av, G.notsafe.active && G.notsafe.entityId===id, p.cos);
     const vis = s[14]!==0 || mapAt(av.head.position)==='lobby';
     av.head.visible = av.body.visible = av.tag.visible = av.hands[0].visible = av.hands[1].visible = vis;
   }
@@ -1095,7 +1610,7 @@ function updateRemotes(dt){
 function myState(){
   const h=headWorld(); const q=camera.getWorldQuaternion(new THREE.Quaternion());
   const a=hands[0].mesh.position, b=hands[1].mesh.position;
-  return [r2(h.x),r2(h.y),r2(h.z),r2(q.x),r2(q.y),r2(q.z),r2(q.w),r2(a.x),r2(a.y),r2(a.z),r2(b.x),r2(b.y),r2(b.z),TOOL_IDS[me.tool]||0,me.alive?1:0,me.rightIdx];
+  return [r2(h.x),r2(h.y),r2(h.z),r2(q.x),r2(q.y),r2(q.z),r2(q.w),r2(a.x),r2(a.y),r2(a.z),r2(b.x),r2(b.y),r2(b.z),TOOL_IDS[me.tool]||0,me.alive?1:0,me.rightIdx,computeStoryBits(h)];
 }
 let netT=0, gT=0;
 function netTick(dt){
@@ -1107,29 +1622,19 @@ function netTick(dt){
   if (gT>1/8){ gT=0; broadcast({t:'g', g:G}); }
 }
 function syncWorld(dt){
-  const S = G.story;
-  acidMesh.position.y = (G.mode==='acid' ? G.acidY : -2.5) - 0.5;
-  fuseMeshes.forEach((m,i)=>{ m.visible = G.mode==='horror' && !G.fuses[i]; m.rotation.y += dt*2; });
-  horrorDoor.material.color.setHex(G.exitOpen?0x00aa44:0x660000); horrorDoor.material.emissive.setHex(G.exitOpen?0x00aa44:0x330000);
-  const nf = G.fuses.reduce((a,b)=>a+b,0);
+  const A=G.acid, H=G.horror;
+  acidMesh.position.y = (A.active ? A.acidY : -2.5) - 0.5;
+  fuseMeshes.forEach((m,i)=>{ m.visible = H.active && !H.fuses[i]; m.rotation.y += dt*2; });
+  horrorDoor.material.color.setHex(H.exitOpen?0x00aa44:0x660000); horrorDoor.material.emissive.setHex(H.exitOpen?0x00aa44:0x330000);
+  const nf = H.fuses.reduce((a,b)=>a+b,0);
   if (fuseBoard.userData.n!==nf){ fuseBoard.userData.n=nf; fuseBoard.userData.draw([nf===5?'EXIT OPEN!':'FUSES '+nf+'/5']); }
-  monsterMesh.visible = G.mode==='horror';
-  monsterMesh.position.lerp(V3(G.monster[0],0,G.monster[2]), 1-Math.exp(-8*dt));
-  const hw = headWorld(); monsterMesh.lookAt(hw.x, 0, hw.z); monsterMesh.rotateY(Math.PI);
-  storyItems.forEach((arr,k)=>arr.forEach((it,i)=>{ it.m.visible = G.mode==='story' && S.level===k && S.stage==='find' && !S.items[i]; it.m.rotation.y+=dt*2; }));
-  storyMem.forEach((mm,k)=>{ mm.m.visible = G.mode==='story' && S.level===k && S.stage==='find' && !S.mem[k]; mm.m.rotation.y+=dt*3; });
-  pedestals.forEach(pd=>{ pd.g.visible = G.mode==='story' && S.stage==='ending' && (pd.id!=='true' || S.mem.reduce((a,b)=>a+b,0)>=3); });
-  const showBoss = G.mode==='story' && (S.stage==='boss');
-  bossMesh.visible = showBoss;
-  if (showBoss){
-    const L = STORY[S.level];
-    bossMesh.scale.setScalar(L.size); bossMesh.children[0].material.color.setHex(L.bossCol);
-    bossMesh.position.lerp(V3(S.boss[0],S.boss[1],S.boss[2]), 1-Math.exp(-6*dt));
-    bossMesh.lookAt(hw.x, bossMesh.position.y, hw.z); bossMesh.rotateY(Math.PI);
-    bossCore.material.color.setHex(S.vuln>0 ? (Math.sin(performance.now()/90)>0?0xffff60:0xff8a00) : 0x553355);
-    if (bossMesh.userData.hp!==S.hp+'_'+S.level){ bossMesh.userData.hp=S.hp+'_'+S.level; drawBossTag(L.boss, S.hp, S.max); }
-  }
+  monsterMesh.visible = H.active;
+  monsterMesh.position.lerp(V3(H.monster[0],0,H.monster[2]), 1-Math.exp(-8*dt));
+  const hw=headWorld(); monsterMesh.lookAt(hw.x,0,hw.z); monsterMesh.rotateY(Math.PI);
   markerMeshes.forEach((g,i)=>{ g.rotation.y += dt; g.userData.ring.visible = !save.markers[i]; });
+  portals.forEach(po=>{ po.swirl.rotation.z += dt*1.5; });
+  syncStory(dt);
+  syncSecret(dt);
 }
 // ================= TOAST / WATCH / ENDING =================
 const toastC = makeCanvas(1024,180), tg = toastC.getContext('2d'), toastTex = new THREE.CanvasTexture(toastC);
@@ -1150,41 +1655,40 @@ function stepToast(dt){
 const endC = makeCanvas(1024,512), eg = endC.getContext('2d'), endTex = new THREE.CanvasTexture(endC);
 const endMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.0,0.5), new THREE.MeshBasicMaterial({map:endTex, transparent:true, depthTest:false}));
 endMesh.position.set(0,0.05,-1.2); endMesh.renderOrder=998; endMesh.visible=false; camera.add(endMesh);
-function stepEnding(dt){
-  if (!endingShown){ endMesh.visible=false; return; }
-  if (!endMesh.visible){
-    const [title, body] = ENDINGS[endingShown.e];
-    eg.fillStyle='rgba(5,5,15,0.92)'; eg.fillRect(0,0,1024,512);
-    eg.fillStyle='#ffd27a'; eg.font='bold 64px sans-serif'; eg.textAlign='center'; eg.fillText(title,512,90);
-    eg.fillStyle='#fff'; eg.font='34px sans-serif'; wrapLines(eg, body, 900).forEach((l,i)=>eg.fillText(l,512,170+i*46));
-    eg.fillStyle='#9fe0ff'; eg.font='26px sans-serif'; eg.fillText('YETI RUNNERS — s0meTh1ng.MP4 / Henry & Claude.AI',512,480);
-    endTex.needsUpdate=true; endMesh.visible=true;
-  }
-  endingShown.t -= dt; if (endingShown.t<=0) endingShown=null;
+let panelT = 0;
+function showPanel(title, body, secs=10){
+  eg.clearRect(0,0,1024,512); eg.fillStyle='rgba(5,5,15,0.93)'; eg.fillRect(0,0,1024,512);
+  eg.fillStyle='#ffd27a'; eg.font='bold 54px sans-serif'; eg.textAlign='center'; eg.textBaseline='alphabetic';
+  wrapLines(eg, title, 960).slice(0,2).forEach((l,i)=>eg.fillText(l,512,80+i*58));
+  eg.fillStyle='#fff'; eg.font='30px sans-serif'; wrapLines(eg, body, 920).slice(0,8).forEach((l,i)=>eg.fillText(l,512,180+i*40));
+  eg.fillStyle='#9fe0ff'; eg.font='22px sans-serif'; eg.fillText('YETI RUNNERS — s0meTh1ng.MP4 / Henry & Claude.AI',512,494);
+  endTex.needsUpdate=true; endMesh.visible=true; panelT=secs;
 }
+function stepEnding(dt){ if (panelT>0){ panelT-=dt; if (panelT<=0) endMesh.visible=false; } }
 const watchC = makeCanvas(256,160), wg = watchC.getContext('2d'), watchTex = new THREE.CanvasTexture(watchC);
 const watchMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.12,0.075), new THREE.MeshBasicMaterial({map:watchTex}));
 watchMesh.position.set(0,0.035,0.08); watchMesh.rotation.x = -Math.PI/2.4;
-function modeStatus(){
-  const S=G.story, sum=a=>a.reduce((x,y)=>x+y,0);
-  switch (G.mode){
-    case 'acid': return G.phase==='wait'?'Starts in '+Math.ceil(G.timer):G.phase==='play'?'Acid '+G.acidY.toFixed(1)+'m':'Round over';
-    case 'horror': return G.phase==='play'?(G.exitOpen?'EXIT IS OPEN!':'Fuses '+sum(G.fuses)+'/5'):G.phase==='win'?'ESCAPED!':'Caught...';
-    case 'story': return S.stage==='find'?'Shards '+sum(S.items)+'/5':S.stage==='boss'?'Boss '+S.hp+'/'+S.max:S.stage==='ending'?'Pick an ending':S.stage==='clear'?'Chapter clear!':'The End';
-    case 'notsafe': return G.phase==='wait'?'Entity in '+Math.ceil(G.timer):G.phase==='play'?'SURVIVE '+Math.ceil(G.timer)+'s':'Event over';
-    case 'pvp': return 'KOs: '+(G.kills[NET.myId]||0);
+function modeStatus(m=me.mode){
+  const S=G.story, A=G.acid, H=G.horror, N=G.notsafe, sum=a=>a.reduce((x,y)=>x+y,0);
+  switch (m){
+    case 'acid': return !A.active?'—':A.phase==='wait'?'Starts in '+Math.ceil(A.timer):A.phase==='play'?'Acid '+A.acidY.toFixed(1)+'m':'Round over';
+    case 'horror': return H.phase==='play'?(H.exitOpen?'EXIT IS OPEN!':'Fuses '+sum(H.fuses)+'/5'):H.phase==='win'?'ESCAPED!':'Caught...';
+    case 'story': if (!S.active) return '—'; return S.stage==='intro'?'Ch.'+(S.ch+1)+' starting':S.stage==='explore'?CH[S.ch].item+'s '+sum(S.items)+'/'+S.items.length:S.stage==='boss'?'Boss '+S.boss.hp+'/'+S.boss.max:S.stage==='ending'?'Pick an ending':S.stage==='clear'?'Chapter clear!':'The End';
+    case 'notsafe': return N.phase==='wait'?'Entity in '+Math.ceil(N.timer):N.phase==='play'?'SURVIVE '+Math.ceil(N.timer)+'s':'Event over';
+    case 'pvp': return 'KOs: '+(G.pvp.kills[NET.myId]||0);
     case 'fishing': return 'Fish: '+save.stats.fish;
     case 'markers': return 'Yetis '+Object.keys(save.markers).length+'/'+MARKERS.length;
-    default: return 'Hang out!';
+    default: return 'Pick a portal!';
   }
 }
 function drawWatch(){
-  const ent = G.mode==='notsafe' && G.entityId===NET.myId;
+  const ent = me.mode==='notsafe' && G.notsafe.entityId===NET.myId;
   wg.fillStyle = ent?'#400':(me.alive?'#0e2236':'#333'); wg.fillRect(0,0,256,160);
-  wg.textAlign='center'; wg.fillStyle='#ffd27a'; wg.font='bold 28px sans-serif'; wg.fillText(MODE_INFO[G.mode][0],128,34);
+  wg.textAlign='center'; wg.fillStyle='#ffd27a'; wg.font='bold 28px sans-serif'; wg.fillText(MODE_INFO[me.mode][0],128,34);
   wg.fillStyle='#fff'; wg.font='bold 30px sans-serif'; wg.fillText(ent?'YOU ARE THE ENTITY':(me.alive?modeStatus():'OUT — spectating'),128,78);
   wg.font='bold 26px sans-serif';
-  if (G.mode==='pvp' || G.mode==='story'){ wg.fillStyle='#f55'; wg.fillText('HP '+Math.max(0,Math.round(me.hp)),70,128); wg.fillStyle='#9fe0ff'; wg.fillText('❄ '+save.shards,186,128); }
+  if (me.tool==='flash'){ wg.fillStyle=me.battery>25?'#9fff7a':'#f55'; wg.fillText('🔦 '+Math.round(me.battery)+'%'+(me.flashOn?'':' OFF'),70,128); wg.fillStyle='#f55'; wg.fillText(me.mode==='story'?'HP '+Math.max(0,Math.round(me.hp)):'',190,128); }
+  else if (me.mode==='pvp' || TK.state!=='off'){ wg.fillStyle='#f55'; wg.fillText('HP '+Math.max(0,Math.round(me.hp)),70,128); wg.fillStyle='#9fe0ff'; wg.fillText('❄ '+save.shards,186,128); }
   else { wg.fillStyle='#9fe0ff'; wg.fillText('❄ '+save.shards+'   Y = menu',128,128); }
   watchTex.needsUpdate=true;
 }
@@ -1193,9 +1697,9 @@ function drawBoard(){
   g.fillStyle='#0e2236'; g.fillRect(0,0,c.width,c.height); g.textAlign='center'; g.textBaseline='middle';
   g.fillStyle='#fff'; g.font='bold 44px sans-serif'; g.fillText('❄ YETI RUNNERS ❄',256,36);
   g.fillStyle='#ffd27a'; g.font='bold 26px sans-serif'; g.fillText(NET.role==='solo'?'Solo room':'Room code: '+NET.code,256,78);
-  g.fillStyle='#9fe0ff'; g.fillText('Mode: '+MODE_INFO[G.mode][0]+' — '+modeStatus(),256,110);
+  g.fillStyle='#9fe0ff'; g.fillText('Walk into a portal to pick your mode',256,110);
   g.fillStyle='#fff'; g.font='20px sans-serif';
-  Object.keys(P).slice(0,10).forEach((id,i)=>{ const p=P[id]; g.fillText(p.name+(p.owner?' [OWNER]':p.staff?' [STAFF]':''), i<5?140:372, 146+(i%5)*24); });
+  Object.keys(P).slice(0,10).forEach((id,i)=>{ const p=P[id]; g.fillText(p.name+' — '+MODE_INFO[G.pm[id]||'hangout'][0], i<5?140:372, 146+(i%5)*24); });
   g.fillStyle='#aaa'; g.font='16px sans-serif'; g.fillText('s0meTh1ng.MP4 / Henry & Claude.AI',256,c.height-14);
   b.tex.needsUpdate=true;
 }
@@ -1243,7 +1747,6 @@ function stepMenu(dt){
   const hit = rayHit(c);
   if (hit){ pointer.scale.z = hit.distance; cursor.position.copy(hit.point); cursor.visible=true; } else { pointer.scale.z = 2; cursor.visible=false; }
 }
-function requestMode(m){ if (isHostLike()) startMode(m); else if (me.staff) send({t:'staff', a:'mode', m}); }
 function sendCos(){ send({t:'cos', cos:Object.assign({},save.eq), badges:myBadges()}); }
 function buy(slot, it){
   if (save.shards<it[2] || save.owned[slot+':'+it[0]]) return;
@@ -1269,12 +1772,12 @@ function drawPlay(y){
   txt(NET.role==='solo'?'SOLO ROOM':'ROOM CODE: '+NET.code,24,y+20,30,'#ffd27a');
   txt('Players ('+Object.keys(P).length+'/10)',24,y+62,24,'#9fe0ff');
   Object.keys(P).forEach((id,i)=>{ const p=P[id]; const t=(p.owner?' [OWNER]':p.staff?' [STAFF]':'')+((p.badges||[]).map(b=>' ['+b+']').join(''));
-    txt((p.name+(id===NET.myId?' (you)':'')+t).slice(0,40),24,y+98+i*34,21,id===NET.myId?'#ffd27a':'#fff'); });
-  const can = isHostLike() || me.staff;
-  txt(can?'Pick a game mode:':'Only the host or staff can pick modes',540,y+20,22,'#fff');
-  ['hangout','acid','pvp','horror','story','fishing','markers'].forEach((m,i)=>
-    btn(540+(i%2)*236, y+46+Math.floor(i/2)*72, 226, 62, MODE_INFO[m][0], ()=>requestMode(m), {on:G.mode===m, disabled:!can && G.mode!==m, size:24}));
-  txt('Now: '+MODE_INFO[G.mode][0]+' — '+modeStatus(),540,y+350,22,'#ffd27a');
+    txt((p.name+(id===NET.myId?' (you)':'')+t+' — '+MODE_INFO[G.pm[id]||'hangout'][0]).slice(0,44),24,y+98+i*34,20,id===NET.myId?'#ffd27a':'#fff'); });
+  txt('You are in: '+MODE_INFO[me.mode][0],540,y+20,26,'#ffd27a');
+  txt(modeStatus(),540,y+60,24,'#fff');
+  txt('Pick modes with the PORTALS in the',540,y+120,22,'#9fe0ff'); txt('Portal Hall (behind the lobby).',540,y+150,22,'#9fe0ff');
+  btn(540,y+190,300,62,'BACK TO LOBBY',()=>{ joinMode('hangout'); toggleMenu(); },{color:'#6a4a10', disabled: me.mode==='notsafe' && G.notsafe.active});
+  txt('Flashlight: LEFT trigger (in dark places)',540,y+300,20,'#aab');
   btn(24,y+470,200,56,'RESPAWN',()=>teleport(spawnPos(me.alive?currentSpawnKey():'lobby')));
   btn(236,y+470,270,56,'Snap turn: '+(save.snap?'ON':'OFF'),()=>{ save.snap=!save.snap; persist(); });
 }
@@ -1315,6 +1818,7 @@ function drawItems(y){
   } else if (sub==='yetis'){
     MARKERS.forEach((m,i)=>{ const x=24+(i%3)*330, yy=y+60+Math.floor(i/3)*70; const f=save.markers[i]; rr(x,yy,316,62,f?'#1d4a30':'#151d28');
       txt(f?m[0]:'#'+(i+1)+' ???',x+12,yy+22,22,f?'#fff':'#889'); txt(m[2]+(f?' ✔':''),x+12,yy+46,18,{Easy:'#7f7',Medium:'#fd6',Hard:'#f96',Insane:'#f55',Secret:'#c7f'}[m[2]]); });
+    const tk=save.tk; rr(354,y+410,316,62,tk.claimed?'#3a1a6a':'#151d28'); txt(tk.claimed?'⏰ TIME KEEPER YETI':'#16 ??? (Mythic)',366,y+432,22,tk.claimed?'#ffd24a':'#889'); txt(tk.claimed?'Mythic ✔':tk.awake?'It is awake...':'Hidden deep below',366,y+456,18,'#c7f');
   }
 }
 function drawAwards(y){
@@ -1343,7 +1847,7 @@ function drawStaff(y){
   txt('STAFF PANEL — Staff Perms verified ✔',24,y+18,26,'#ff8a8a');
   btn(24,y+44,300,62,'Kick Hammer: '+(me.hammer?'ON':'OFF'),()=>{ me.hammer=!me.hammer; toast(me.hammer?'🔨 Kick Hammer equipped — hit a player to kick them.':'Kick Hammer put away.'); },{on:me.hammer,color:'#6a2a2a'});
   btn(336,y+44,430,62,'N.O.T.S.A.F.E — become Entity',()=>{ send({t:'staff', a:'notsafe'}); toggleMenu(); },{color:'#8a1010',size:24});
-  btn(778,y+44,222,62,'End Event',()=>send({t:'staff', a:'end'}),{color:'#555'});
+  btn(778,y+44,222,62,'All to Lobby',()=>send({t:'staff', a:'lobby'}),{color:'#555',size:24});
   txt('Entity powers: 1.5x speed, can\'t be eliminated, one touch takes out survivors.',24,y+130,18,'#caa');
   txt('Players',24,y+166,24,'#9fe0ff');
   const others = Object.keys(P).filter(id=>id!==NET.myId);
@@ -1361,6 +1865,7 @@ function onTrigger(i){
   if (!renderer.xr.isPresenting) return;
   if (menu.open){ menuClick(ctrls[i]); return; }
   if (i===me.rightIdx && me.tool==='rod') fishTrigger();
+  else if (i!==me.rightIdx && me.tool==='flash'){ me.flashOn=!me.flashOn; tone(me.flashOn?900:500,0.05,0.1,'square'); }
 }
 function pollButtons(){
   for (const h of hands){
@@ -1389,9 +1894,12 @@ function frame(){
     pollButtons();
     stepPlayer(dt);
     const mk = mapAt(headWorld());
-    me.tool = (me.hammer && me.staff) ? 'hammer' : mk==='fishing' ? 'rod' : mk==='horror' ? 'flash' : 'none';
+    const dark = mk==='horror' || mk==='dungeon' || mk.startsWith('story');
+    me.tool = (me.hammer && me.staff) ? 'hammer' : mk==='fishing' ? 'rod' : dark ? 'flash' : 'none';
     setMyTool(me.tool);
-    myFurM.color.setHex((G.mode==='notsafe' && G.entityId===NET.myId) ? 0x111111 : furColor(save.eq.fur));
+    const lit = me.tool==='flash' && me.flashOn && me.battery>0; flashlight.visible = lit;
+    me.battery = clamp(me.battery + dt*(lit ? (mk.startsWith('story')?-1.1:-0.4) : 0.9), 0, 100);
+    myFurM.color.setHex((me.mode==='notsafe' && G.notsafe.entityId===NET.myId) ? 0x111111 : furColor(save.eq.fur));
     stepFishing(dt);
     localChecks(dt);
     save.playSec += dt; shardT += dt; if (shardT>=30){ shardT=0; save.shards++; }
