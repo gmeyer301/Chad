@@ -294,12 +294,30 @@ function buildFishing(){
 function buildPeaks(){
   const X=300, Z=300; box(X,-0.5,Z,70,1,70,0xeef4fb); walls(X,Z,70,70,7,0xb0c0d0);
   mountain(X-18,Z-18,10,6); mountain(X+18,Z-14,8,5); mountain(X-14,Z+16,7,4); mountain(X+20,Z+18,9,5);
-  box(X,6,Z-16,30,0.4,1.4,0x9fd8ff);
-  box(X,9,Z,1.5,18,1.5,0x8899aa);
+  box(X,6,Z-16,30,0.4,1.4,0x9fd8ff);                                   // ice bridge
+  box(X,9,Z,1.5,18,1.5,0x8899aa);                                      // the spire
   for (let i=0;i<7;i++){ const a=i*Math.PI/2; box(X+Math.cos(a)*1.2, 1.8+i*2.4, Z+Math.sin(a)*1.2, 1.1,0.3,1.1, 0xaabbcc); }
-  box(X+16,1.5,Z+2,0.6,3,6,0x7a8a9a); box(X+20,1.5,Z+2,0.6,3,6,0x7a8a9a); box(X+18,3.2,Z+2,5,0.4,6,0x7a8a9a); box(X+18,1.5,Z-0.8,4.6,3,0.4,0x7a8a9a);
-  for (let i=0;i<22;i++){ const x=X+rand(-32,32), z=Z+rand(-32,32); if (Math.hypot(x-X,z-Z)<5 || Math.hypot(x-X,z-(Z+30))<4) continue; pine(x,z,0.9+Math.random()*0.5); }
-  sign(['YETI PEAKS','Find all 15 hidden Yetis!'],X,3,Z+34.6,5,1.6,Math.PI,'#0e2236','#fff');
+  box(X+16,1.5,Z+2,0.6,3,6,0x7a8a9a); box(X+20,1.5,Z+2,0.6,3,6,0x7a8a9a); box(X+18,3.2,Z+2,5,0.4,6,0x7a8a9a); box(X+18,1.5,Z-0.8,4.6,3,0.4,0x7a8a9a); // cave
+  // ice maze
+  const ice=0x9fd8ff;
+  [[-25,-6,10,0.4],[-25,8,10,0.4],[-30,1,0.4,14],[-20,4,0.4,8],[-27,3,4,0.4],[-23,-1,4,0.4],[-27,-3,0.4,6]].forEach(w=>box(X+w[0],1.3,Z+w[1],w[2],2.6,w[3],ice));
+  // pillar field (hard)
+  [[24,-4,1.2],[26,-1,2.2],[28,2,3.2],[26,5,4.2],[29,7,5.2],[31,4,6]].forEach(q=>box(X+q[0],q[2]/2,Z+q[1],0.9,q[2],0.9,0xb8c8d8));
+  // floating ice islands from the big peak (ultra hard / insane)
+  [[-14.5,-20,10.4],[-11.5,-22,11.2],[-8.5,-20,12],[-5.5,-22,12.8],[-2.5,-20,13.6],[0.5,-22,14.4]].forEach(q=>box(X+q[0],q[2],Z+q[1],1.6,0.4,1.6,M(0xbfe8ff,0.25)));
+  // sky ladder (extreme / divine)
+  box(X-26,15,Z+24,0.3,30,0.3,M(0xffe9a0,0.5),false);
+  for (let i=0;i<28;i++){ const a=i*0.62; box(X-26+Math.cos(a)*2.6, 1+i*1.0, Z+24+Math.sin(a)*2.6, 0.6,0.25,0.6, M(i>20?0xffe9a0:0xd8e8f8, i>20?0.6:0)); }
+  box(X-26,29,Z+24,1.6,0.3,1.6,M(0xfff6c8,1));
+  // igloo
+  const ig=new THREE.Mesh(new THREE.SphereGeometry(2,16,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshLambertMaterial({color:0xffffff,side:THREE.DoubleSide})); ig.position.set(X+12,0,Z+12); scene.add(ig);
+  box(X+10.2,1.2,Z+12,0.3,2.2,3.6,0xffffff).visible=false; box(X+13.8,1.2,Z+12,0.3,2.2,3.6,0xffffff).visible=false; box(X+12,1.2,Z+10.2,3.6,2.2,0.3,0xffffff).visible=false;
+  // pines at fixed spots
+  [[-10,10],[-6,22],[8,30],[-30,-20],[30,-28],[-2,-30],[10,-28],[26,24],[-22,12],[6,-6],[-8,-8]].forEach(q=>pine(X+q[0],Z+q[1],1));
+  sign(['YETI PEAKS','Find all the hidden Yetis!'],X,3,Z+34.6,5,1.6,Math.PI,'#0e2236','#fff');
+  // difficulty chart
+  box(X-7,2.6,Z+34.75,4.4,3.6,0.1,0x3a2412,false);
+  yetiChart = sign(['DIFFICULTY'],X-7,2.6,Z+34.6,4.2,3.4,Math.PI,'#0b1622','#fff');
 }
 function buildNotSafe(){
   const X=-300, Z=-300; box(X,-0.5,Z,38,1,38,0x140808); walls(X,Z,38,38,7,0x3a0a0a);
@@ -312,33 +330,51 @@ function buildNotSafe(){
 }
 
 // markers ("Find the Yetis")
+const TIERS = [['Easy','#7fff7a'],['Medium','#ffe14a'],['Okay','#4fe0d0'],['Hard','#ff9a3a'],['Extra Hard','#ff4a4a'],['ULTRA HARD','#b0102a'],['INSANE','#c77dff'],['EXTREME','#3a3a3a'],['DIVINE SOUL','#fff6c8']];
+const TIER_HEX = Object.fromEntries(TIERS.map(t=>[t[0], parseInt(t[1].slice(1),16)]));
+const PK = (x,y,z)=>V3(300+x,y,300+z);
 const MARKERS = [
-  ['Welcome Yeti', V3(3,0.35,-3), 'Easy', 0xffffff],
-  ['Rooftop Yeti', V3(-14,3.95,-16), 'Easy', 0xffb0d0],
-  ['Rock Yeti', V3(9,6.1,9), 'Medium', 0xaab6c2],
-  ['Pond Yeti', V3(-11,0.35,9), 'Easy', 0x9fd8ff],
-  ['Peak Yeti', V3(282,9.9,282), 'Hard', 0xffffff],
-  ['Bridge Yeti', V3(300,6.5,284), 'Medium', 0x9fd8ff],
-  ['Spire Yeti', V3(300,18.3,300), 'Insane', 0xff5050],
-  ['Cave Yeti', V3(318,0.35,303), 'Medium', 0x555577],
-  ['Corner Yeti', V3(333,0.35,333), 'Easy', 0x9ff0c8],
-  ['Forest Yeti', V3(285,0.35,322), 'Easy', 0x2e6b45],
-  ['Golden Yeti', V3(320,8.3,318), 'Hard', 0xffd24a],
-  ['Acid Yeti', V3(302,42.55,1.5), 'Insane', 0x5dff3a],
-  ['Arena Yeti', V3(-300,3.65,0), 'Medium', 0xff8a4a],
-  ['Dock Yeti', V3(0,0.35,-295.6), 'Easy', 0x2a7ab0],
-  ['Lodge Yeti', V3(-14,0.35,315), 'Secret', 0x880000],
+  ['Welcome Yeti', PK(3,0.35,25), 'Easy'], ['Snowman Yeti', PK(-8,0.35,28), 'Easy'], ['Sleepy Yeti', PK(12,0.35,27), 'Easy'],
+  ['Corner Yeti', PK(32,0.35,32), 'Easy'], ['Pine Yeti', PK(-20,0.35,30), 'Easy'], ['Igloo Yeti', PK(12,0.35,12), 'Easy'],
+  ['Cave Yeti', PK(18,0.35,3), 'Medium'], ['Maze Yeti', PK(-25,0.35,1), 'Medium'], ['Shy Yeti', PK(18,0.35,-21), 'Medium'], ['Tree Yeti', PK(-10,3.05,10), 'Medium'],
+  ['Low Peak Yeti', PK(-14,6.75,16), 'Okay'], ['Cave Roof Yeti', PK(18,3.75,2), 'Okay'], ['Ledge Yeti', PK(1.2,2.3,0), 'Okay'],
+  ['Bridge Yeti', PK(0,6.55,-16), 'Hard'], ['Pillar Yeti', PK(31,6.35,4), 'Hard'], ['Golden Yeti', PK(20,8.35,18), 'Hard'],
+  ['Peak Yeti', PK(-18,9.95,-18), 'Extra Hard'], ['Twin Peak Yeti', PK(18,8.35,-14), 'Extra Hard'], ['Halfway Yeti', PK(0,9.5,-1.2), 'Extra Hard'],
+  ['Island Yeti', PK(-8.5,12.55,-20), 'ULTRA HARD'], ['Wall Walker Yeti', PK(0,7.35,-35), 'ULTRA HARD'], ['Hidden Yeti', V3(457,0.35,305), 'ULTRA HARD'],
+  ['Sky Island Yeti', PK(0.5,14.95,-22), 'INSANE'], ['High Ledge Yeti', PK(-1.2,16.7,0), 'INSANE'], ['Flesh Yeti', V3(463.4,0.35,286.6), 'INSANE'],
+  ['Spire Yeti', PK(0,18.35,0), 'EXTREME'], ['Ladder Yeti', PK(-26+Math.cos(14*0.62)*2.6,15.5,24+Math.sin(14*0.62)*2.6), 'EXTREME'],
+  ['Divine Soul Yeti', PK(-26,29.5,24), 'DIVINE SOUL'],
 ];
+// keep old progress where the same yeti still exists
+if (!save.yetis){ save.yetis={}; const old=['Welcome Yeti','Rooftop Yeti','Rock Yeti','Pond Yeti','Peak Yeti','Bridge Yeti','Spire Yeti','Cave Yeti','Corner Yeti','Forest Yeti','Golden Yeti','Acid Yeti','Arena Yeti','Dock Yeti','Lodge Yeti'];
+  Object.keys(save.markers||{}).forEach(i=>{ const n=old[i]; if (MARKERS.some(m=>m[0]===n)) save.yetis[n]=1; }); persist(); }
+let yetiChart;
 const markerMeshes = [];
 function buildMarkers(){
-  MARKERS.forEach((m,i)=>{
+  MARKERS.forEach(m=>{
+    const col = m[0]==='Flesh Yeti' ? 0xc0505a : (m[2]==='EXTREME'?0x222222:TIER_HEX[m[2]]);
+    const glow = m[2]==='DIVINE SOUL' ? 1 : (m[2]==='INSANE'||m[2]==='EXTREME'?0.3:0);
     const g = new THREE.Group(); g.position.copy(m[1]);
-    const b = new THREE.Mesh(SPH, M(m[3])); b.scale.set(0.16,0.2,0.14); g.add(b);
-    const h = new THREE.Mesh(SPH, M(m[3])); h.scale.setScalar(0.11); h.position.y=0.25; g.add(h);
-    const f = new THREE.Mesh(SPH, M(0x8fa4c0)); f.scale.set(0.07,0.06,0.03); f.position.set(0,0.24,-0.09); g.add(f);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.25,0.025,6,20), M(0xffd24a,1)); ring.rotation.x=Math.PI/2; ring.position.y=-0.15; g.add(ring);
-    g.userData.ring = ring; scene.add(g); markerMeshes.push(g);
+    const b = new THREE.Mesh(SPH, M(col,glow)); b.scale.set(0.16,0.2,0.14); g.add(b);
+    const h = new THREE.Mesh(SPH, M(col,glow)); h.scale.setScalar(0.11); h.position.y=0.25; g.add(h);
+    const f = new THREE.Mesh(SPH, M(m[0]==='Flesh Yeti'?0x701a22:0x8fa4c0)); f.scale.set(0.07,0.06,0.03); f.position.set(0,0.24,-0.09); g.add(f);
+    if (m[0]==='Flesh Yeti') [-0.04,0.04].forEach(x=>{ const e=new THREE.Mesh(SPH,M(0xffe14a,1)); e.scale.setScalar(0.018); e.position.set(x,0.27,-0.115); g.add(e); });
+    if (m[2]==='DIVINE SOUL'){ const halo=new THREE.Mesh(new THREE.TorusGeometry(0.12,0.015,6,20),M(0xffe14a,1)); halo.rotation.x=Math.PI/2; halo.position.y=0.42; g.add(halo); }
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.25,0.025,6,20), new THREE.MeshBasicMaterial({color:TIER_HEX[m[2]]})); ring.rotation.x=Math.PI/2; ring.position.y=-0.15; g.add(ring);
+    g.userData.ring = ring; g.userData.name=m[0]; scene.add(g); markerMeshes.push(g);
   });
+}
+function yetisFound(){ return MARKERS.filter(m=>save.yetis[m[0]]).length; }
+function drawYetiChart(){
+  const u=yetiChart.userData, g=u.ctx, c=u.canvas;
+  g.fillStyle='#0b1622'; g.fillRect(0,0,c.width,c.height); g.textAlign='left'; g.textBaseline='middle';
+  g.fillStyle='#fff'; g.font='bold 34px sans-serif'; g.fillText('DIFFICULTY CHART',20,30);
+  g.font='bold 15px sans-serif'; g.fillStyle='#9fe0ff'; g.fillText('Found '+yetisFound()+'/'+MARKERS.length,330,30);
+  TIERS.forEach((t,i)=>{ const all=MARKERS.filter(m=>m[2]===t[0]), got=all.filter(m=>save.yetis[m[0]]).length, y=66+i*40;
+    g.fillStyle=t[1]; g.fillRect(20,y-16,30,30); if (t[0]==='EXTREME'){ g.strokeStyle='#f33'; g.lineWidth=3; g.strokeRect(20,y-16,30,30); }
+    g.fillStyle=t[0]==='DIVINE SOUL'?'#ffe14a':(t[0]==='EXTREME'?'#f55':t[1]); g.font='bold 26px sans-serif'; g.fillText(t[0],62,y);
+    g.fillStyle='#fff'; g.font='bold 22px sans-serif'; g.textAlign='right'; g.fillText(got+' / '+all.length,490,y); g.textAlign='left'; });
+  u.tex.needsUpdate=true;
 }
 
 // projectiles
@@ -456,6 +492,7 @@ const ENTITY_FORMS = {
   timekeeper:{name:'Time Keeper', power:'TIME FREEZE: freezes survivors near you', fur:0x3a1a8a, eye:0xffd24a},
   exe:       {name:'Yeti.EXE',    power:'GLITCH: teleport behind the closest survivor', fur:0x080808, eye:0xff0000},
   lungs:     {name:'🫁',          power:'DEEP BREATH: suck nearby survivors toward you', fur:0xff8aa0, eye:0x000000},
+  flesh:     {name:'Flesh Yeti',  power:'ROT PULSE: survivors near you move super slow for 5s', fur:0xb8444e, eye:0xffe14a},
 };
 function entityParts(form){
   const head = new THREE.Group(), body = new THREE.Group();
@@ -469,6 +506,12 @@ function entityParts(form){
     [-1,1].forEach(s=>add(head,BOXG,M(0xaa0000,0.6),0.015,0.1,0.01,s*0.06,-0.04,-0.215));
     add(head,BOXG,M(0xff0000,0.8),0.12,0.02,0.01,0,-0.08,-0.215);
     add(head,BOXG,new THREE.MeshBasicMaterial({color:0xff0000,transparent:true,opacity:0.35}),0.44,0.04,0.44,0,0.05,0);
+  } else if (form==='flesh'){
+    const vein=M(0x5a0a14);
+    for (let i=0;i<6;i++){ const a=i/6*Math.PI*2; add(head,BOXG,vein,0.012,0.18,0.012,Math.cos(a)*0.19,0.02,Math.sin(a)*0.19,0,0,Math.cos(a)*0.4); add(body,BOXG,vein,0.015,0.35,0.015,Math.cos(a)*0.3,0,Math.sin(a)*0.25,0,0,Math.sin(a)*0.5); }
+    add(head,BOXG,0x2a0006,0.16,0.07,0.02,0,-0.08,-0.205);
+    for (let i=0;i<6;i++) add(head,CONE,0xfff6e0,0.012,0.035,0.012,-0.06+i*0.024,-0.06,-0.215,Math.PI);
+    add(body,SPH,M(0x8a1a28),0.12,0.12,0.06,0.1,0.05,-0.25); add(body,SPH,M(0x8a1a28),0.08,0.1,0.05,-0.12,-0.12,-0.24);
   } else if (form==='lungs'){
     const pink=M(0xff7a96), dark=M(0xd04a6a);
     [-1,1].forEach(s=>{ add(body,SPH,pink,0.24,0.38,0.2,s*0.2,0,0); for (let i=0;i<3;i++) add(body,CYL,dark,0.018,0.2,0.018,s*(0.12+i*0.03),0.05-i*0.12,-0.16,0,0,s*(0.6+i*0.2)); });
@@ -499,7 +542,7 @@ function toolMesh(id){
 }
 
 // ================= LOCAL PLAYER =================
-const me = {entForm:'default', frozenT:0, boostT:0, alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0, mode:'hangout', battery:100, flashOn:true, hidden:false};
+const me = {entForm:'default', frozenT:0, boostT:0, slowT:0, alive:true, hp:100, staff:false, owner:false, tool:'none', hammer:false, speedMult:1, respawnAt:0, rightIdx:1, downT:0, mode:'hangout', battery:100, flashOn:true, hidden:false};
 const HAND_R = 0.07;
 const myFurM = new THREE.MeshLambertMaterial({color:furColor(save.eq.fur)});
 const hands = [0,1].map(i=>{
@@ -741,7 +784,9 @@ function buildStory(){
         if (sx){ const s=Math.sign(l[0]); box(x,1.1,z-0.6,1.2,2.2,0.08,g); box(x,1.1,z+0.6,1.2,2.2,0.08,g); box(x+s*0.6,1.1,z,0.08,2.2,1.2,g); }
         else { box(x-0.6,1.1,z,0.08,2.2,1.2,g); box(x+0.6,1.1,z,0.08,2.2,1.2,g); box(x,1.1,z-0.6,1.2,2.2,0.08,g); }
         o.lockers.push({min:V3(x-0.55,0,z-0.55), max:V3(x+0.55,2.2,z+0.55)}); });
-      CH_ITEMS[k].forEach(p=>{ const m=new THREE.Mesh(k===0?BOXG:new THREE.OctahedronGeometry(0.2), M(C.itemCol,1)); if (k===0) m.scale.set(0.22,0.14,0.02); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.items.push({p:m.position.clone(), m}); });
+      CH_ITEMS[k].forEach(p=>{ const m=new THREE.Mesh(k===0?BOXG:new THREE.OctahedronGeometry(0.2), M(C.itemCol,1)); if (k===0) m.scale.set(0.22,0.14,0.02); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m);
+        const bc=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:C.itemCol,transparent:true,opacity:0.3,fog:false,depthWrite:false})); bc.scale.set(0.12,12,0.12); bc.position.set(FX+p[0],p[1]+6.2,Z+p[2]); scene.add(bc);
+        o.items.push({p:m.position.clone(), m, beacon:bc}); });
       { const p=CH_MEM[k]; const m=new THREE.Mesh(new THREE.OctahedronGeometry(0.18),M(0xc77dff,1)); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.mem={p:m.position.clone(), m}; }
       CH_LOGS[k].forEach((p,i)=>{ const m=new THREE.Mesh(BOXG,M(0xf0e6c8,0.3)); m.scale.set(0.25,0.02,0.32); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.logs.push({p:m.position.clone(), m, i:k*2+i}); });
       CH_BATT[k].forEach(p=>{ const m=new THREE.Mesh(CYL,M(0x7fff7a,0.7)); m.scale.set(0.06,0.16,0.06); m.position.set(FX+p[0],p[1],Z+p[2]); scene.add(m); o.batt.push({p:m.position.clone(), m, t:0}); });
@@ -960,7 +1005,7 @@ function storyChecks(dt){
   const key=S.run+'_'+S.ch;
   if (S.stage==='intro' && !storyLocal.cardShown[key]){
     storyLocal.cardShown[key]=1;
-    const C=CH[S.ch]; showPanel((S.ch<3?'CHAPTER '+(S.ch+1):'FINAL CHAPTER')+': '+C.name.toUpperCase(), (S.ch===0?STORY_PROLOGUE+'  ':'')+C.intro, S.ch===0?14:9);
+    const C=CH[S.ch]; showPanel((S.ch<3?'CHAPTER '+(S.ch+1):'FINAL CHAPTER')+': '+C.name.toUpperCase(), (S.ch===0?STORY_PROLOGUE+'  ':'')+C.intro+(S.ch<3?'  HOW TO WIN: grab every glowing '+C.item+' (follow the yellow arrow + light beams), then go through the exit portal to fight the boss. Punch its core when it is stunned.':''), S.ch===0?16:11);
   }
   storyLocal.caughtCd-=dt;
   const o = storyObj[S.ch];
@@ -1005,7 +1050,7 @@ function syncStory(dt){
   const S=G.story; const hw=headWorld();
   storyObj.forEach((o,k)=>{
     const on = S.active && S.ch===k;
-    if (o.items) o.items.forEach((it,i)=>{ it.m.visible = on && S.stage==='explore' && !S.items[i]; it.m.rotation.y+=dt*2; });
+    if (o.items) o.items.forEach((it,i)=>{ it.m.visible = on && S.stage==='explore' && !S.items[i]; it.beacon.visible = it.m.visible; it.m.rotation.y+=dt*2; });
     if (o.mem){ o.mem.m.visible = on && S.stage==='explore' && !S.mem[k]; o.mem.m.rotation.y+=dt*3; }
     if (o.batt) o.batt.forEach(b=>{ b.t-=dt; b.m.visible = b.t<=0; });
     if (o.exit){ const open = on && S.exitOpen; o.exit.ring.material = M(open?0x7fff7a:0x555555, open?1:0.1); o.exit.g.visible = true; o.exit.open=open; }
@@ -1031,6 +1076,35 @@ function syncStory(dt){
     sBossCore.material.color.setHex(B.vuln>0 ? (Math.sin(performance.now()/90)>0?0xffff60:0xff8a00) : 0x553355);
     const tag=B.hp+'_'+S.ch; if (sBoss.userData.tag!==tag){ sBoss.userData.tag=tag; drawBossTagS(C.boss,B.hp,B.max); }
   }
+}
+
+// ================= STORY: "WHAT DO I DO?" HUD =================
+const objC=makeCanvas(1024,128), objG=objC.getContext('2d'), objTex=new THREE.CanvasTexture(objC);
+const objMesh=new THREE.Mesh(new THREE.PlaneGeometry(0.72,0.09), new THREE.MeshBasicMaterial({map:objTex,transparent:true,depthTest:false}));
+objMesh.position.set(0,0.25,-0.9); objMesh.renderOrder=996; objMesh.visible=false; camera.add(objMesh);
+const guideArrow=new THREE.Group(); { const c=new THREE.Mesh(CONE,new THREE.MeshBasicMaterial({color:0xffd24a,depthTest:false})); c.scale.set(0.025,0.07,0.025); c.rotation.x=Math.PI/2; c.renderOrder=996; guideArrow.add(c); }
+guideArrow.position.set(0,-0.16,-0.6); guideArrow.visible=false; camera.add(guideArrow);
+let objText='';
+function setObjective(t){ if (t===objText) return; objText=t; objG.clearRect(0,0,1024,128); objG.fillStyle='rgba(10,8,20,0.75)'; objG.fillRect(0,0,1024,128);
+  objG.fillStyle='#ffd27a'; objG.font='bold 46px sans-serif'; objG.textAlign='center'; objG.textBaseline='middle'; objG.fillText(t,512,64); objTex.needsUpdate=true; }
+function storyHUD(){
+  const S=G.story; const inStory = me.mode==='story' && S.active;
+  objMesh.visible = inStory; guideArrow.visible=false; if (!inStory) return;
+  const head=headWorld(); let target=null; const sum=a=>a.reduce((x,y)=>x+y,0);
+  if (S.stage==='intro') setObjective('Get ready... Chapter '+(S.ch+1)+' is starting');
+  else if (S.stage==='explore'){
+    const C=CH[S.ch], o=storyObj[S.ch];
+    if (S.exitOpen){ setObjective('GO TO THE GREEN EXIT PORTAL! (follow the arrow)'); target=o.exit.p; }
+    else {
+      setObjective('FIND '+C.item.toUpperCase()+'S: '+sum(S.items)+'/'+S.items.length+'  — follow the arrow & light beams');
+      let bd=1e9; o.items.forEach((it,i)=>{ if (S.items[i]) return; const d=it.p.distanceTo(head); if (d<bd){ bd=d; target=it.p; } });
+    }
+  }
+  else if (S.stage==='boss'){ if (S.boss && S.boss.vuln>0){ setObjective('IT\'S STUNNED — PUNCH THE GLOWING CORE!'); target=sBossCore.getWorldPosition(V3()); } else setObjective('DODGE its attacks until it gets STUNNED'); }
+  else if (S.stage==='clear') setObjective('CHAPTER CLEAR! Next chapter loading...');
+  else if (S.stage==='ending'){ setObjective('TOUCH A PEDESTAL TO CHOOSE THE ENDING'); let bd=1e9; storyObj[3].ped.forEach(pd=>{ if (!pd.g.visible) return; const d=pd.p.distanceTo(head); if (d<bd){ bd=d; target=pd.p; } }); }
+  else setObjective('THE END — sending you back to the lobby soon');
+  if (target){ guideArrow.visible=true; guideArrow.lookAt(target); }
 }
 // ================= FIND THE YETIS SECRET: THE TIME KEEPER =================
 if (!save.tk) save.tk = {d1:0, d2:0, awake:0, claimed:0};
@@ -1156,7 +1230,7 @@ function buildSecret(){
   tkShrine = makeTimeKeeper(); tkShrine.g.position.set(X,0.6,Z-32); tkShrine.g.scale.setScalar(1.3);
   tkExitPortal = makePortal(V3(X+2.8,1.4,Z-36.9), 0, 0xffd24a, 'BACK TO PEAKS', {local:()=>{ teleport(spawnPos('peaksPortal')); }});
   // 3) portal in Yeti Peaks (appears once he is awake)
-  spacePortal = makePortal(V3(300,1.6,316), Math.PI, 0x8a5aff, '???', {local:()=>{ teleport(spawnPos('space')); startTKFight(); }});
+  spacePortal = makePortal(V3(300,1.6,316), Math.PI, 0x8a5aff, 'THE EDGE OF TIME', {local:()=>{ teleport(spawnPos('space')); startTKFight(); toast('Dodge! JUMP over low lasers, DUCK under high ones, get off the red circles!'); }});
   // 4) the edge of time (space platform)
   const SX=460, SZ=520;
   box(SX,-0.5,SZ,24,1,40,0x2a2050); box(SX,-0.02,SZ,22,0.04,38,M(0x4a3a8a,0.2),false);
@@ -1196,22 +1270,24 @@ function startTKFight(){
   at(38, ()=>{ tkSay(tkBoss,'MIDNIGHT STRIKES!',2.5); spawnAtk({k:'laser',c:C,n:3,w:1.1,h:0.45,dur:10,L:22,col:0xffd24a}); });
   at(40, ()=>shardsAround(8,2)); at(43, ()=>{ ring(); shardsAround(8,2); }); at(46, ()=>shardsAround(10,2));
   at(50, ()=>{ TK.state='tired'; tkSay(tkBoss,'I... grow... so... tired...',4); tkBoss.spin=0.3; });
-  at(54, ()=>{ TK.state='sleep'; tkSay(tkBoss,'Zzz... Zzz...',999); });
+  at(54, ()=>{ TK.state='sleep'; clearAtks(); tkSay(tkBoss,'Zzz... Zzz...',999); });
   onAtkHit = dmg=>{ me.hp-=dmg; if (me.hp<=0){ toast('⏪ TIME REWINDS... try again!'); clearAtks(); teleport(spawnPos('space')); startTKFight(); } };
 }
 function endTKFight(){ TK.state='off'; clearAtks(); onAtkHit = me.mode==='story' ? (d=>storyHurt(d)) : null; tkBoss.g.visible=false; }
-function stepTK(dt, head){
+function stepTK(dt){
   if (TK.state==='off') return;
+  const head = headWorld(); // fresh: the portal may have just teleported us
   if (mapAt(head)!=='space'){ endTKFight(); return; }
   TK.t+=dt;
   while (TK.q.length && TK.q[0][0]<=TK.t){ const f=TK.q.shift()[1]; f(); }
   const b=tkBoss.g;
-  if (TK.state==='intro'){ b.position.y = 0.3+Math.sin(TK.t*2)*0.3; b.lookAt(head.x,b.position.y,head.z); b.rotateY(Math.PI); }
+  if (TK.state==='intro'){ b.rotation.set(0,0,0); b.position.y = 0.3+Math.sin(TK.t*2)*0.3; b.lookAt(head.x,b.position.y,head.z); b.rotateY(Math.PI); }
+  if (TK.state==='sleep' && TK.t%4<dt) toast('He is asleep — walk up and TOUCH him to collect him!');
   if (TK.state==='tired'){ b.rotation.x = Math.min(Math.PI/2.2, b.rotation.x+dt*0.4); b.position.y=Math.max(0,b.position.y-dt); }
   if (TK.state==='sleep'){
     b.rotation.x = Math.PI/2.2;
     const tkHead = tkBoss.head.getWorldPosition(V3());
-    if (nearAnyHand(tkHead,2.2) || head.distanceTo(tkHead)<2.4){
+    if (nearAnyHand(tkHead,2.4) || head.distanceTo(tkHead)<2.6 || head.distanceTo(b.position)<4.5 || hands.some(h=>h.connected && h.mesh.position.distanceTo(b.position)<4)){
       TK.state='claimed'; save.tk.claimed=1; tkBoss.bubble.visible=false;
       own('fur:galaxy'); own('face:clock'); reward(500,'You collected the TIME KEEPER YETI!'); ach('timekeeper'); sting(true); hapticAll(1,600);
       showPanel('TIME KEEPER YETI — COLLECTED!','The keeper of every second is now yours. Unlocked: Galaxy fur + Clock Face cosmetic. Check ITEMS → YETIS.',10); persist();
@@ -1225,7 +1301,7 @@ const MORSE_TOTAL = MORSE_SEQ.reduce((a,b)=>a+b[1],0);
 let morseWasOn=false;
 function secretChecks(dt, head, mk){
   if (mk==='dungeon') keypads.forEach(kp=>stepKeypad(kp,dt));
-  stepTK(dt, head);
+  stepTK(dt);
   if (TK.state==='off') onAtkHit = d=>storyHurt(d);
   if (TK.state!=='off' || me.mode==='story') stepAtks(dt);
 }
@@ -1257,7 +1333,7 @@ const ACH = [['first','First Steps','Enter VR'],['climber','Sky Yeti','Climb 20m
   ['coll5','Collector','Own 5 collectibles'],['social','Social Yeti','Play with a friend'],['trusted','Trusted User','Play for 1 hour'],['story1','Chapter Clear','Beat a story boss'],
   ['lore','Archivist','Read all 6 story logs'],['code1','Codebreaker','Crack the Morse door']];
 const BIG = [['horror1','Escaped the Lodge','Beat Horror Chapter 1'],['end_normal','Light Returns','Story: Normal Ending'],['end_true','Winterheart','Story: True Ending'],
-  ['end_bad','The Long Dark','Story: Bad Ending'],['survivor','Not Safe, Still Alive','Survive N.O.T.S.A.F.E'],['allmarkers','Yeti Finder','Find all 15 Yetis'],
+  ['end_bad','The Long Dark','Story: Bad Ending'],['survivor','Not Safe, Still Alive','Survive N.O.T.S.A.F.E'],['allmarkers','Yeti Finder','Find every Yeti in Yeti Peaks'],
   ['allfish','Master Angler','Catch every fish'],['allcoll','Full Collection','Own all 12 collectibles'],['timekeeper','Keeper of Time','Claim the Time Keeper Yeti']];
 function reward(n, why){ save.shards += n; if (why) toast('+'+n+' ❄  '+why); persist(); }
 function ach(id){
@@ -1407,6 +1483,7 @@ function hostEntityPower(id){
       sendTo(id,{t:'tp', p:[best[0]-f.x*1.6, Math.max(0,best[1]-1.5), best[2]-f.z*1.6], silent:true}); }
     broadcast({t:'glitch'});
   }
+  else if (N.form==='flesh'){ broadcast({t:'slow', c, r:12, d:5}); broadcast({t:'toast', text:'🩸 ROT PULSE!'}); }
   else if (N.form==='lungs'){ broadcast({t:'inhale', c, r:11}); broadcast({t:'toast', text:'🫁 *DEEP BREATH*'}); }
   else { sendTo(id,{t:'boost', d:4}); broadcast({t:'toast', text:'The Entity is ENRAGED!'}); }
 }
@@ -1522,6 +1599,7 @@ function clientHandle(m){
     case 'glitch': if (me.mode==='notsafe' && G.notsafe.entityId!==NET.myId){ flashScreen('glitch',0.9); tone(80,0.5,0.2,'sawtooth',4); } break;
     case 'inhale': { const N=G.notsafe; if (me.mode==='notsafe' && me.alive && N.entityId!==NET.myId){ const c=V3(m.c[0],m.c[1]-1,m.c[2]); const h=headWorld(); const d=h.distanceTo(c);
       if (d<m.r){ const pull=c.sub(h).setLength(Math.min(8,4+d*0.5)); pull.y+=2; vel.copy(pull); hands.forEach(x=>x.contact=false); wasTouching=false; flashScreen('inhale',1); hapticAll(1,400); } tone(160,1.2,0.2,'sine',0.4); } break; }
+    case 'slow': { const N=G.notsafe; if (me.mode==='notsafe' && me.alive && N.entityId!==NET.myId && headWorld().distanceTo(V3(m.c[0],m.c[1],m.c[2]))<m.r){ me.slowT=m.d; flashScreen('rot',m.d); hapticAll(0.6,500); tone(70,1,0.25,'sawtooth',0.7); toast('🩸 You feel... so... heavy...'); } break; }
     case 'boost': me.boostT=m.d; tone(200,0.6,0.3,'sawtooth',2); break;
     case 'reward': reward(m.n, m.why); if (m.stat==='kills'){ save.stats.kills++; if (save.stats.kills>=5) ach('pvp5'); persist(); } break;
     case 'full': setStatus('That room is full (10 yetis).'); becomeSolo(); break;
@@ -1597,7 +1675,7 @@ function localChecks(dt){
       if ([e.av.head.position, e.av.hands[0].position, e.av.hands[1].position].some(p=>p.distanceTo(head)<0.55 || p.distanceTo(body)<0.6)) die('☠ The ENTITY got you! Spectate from the lobby.');
     }
   }
-  me.boostT=Math.max(0,me.boostT-dt); me.speedMult = (me.mode==='notsafe' && N.entityId===NET.myId) ? (me.boostT>0?2.2:1.5) : 1;
+  me.boostT=Math.max(0,me.boostT-dt); me.slowT=Math.max(0,me.slowT-dt); me.speedMult = (me.mode==='notsafe' && N.entityId===NET.myId) ? (me.boostT>0?2.2:1.5) : (me.slowT>0?0.35:1);
   storyChecks(dt);
   const body=head.clone(); body.y-=0.5;
   for (const pr of projPool){
@@ -1627,11 +1705,13 @@ function localChecks(dt){
       }
     }
   }
-  MARKERS.forEach((mm,i)=>{
-    if (save.markers[i]) return;
+  MARKERS.forEach(mm=>{
+    if (save.yetis[mm[0]]) return;
     if (nearAnyHand(mm[1],0.4) || mm[1].distanceTo(head)<0.45){
-      save.markers[i]=Date.now(); reward(15,'Found the '+mm[0]+'!'); sting(true);
-      const n=Object.keys(save.markers).length; if (n>=5) ach('mark5'); if (n>=MARKERS.length) ach('allmarkers');
+      save.yetis[mm[0]]=Date.now(); const big=['ULTRA HARD','INSANE','EXTREME','DIVINE SOUL'].includes(mm[2]);
+      reward({Easy:10,Medium:15,Okay:20,Hard:30,'Extra Hard':45,'ULTRA HARD':70,INSANE:100,EXTREME:150,'DIVINE SOUL':300}[mm[2]]||15, 'Found the '+mm[0]+'! ['+mm[2]+']'); sting(true);
+      if (big) showPanel('YOU FOUND THE '+mm[0].toUpperCase()+'!', 'Difficulty: '+mm[2]+'.  '+yetisFound()+'/'+MARKERS.length+' yetis found.', 5);
+      const n=yetisFound(); if (n>=5) ach('mark5'); if (n>=MARKERS.length) ach('allmarkers'); drawYetiChart(); persist();
     }
   });
   secretChecks(dt, head, mk);
@@ -1688,7 +1768,7 @@ function syncWorld(dt){
   monsterMesh.visible = H.active;
   monsterMesh.position.lerp(V3(H.monster[0],0,H.monster[2]), 1-Math.exp(-8*dt));
   const hw=headWorld(); monsterMesh.lookAt(hw.x,0,hw.z); monsterMesh.rotateY(Math.PI);
-  markerMeshes.forEach((g,i)=>{ g.rotation.y += dt; g.userData.ring.visible = !save.markers[i]; });
+  markerMeshes.forEach(g=>{ g.rotation.y += dt; g.userData.ring.visible = !save.yetis[g.userData.name]; });
   portals.forEach(po=>{ po.swirl.rotation.z += dt*1.5; });
   syncStory(dt);
   syncSecret(dt);
@@ -1734,7 +1814,7 @@ function modeStatus(m=me.mode){
     case 'notsafe': return N.phase==='wait'?'Entity in '+Math.ceil(N.timer):N.phase==='play'?'SURVIVE '+Math.ceil(N.timer)+'s':'Event over';
     case 'pvp': return 'KOs: '+(G.pvp.kills[NET.myId]||0);
     case 'fishing': return 'Fish: '+save.stats.fish;
-    case 'markers': return 'Yetis '+Object.keys(save.markers).length+'/'+MARKERS.length;
+    case 'markers': return 'Yetis '+yetisFound()+'/'+MARKERS.length;
     default: return 'Pick a portal!';
   }
 }
@@ -1770,7 +1850,7 @@ function flashScreen(kind, t){ fx.kind=kind; fx.t=t; fxMesh.visible=true; }
 function stepFx(dt){
   if (fx.t<=0){ fxMesh.visible=false; return; } fx.t-=dt;
   if (fx.kind==='glitch'){ for (let i=0;i<40;i++){ fxg.fillStyle=Math.random()<0.5?'#000':(Math.random()<0.5?'#f00':'#fff'); fxg.fillRect(0,Math.random()*128,128,Math.random()*8); } fxMesh.material.opacity=0.55; }
-  else { fxg.fillStyle = fx.kind==='freeze' ? '#7fd8ff' : '#ff6a8a'; fxg.fillRect(0,0,128,128); fxMesh.material.opacity = fx.kind==='freeze'?0.35:Math.min(0.4,fx.t*0.5); }
+  else { fxg.fillStyle = fx.kind==='freeze' ? '#7fd8ff' : fx.kind==='rot' ? '#8a0a1a' : '#ff6a8a'; fxg.fillRect(0,0,128,128); fxMesh.material.opacity = fx.kind==='freeze'?0.35:fx.kind==='rot'?0.3:Math.min(0.4,fx.t*0.5); }
   fxTex.needsUpdate=true;
 }
 // ================= MENU =================
@@ -1885,9 +1965,12 @@ function drawItems(y){
       txt(n?f[1]:'???',x+12,yy+26,24,n?'#fff':'#667'); txt(f[4]+' • '+f[2]+' ❄'+(n?'  x'+n:''),x+12,yy+56,18,'#9fe0ff'); });
     txt('Total caught: '+save.stats.fish,24,y+360,24);
   } else if (sub==='yetis'){
-    MARKERS.forEach((m,i)=>{ const x=24+(i%3)*330, yy=y+60+Math.floor(i/3)*70; const f=save.markers[i]; rr(x,yy,316,62,f?'#1d4a30':'#151d28');
-      txt(f?m[0]:'#'+(i+1)+' ???',x+12,yy+22,22,f?'#fff':'#889'); txt(m[2]+(f?' ✔':''),x+12,yy+46,18,{Easy:'#7f7',Medium:'#fd6',Hard:'#f96',Insane:'#f55',Secret:'#c7f'}[m[2]]); });
-    const tk=save.tk; rr(354,y+410,316,62,tk.claimed?'#3a1a6a':'#151d28'); txt(tk.claimed?'⏰ TIME KEEPER YETI':'#16 ??? (Mythic)',366,y+432,22,tk.claimed?'#ffd24a':'#889'); txt(tk.claimed?'Mythic ✔':tk.awake?'It is awake...':'Hidden deep below',366,y+456,18,'#c7f');
+    TIERS.forEach((t,i)=>btn(14+(i%5)*200,y+56+Math.floor(i/5)*52,190,46,t[0],()=>{ menu.tier=t[0]; },{on:(menu.tier||'Easy')===t[0],size:18,color:'#1d3550'}));
+    const tier=menu.tier||'Easy'; const list=MARKERS.filter(m=>m[2]===tier);
+    txt(tier+'  —  '+list.filter(m=>save.yetis[m[0]]).length+'/'+list.length+' found   (total '+yetisFound()+'/'+MARKERS.length+')',24,y+180,22,TIERS.find(t=>t[0]===tier)[1]==='#3a3a3a'?'#f55':TIERS.find(t=>t[0]===tier)[1]);
+    list.forEach((m,i)=>{ const x=24+(i%3)*330, yy=y+206+Math.floor(i/3)*70; const f=save.yetis[m[0]]; rr(x,yy,316,62,f?'#1d4a30':'#151d28');
+      txt(f?m[0]:'??? Yeti',x+12,yy+22,22,f?'#fff':'#889'); txt(f?'Found ✔':'Not found yet',x+12,yy+46,18,f?'#9fff7a':'#778'); });
+    const tk=save.tk; rr(24,y+430,476,62,tk.claimed?'#3a1a6a':'#151d28'); txt(tk.claimed?'⏰ TIME KEEPER YETI':'??? (Mythic)',36,y+452,22,tk.claimed?'#ffd24a':'#889'); txt(tk.claimed?'Mythic ✔':tk.awake?'It is awake...':'Hidden deep below',36,y+476,18,'#c7f');
   }
 }
 function drawAwards(y){
@@ -1909,7 +1992,7 @@ function drawProfile(y){
   txt('Survivor badge: survive N.O.T.S.A.F.E ('+save.stats.entSurv+' survived)',24,y+290,22,save.stats.entSurv?'#9fff7a':'#fff');
   const st = save.stats;
   txt('PvP KOs: '+st.kills+'   •   Acid wins: '+st.acidWins+'   •   Bosses beaten: '+st.bosses,24,y+340,22,'#9fe0ff');
-  txt('Fish: '+st.fish+'   •   Yetis found: '+Object.keys(save.markers).length+'/'+MARKERS.length+'   •   Collectibles: '+Object.keys(save.coll).length+'/'+COLL.length,24,y+380,22,'#9fe0ff');
+  txt('Fish: '+st.fish+'   •   Yetis found: '+yetisFound()+'/'+MARKERS.length+'   •   Collectibles: '+Object.keys(save.coll).length+'/'+COLL.length,24,y+380,22,'#9fe0ff');
   txt('Game by s0meTh1ng.MP4 / Henry & Claude.AI',24,y+470,20,'#778');
 }
 function drawStaff(y){
@@ -1918,7 +2001,7 @@ function drawStaff(y){
   btn(336,y+40,430,60,'START N.O.T.S.A.F.E',()=>{ send({t:'staff', a:'notsafe', form:me.entForm}); toggleMenu(); },{color:'#8a1010',size:26});
   btn(778,y+40,222,60,'All to Lobby',()=>send({t:'staff', a:'lobby'}),{color:'#555',size:24});
   txt('Entity:',24,y+136,22,'#ffd27a');
-  Object.keys(ENTITY_FORMS).forEach((k,i)=>btn(120+i*222,y+110,212,52,ENTITY_FORMS[k].name,()=>{ me.entForm=k; },{on:me.entForm===k,color:'#4a1a3a',size:22}));
+  Object.keys(ENTITY_FORMS).forEach((k,i)=>btn(112+i*180,y+110,172,52,ENTITY_FORMS[k].name,()=>{ me.entForm=k; },{on:me.entForm===k,color:'#4a1a3a',size:20}));
   txt('Power (right trigger, 18s cooldown): '+ENTITY_FORMS[me.entForm].power,24,y+184,18,'#caa');
   txt('Players',24,y+214,22,'#9fe0ff');
   const others = Object.keys(P).filter(id=>id!==NET.myId);
@@ -1953,9 +2036,44 @@ function pollButtons(){
   }
 }
 
+// ================= LOBBY MIRROR =================
+const MIR = {x:-6, y:1.75, z:-9, w:3, h:2.4};
+box(MIR.x, MIR.y, MIR.z-0.08, MIR.w+0.3, MIR.h+0.3, 0.12, 0x6b4423);
+sign(['MIRROR'], MIR.x, MIR.y+1.45, MIR.z-0.01, 1.2, 0.3, 0, '#3a2412', '#ffd27a', 70);
+const mirrorRT = new THREE.WebGLRenderTarget(512, 512);
+mirrorRT.texture.wrapS = THREE.RepeatWrapping; mirrorRT.texture.repeat.x = -1; mirrorRT.texture.offset.x = 1;
+const mirrorMesh = new THREE.Mesh(new THREE.PlaneGeometry(MIR.w, MIR.h), new THREE.MeshBasicMaterial({map:mirrorRT.texture}));
+mirrorMesh.position.set(MIR.x, MIR.y, MIR.z); scene.add(mirrorMesh);
+const mirrorCam = new THREE.PerspectiveCamera(); mirrorCam.layers.enable(5);
+const selfAv = makeYeti(); let selfCosKey='';
+function layerAll(o){ o.traverse(c=>c.layers.set(5)); }
+function updateSelfAvatar(){
+  const key = JSON.stringify(save.eq)+(G.notsafe.active&&G.notsafe.entityId===NET.myId?G.notsafe.form:'');
+  if (key!==selfCosKey){ selfCosKey=key; applyCos(selfAv, save.eq); setEntityLook(selfAv, G.notsafe.active && G.notsafe.entityId===NET.myId, save.eq, G.notsafe.form);
+    drawTag(selfAv, save.name||'Yeti', myBadges()); [selfAv.head, selfAv.body, selfAv.tag, ...selfAv.hands].forEach(layerAll); }
+  const h = headWorld(); selfAv.head.position.copy(h); camera.getWorldQuaternion(selfAv.head.quaternion);
+  _e.setFromQuaternion(selfAv.head.quaternion,'YXZ'); const sc=selfAv.entity?1.5:1;
+  selfAv.body.position.copy(h).y -= 0.55*sc; selfAv.body.rotation.set(0,_e.y,0);
+  selfAv.hands[0].position.copy(hands[0].mesh.position); selfAv.hands[1].position.copy(hands[1].mesh.position);
+  selfAv.tag.position.copy(h).y += 0.45*sc;
+}
+function renderMirror(){
+  const h = headWorld();
+  if (h.z <= MIR.z+0.1 || Math.hypot(h.x-MIR.x, h.z-MIR.z) > 14) return;
+  updateSelfAvatar();
+  const R = V3(h.x, h.y, 2*MIR.z - h.z), d = MIR.z - R.z;
+  mirrorCam.position.copy(R); mirrorCam.rotation.set(0, Math.PI, 0); mirrorCam.updateMatrixWorld();
+  mirrorCam.projectionMatrix.makePerspective(-(MIR.x+MIR.w/2-R.x), -(MIR.x-MIR.w/2-R.x), MIR.y+MIR.h/2-R.y, MIR.y-MIR.h/2-R.y, d, d+60);
+  mirrorCam.projectionMatrixInverse.copy(mirrorCam.projectionMatrix).invert();
+  mirrorMesh.visible = false;
+  const xrOn = renderer.xr.enabled, old = renderer.getRenderTarget();
+  renderer.xr.enabled = false; renderer.setRenderTarget(mirrorRT); renderer.clear(); renderer.render(scene, mirrorCam);
+  renderer.setRenderTarget(old); renderer.xr.enabled = xrOn; mirrorMesh.visible = true;
+}
+
 // ================= MAIN LOOP =================
 const clock = new THREE.Clock();
-let watchAttached=false, needSpawn=false, saveT=0, shardT=0, hudT=0, boardT=0;
+let mirrorFrame=0, watchAttached=false, needSpawn=false, saveT=0, shardT=0, hudT=0, boardT=0;
 function frame(){
   const dt = Math.min(clock.getDelta(), 1/30);
   const xr = renderer.xr.isPresenting;
@@ -1973,6 +2091,7 @@ function frame(){
     myFurM.color.setHex((me.mode==='notsafe' && G.notsafe.entityId===NET.myId) ? (ENTITY_FORMS[G.notsafe.form]||ENTITY_FORMS.default).fur : furColor(save.eq.fur));
     stepFishing(dt);
     localChecks(dt);
+    storyHUD();
     save.playSec += dt; shardT += dt; if (shardT>=30){ shardT=0; save.shards++; }
     saveT += dt; if (saveT>10){ saveT=0; checkUnlocks(); persist(); }
     if (menu.open) stepMenu(dt);
@@ -1987,7 +2106,8 @@ function frame(){
   syncWorld(dt);
   stepToast(dt); stepEnding(dt); stepFx(dt);
   hudT-=dt; if (hudT<=0){ hudT=0.3; drawWatch(); }
-  boardT-=dt; if (boardT<=0){ boardT=1; drawBoard(); }
+  boardT-=dt; if (boardT<=0){ boardT=1; drawBoard(); if (yetiChart) drawYetiChart(); }
+  mirrorFrame = (mirrorFrame+1)%2; if (mirrorFrame===0 && curMapKey==='lobby') renderMirror();
   renderer.render(scene, camera);
 }
 
