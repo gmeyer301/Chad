@@ -14,3 +14,7 @@ Play: https://gmeyer301.github.io/Chad/garden-time/ (files in `docs/garden-time`
 ## SIGNAL LOST (a Content Warning fangame)
 3D multiplayer horror filming game. You're a TV head (draw or type your own face), dive into the Signal World in the Signal Bell, film 15 monsters, upload to ScreamTube and hit the view quota in 3 days. 5 maps (The Facility, The Shop, The City, The Halls, The Bar). Solo with bots or online with friends (4-letter lobby codes).
 Play: https://gmeyer301.github.io/Chad/signal-lost/ (files in `docs/signal-lost`).
+
+## Yeti Runners (VR)
+Multiplayer VR gorilla-locomotion game for Meta Quest where everyone is a yeti. Modes: Hangout, Rising Acid, PvP, Horror Ch.1, Story Mode (3 chapters + final boss, 3 endings), Fishing, Find the Yetis, plus the staff-only N.O.T.S.A.F.E event. Shop, cosmetics, collectibles, achievements, OG/Trusted badges, staff menu with Kick Hammer. Online rooms with 4-letter codes.
+Play (open in the Quest Browser inside the headset): https://gmeyer301.github.io/Chad/yeti-runners/ (files in `docs/yeti-runners`).
