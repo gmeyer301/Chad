@@ -1492,8 +1492,13 @@ document.getElementById('vrBtn').onclick = async () => {
     camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0);
     sess.addEventListener('end', () => { xrOn = false; document.getElementById('ui').style.display = 'flex'; started = false; camera.position.set(0, 1.6, 0); });
     begin(); if (wrist) attachWrist();
-  } catch (e) { alert('Could not start VR: ' + e.message); }
+  } catch (e) { alert("VR doesn't work on this device. Starting phone/computer mode instead!"); (('ontouchstart' in window) ? document.getElementById('mobBtn') : document.getElementById('deskBtn')).onclick(); }
 };
+(async () => {
+  const vb = document.getElementById('vrBtn'); let ok = false;
+  try { ok = !!(navigator.xr && await navigator.xr.isSessionSupported('immersive-vr')); } catch (e) {}
+  if (!ok) { vb.textContent = 'VR (headset only)'; vb.style.background = '#555'; vb.style.fontSize = '18px'; if ('ontouchstart' in window) document.getElementById('mobBtn').style.boxShadow = '0 0 22px #6dff7a'; }
+})();
 
 const clock = new THREE.Clock(); let panelT = 0;
 renderer.setAnimationLoop(() => {
